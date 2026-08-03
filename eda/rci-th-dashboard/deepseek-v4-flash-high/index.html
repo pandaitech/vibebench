@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d5c46">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="Dashboard data interaktif Laporan RCI Tabung Haji — krisis kewangan, pelaburan, penyelamatan UJSB, tadbir urus & cadangan. Fakta berbanding terbitan, semua bersumberkan halaman laporan.">
+<title>Laporan RCI Tabung Haji — Dashboard Data</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d5c46'/%3E%3Cpath d='M32 14l16 6v10c0 12-6.7 18.6-16 21-9.3-2.4-16-9-16-21V20z' fill='%23f6c445'/%3E%3Ccircle cx='32' cy='36' r='9' fill='%230d5c46'/%3E%3Cpath d='M24 14h16v6h-6l2 10h-8l2-10h-6z' fill='%23fff'/%3E%3C/svg%3E">
+<script src="/data.js"></script>
+<script src="/vb-bar.js"></script>
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<a class="skip" href="#view">Langkau ke kandungan</a>
+<header class="topbar">
+  <div class="topin">
+    <a class="brand" href="#/gambaran" aria-label="Ke Gambaran">
+      <span class="logo">🕋</span>
+      <span class="brand-t">
+        <b id="tbView">Laporan RCI Tabung Haji</b>
+        <i id="tbSub">Gambaran</i>
+      </span>
+    </a>
+    <nav class="hbtns" aria-label="Kawalan halaman">
+      <button id="btnSearch" title="Cari fakta" aria-label="Cari fakta">🔍</button>
+      <button id="btnGloss" title="Kamus istilah" aria-label="Kamus istilah">📖</button>
+      <button id="btnTheme" title="Tukar tema terang/gelap" aria-label="Tukar tema">🌙</button>
+    </nav>
+  </div>
+</header>
+<nav id="rail" class="rail" aria-label="Bahagian laporan"></nav>
+<main id="view" tabindex="-1"></main>
+<footer class="foot">
+  <div>
+    <b>Dashboard data — Laporan RCI Tabung Haji (2022)</b><br>
+    Sumber utama: <a href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noopener">rci-tabung-haji.md</a> · nombor halaman merujuk PDF laporan rasmi.
+  </div>
+  <div class="leg">
+    <span class="chips">
+      <i class="dot d-fakta"></i> Fakta laporan
+      <i class="dot d-terbitan"></i> Terbitan kami
+      <i class="dot d-unjuran"></i> Unjuran
+      <i class="dot d-simulasi"></i> Simulasi
+    </span>
+    <span class="chips">
+      RM&nbsp;=&nbsp;juta &nbsp;·&nbsp; bil&nbsp;=&nbsp;bilion &nbsp;·&nbsp; thn&nbsp;=&nbsp;tahun
+    </span>
+  </div>
+  <div class="foot-note">Semua angka disemak terhadap laporan; beza kecil mungkin berpunca daripada pembundaran teks asal. Dashboard ini kajian data, bukan nasihat kewangan.</div>
+</footer>
+<script src="data.js"></script>
+<script src="lib.js"></script>
+<script src="views.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
