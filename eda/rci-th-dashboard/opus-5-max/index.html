@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0d1414" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f7f5ef" media="(prefers-color-scheme: light)">
+<title>Bedah Laporan RCI Tabung Haji — Dashboard Penerokaan Data</title>
+<meta name="description" content="Dashboard analisis data Laporan Suruhanjaya Siasatan Diraja Tabung Haji (2014–2020). Uji sendiri kiraan hibah, polisi rosot nilai, pelan penyelamatan UJSB dan 14 pelaburan bermasalah. Setiap angka boleh dijejak ke muka surat laporan asal.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230d1414'/%3E%3Cpath d='M7 22h3.4v-7.6H7zm5.6 0H16V8h-3.4zm5.6 0h3.4v-4.6h-3.4zM7 24.6h18v1.6H7z' fill='%2338b09b'/%3E%3C/svg%3E">
+<script src="/data.js"></script>
+<script src="/vb-bar.js"></script>
+<link rel="stylesheet" href="/eda/rci-th-dashboard/opus-5-max/app.css?v=1">
+</head>
+<body>
+<a class="skiplink" href="#main">Terus ke kandungan</a>
+
+<header class="topbar" id="topbar">
+  <div class="topbar-in">
+    <button class="tb-menu" id="btnNav" aria-label="Buka senarai paparan" aria-expanded="false">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14"/></svg>
+    </button>
+    <div class="tb-title">
+      <span class="tb-kicker">Laporan RCI Tabung Haji · 2014–2020</span>
+      <strong id="tbView">Ringkasan</strong>
+    </div>
+    <button class="tb-icon" id="btnSearch" aria-label="Cari angka, nama atau isu">
+      <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="5.2"/><path d="M13 13l4 4"/></svg>
+    </button>
+    <button class="tb-icon" id="btnTheme" aria-label="Tukar tema cerah / gelap">
+      <svg viewBox="0 0 20 20" aria-hidden="true" class="ic-sun"><circle cx="10" cy="10" r="4"/><path d="M10 1.6v2.2M10 16.2v2.2M1.6 10h2.2M16.2 10h2.2M4.1 4.1l1.6 1.6M14.3 14.3l1.6 1.6M15.9 4.1l-1.6 1.6M5.7 14.3l-1.6 1.6"/></svg>
+      <svg viewBox="0 0 20 20" aria-hidden="true" class="ic-moon"><path d="M15.5 12.4A6.6 6.6 0 0 1 7.6 4.5a6.6 6.6 0 1 0 7.9 7.9z"/></svg>
+    </button>
+  </div>
+  <nav class="railwrap" aria-label="Paparan"><div class="rail" id="rail"></div></nav>
+</header>
+
+<div class="navsheet" id="navsheet" hidden>
+  <div class="navsheet-bg" data-close="1"></div>
+  <div class="navsheet-panel" role="dialog" aria-modal="true" aria-label="Senarai paparan">
+    <div class="ns-head">
+      <strong>Semua paparan</strong>
+      <button class="tb-icon" data-close="1" aria-label="Tutup">
+        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg>
+      </button>
+    </div>
+    <div class="ns-list" id="nsList"></div>
+    <div class="ns-legend">
+      <strong>Kod warna data</strong>
+      <p><span class="pv pv-fakta">Fakta laporan</span> Angka disalin terus daripada laporan RCI.</p>
+      <p><span class="pv pv-terbit">Data terbitan</span> Kiraan mudah yang kami buat daripada fakta laporan (tolak, bahagi, jumlah).</p>
+      <p><span class="pv pv-unjur">Unjuran laporan</span> Ramalan masa depan yang dibuat oleh LTH/RCI sendiri — bukan sejarah.</p>
+      <p><span class="pv pv-sim">Simulasi anda</span> Berubah bila anda gerakkan slider. Bukan dapatan RCI.</p>
+    </div>
+  </div>
+</div>
+
+<div class="searchsheet" id="searchsheet" hidden>
+  <div class="navsheet-bg" data-close="1"></div>
+  <div class="ss-panel" role="dialog" aria-modal="true" aria-label="Cari">
+    <div class="ss-box">
+      <svg viewBox="0 0 20 20" aria-hidden="true" class="ss-ic"><circle cx="9" cy="9" r="5.2"/><path d="M13 13l4 4"/></svg>
+      <input id="searchInput" type="search" placeholder="hibah, rosot nilai, FGV, Al-Rawda, 227.81…" autocomplete="off" aria-label="Kata kunci">
+      <button class="tb-icon" data-close="1" aria-label="Tutup"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+    </div>
+    <div class="ss-results" id="searchResults"></div>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<footer class="foot">
+  <p><strong>Dashboard penerokaan data — Laporan Suruhanjaya Siasatan Diraja Tabung Haji</strong></p>
+  <p>Semua data diekstrak daripada teks laporan RCI (versi Markdown OCR, 249 halaman PDF). Tiada data luar dimasukkan. Setiap jadual dan carta membawa pautan ke muka surat asal.</p>
+  <p class="foot-links">
+    <a href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noopener">Buka laporan penuh ↗</a>
+    <a href="#/sumber">Kaedah &amp; had data</a>
+    <a href="#/integriti">Percanggahan dalam laporan</a>
+  </p>
+  <p class="foot-warn">Dashboard ini alat pembacaan, bukan dokumen rasmi. Untuk apa-apa keputusan atau petikan rasmi, rujuk laporan asal. Ekshibit laporan (Jilid 1–12) diklasifikasikan rahsia dan tidak tersedia kepada umum.</p>
+</footer>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<div class="modal" id="modal" hidden>
+  <div class="navsheet-bg" data-close="1"></div>
+  <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="ns-head">
+      <strong id="modalTitle">—</strong>
+      <button class="tb-icon" data-close="1" aria-label="Tutup"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15"/></svg></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script src="/eda/rci-th-dashboard/opus-5-max/data-fin.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/opus-5-max/data-ent.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/opus-5-max/lib.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/opus-5-max/views-1.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/opus-5-max/views-2.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/opus-5-max/views-3.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/opus-5-max/views-4.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/opus-5-max/app.js?v=1"></script>
+</body>
+</html>
