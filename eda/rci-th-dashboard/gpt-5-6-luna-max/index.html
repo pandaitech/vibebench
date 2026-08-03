@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ms">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f2eb" />
+    <title>RCI Tabung Haji — Eksplorasi Data</title>
+    <meta name="description" content="Eksplorasi data interaktif berdasarkan Laporan Suruhanjaya Siasatan Diraja Tabung Haji." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,500;6..72,600;6..72,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/eda/rci-th-dashboard/gpt-5-6-luna-max/app.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#story" aria-label="Kembali ke gambaran besar">
+          <span class="brand-mark" aria-hidden="true">TH</span>
+          <span class="brand-copy"><strong>RCI / Tabung Haji</strong><small>Eksplorasi data, bukan ringkasan</small></span>
+        </a>
+        <div class="topbar-actions">
+          <span class="build-tag">VibeBench · GPT-5.6 Luna Max</span>
+          <button class="button button-quiet" id="evidence-toggle" type="button" aria-pressed="false">
+            <span class="button-dot" aria-hidden="true"></span>Mod bukti
+          </button>
+          <button class="icon-button" id="about-button" type="button" aria-label="Cara membaca dashboard">?</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="masthead" aria-labelledby="page-title">
+          <div class="masthead-copy">
+            <p class="eyebrow"><span class="eyebrow-line"></span> Laporan RCI · tempoh siasatan 2014–2020</p>
+            <h1 id="page-title">Bila kos haji naik,<br /><em>siapa yang menanggung jurangnya?</em></h1>
+            <p class="dek">Satu soalan untuk membuka keseluruhan cerita: bagaimana bayaran jemaah, HAFIS, hibah, pelaburan dan pemulihan kewangan saling berkait?</p>
+          </div>
+          <div class="masthead-note">
+            <span class="note-kicker">Cara guna</span>
+            <p>Pilih satu perspektif. Klik tahun, bar atau entiti. Setiap angka ada jalan pulang kepada halaman asal laporan.</p>
+            <button class="text-button" id="start-reading" type="button">Mula dengan cerita <span aria-hidden="true">↗</span></button>
+          </div>
+        </section>
+
+        <nav class="view-nav" aria-label="Perspektif analisis" id="view-nav">
+          <button class="view-tab is-active" data-view="story" type="button"><span class="tab-index">01</span><span>Gambaran besar</span></button>
+          <button class="view-tab" data-view="cost" type="button"><span class="tab-index">02</span><span>Kos & HAFIS</span></button>
+          <button class="view-tab" data-view="hibah" type="button"><span class="tab-index">03</span><span>Hibah & jurang</span></button>
+          <button class="view-tab" data-view="recovery" type="button"><span class="tab-index">04</span><span>Pemulihan aset</span></button>
+          <button class="view-tab" data-view="investments" type="button"><span class="tab-index">05</span><span>Pelaburan bermasalah</span></button>
+          <button class="view-tab" data-view="timeline" type="button"><span class="tab-index">06</span><span>Kronologi</span></button>
+        </nav>
+
+        <section class="status-row" aria-label="Status data">
+          <div class="status-copy"><span class="live-dot" aria-hidden="true"></span><span id="view-status">Paparan: gambaran besar</span></div>
+          <div class="status-legend">
+            <span class="legend-item"><i class="legend-swatch swatch-fact"></i>Fakta laporan</span>
+            <span class="legend-item"><i class="legend-swatch swatch-projection"></i>Unjuran RCI</span>
+            <span class="legend-item"><i class="legend-swatch swatch-derived"></i>Terbitan / anggaran</span>
+          </div>
+        </section>
+
+        <section id="view-root" aria-live="polite"></section>
+      </main>
+
+      <footer class="footer">
+        <div><strong>RCI / Tabung Haji</strong><span>Data exploration build · 2026</span></div>
+        <div class="footer-links"><a href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noreferrer">Laporan penuh ↗</a><button id="sources-button" class="text-button" type="button">Sumber & nota</button></div>
+      </footer>
+    </div>
+
+    <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+    <aside class="evidence-drawer" id="evidence-drawer" aria-hidden="true" aria-labelledby="drawer-title" role="dialog">
+      <div class="drawer-head"><div><span class="eyebrow">Jejak sumber</span><h2 id="drawer-title">Bukti daripada laporan</h2></div><button class="icon-button" id="drawer-close" type="button" aria-label="Tutup">×</button></div>
+      <div id="drawer-content" class="drawer-content"></div>
+    </aside>
+
+    <dialog class="about-dialog" id="about-dialog">
+      <form method="dialog" class="dialog-inner">
+        <button class="icon-button dialog-close" value="close" aria-label="Tutup">×</button>
+        <span class="eyebrow">Nota pembacaan</span>
+        <h2>Dashboard ini dibina untuk menyiasat, bukan menghafal.</h2>
+        <p>Angka dalam dashboard ini datang daripada teks OCR laporan RCI. “Fakta laporan” bermaksud angka yang dinyatakan dalam jadual atau perenggan laporan. “Unjuran RCI” ialah jadual 2022–2030 dan bukan data semasa. “Terbitan / anggaran” dikira semula daripada angka laporan untuk membantu penerokaan — ia bukan angka rasmi baharu.</p>
+        <div class="dialog-rule"></div>
+        <p class="muted">Klik <strong>Mod bukti</strong> untuk memaparkan label sumber pada setiap panel. Klik mana-mana halaman sumber untuk membuka laporan asal pada tab baharu.</p>
+        <button class="button button-dark" value="close">Faham</button>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="/eda/rci-th-dashboard/gpt-5-6-luna-max/app.js" defer></script>
+  </body>
+</html>

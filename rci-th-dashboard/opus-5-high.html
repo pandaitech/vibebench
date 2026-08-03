@@ -1,0 +1,3062 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Laporan RCI Tabung Haji — Dashboard Interaktif</title>
+<meta name="description" content="Dashboard interaktif Laporan Suruhanjaya Siasatan Diraja Lembaga Tabung Haji 2014–2020: kadar hibah, jurang aset-liabiliti, pelaburan bermasalah, bailout UJSB, HAFIS dan 35 cadangan Suruhanjaya.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:title" content="Laporan RCI Tabung Haji — Dashboard Interaktif">
+<meta property="og:description" content="Setiap angka utama dalam Laporan RCI Tabung Haji, disusun semula supaya coraknya boleh dilihat.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%232a78d6'/><text x='16' y='22' font-family='system-ui' font-size='14' font-weight='700' fill='white' text-anchor='middle'>TH</text></svg>">
+<style>
+/* ============================================================
+   RCI Tabung Haji — Dashboard
+   Palette: dataviz reference instance (validated light + dark)
+   ============================================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+:root {
+  color-scheme: light;
+
+  --surface-1:      #fcfcfb;
+  --surface-2:      #f4f3ef;
+  --page:           #f9f9f7;
+  --text-primary:   #0b0b0b;
+  --text-secondary: #52514e;
+  --text-muted:     #898781;
+  --grid:           #e1e0d9;
+  --baseline:       #c3c2b7;
+  --border:         rgba(11,11,11,0.10);
+  --border-strong:  rgba(11,11,11,0.18);
+  --shadow:         0 1px 2px rgba(11,11,11,0.05), 0 8px 24px -12px rgba(11,11,11,0.14);
+
+  --series-1: #2a78d6;  /* biru    */
+  --series-2: #eb6834;  /* jingga  */
+  --series-3: #1baf7a;  /* akua    */
+  --series-4: #eda100;  /* kuning  */
+  --series-5: #e87ba4;  /* magenta */
+  --series-6: #008300;  /* hijau   */
+  --series-7: #4a3aa7;  /* ungu    */
+  --series-8: #e34948;  /* merah   */
+
+  --good:     #0ca30c;
+  --warning:  #fab219;
+  --serious:  #ec835a;
+  --critical: #d03b3b;
+  --good-ink: #006300;
+
+  --seq-100: #cde2fb; --seq-200: #9ec5f4; --seq-300: #6da7ec;
+  --seq-400: #3987e5; --seq-500: #256abf; --seq-600: #184f95; --seq-700: #0d366b;
+
+  --ff: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --maxw: 1240px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:where(:not([data-theme="light"])) {
+    color-scheme: dark;
+    --surface-1:      #1a1a19;
+    --surface-2:      #222220;
+    --page:           #0d0d0d;
+    --text-primary:   #ffffff;
+    --text-secondary: #c3c2b7;
+    --text-muted:     #898781;
+    --grid:           #2c2c2a;
+    --baseline:       #383835;
+    --border:         rgba(255,255,255,0.10);
+    --border-strong:  rgba(255,255,255,0.20);
+    --shadow:         0 1px 2px rgba(0,0,0,0.4), 0 8px 28px -14px rgba(0,0,0,0.8);
+
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    --series-5: #d55181; --series-6: #008300; --series-7: #9085e9; --series-8: #e66767;
+    --good-ink: #0ca30c;
+
+    --seq-100: #184f95; --seq-200: #1c5cab; --seq-300: #256abf;
+    --seq-400: #2a78d6; --seq-500: #3987e5; --seq-600: #6da7ec; --seq-700: #9ec5f4;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1:      #1a1a19;
+  --surface-2:      #222220;
+  --page:           #0d0d0d;
+  --text-primary:   #ffffff;
+  --text-secondary: #c3c2b7;
+  --text-muted:     #898781;
+  --grid:           #2c2c2a;
+  --baseline:       #383835;
+  --border:         rgba(255,255,255,0.10);
+  --border-strong:  rgba(255,255,255,0.20);
+  --shadow:         0 1px 2px rgba(0,0,0,0.4), 0 8px 28px -14px rgba(0,0,0,0.8);
+
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+  --series-5: #d55181; --series-6: #008300; --series-7: #9085e9; --series-8: #e66767;
+  --good-ink: #0ca30c;
+
+  --seq-100: #184f95; --seq-200: #1c5cab; --seq-300: #256abf;
+  --seq-400: #2a78d6; --seq-500: #3987e5; --seq-600: #6da7ec; --seq-700: #9ec5f4;
+}
+
+html { scroll-behavior: smooth; scroll-padding-top: 84px; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  font-family: var(--ff);
+  background: var(--page);
+  color: var(--text-primary);
+  line-height: 1.55;
+  font-size: 16px;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 { margin: 0; line-height: 1.2; font-weight: 650; letter-spacing: -0.018em; }
+p { margin: 0; }
+a { color: inherit; }
+
+/* ---------------- Layout ---------------- */
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 20px; }
+@media (max-width: 640px) { .wrap { padding: 0 14px; } }
+
+/* ---------------- Top bar ---------------- */
+
+.topbar {
+  position: sticky; top: 0; z-index: 60;
+  background: color-mix(in srgb, var(--page) 88%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.topbar-in {
+  max-width: var(--maxw); margin: 0 auto; padding: 10px 20px;
+  display: flex; align-items: center; gap: 14px;
+}
+@media (max-width: 640px) { .topbar-in { padding: 8px 14px; gap: 8px; } }
+
+.brand { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.brand-mark {
+  width: 30px; height: 30px; border-radius: 8px; flex: none;
+  background: linear-gradient(145deg, var(--series-1), var(--series-7));
+  display: grid; place-items: center; color: #fff; font-weight: 750; font-size: 12px;
+  letter-spacing: -0.02em;
+}
+.brand-txt { min-width: 0; }
+.brand-title { font-size: 13.5px; font-weight: 650; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.brand-sub { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+@media (max-width: 760px) { .brand-sub { display: none; } }
+
+.topbar-spacer { flex: 1 1 auto; }
+
+.ctl {
+  display: inline-flex; align-items: center; gap: 4px;
+  border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface-1); padding: 3px;
+}
+.ctl button {
+  font: inherit; font-size: 12px; font-weight: 600; line-height: 1;
+  padding: 6px 11px; border: 0; border-radius: 999px; cursor: pointer;
+  background: transparent; color: var(--text-secondary);
+  transition: background .16s, color .16s;
+}
+.ctl button[aria-pressed="true"] { background: var(--text-primary); color: var(--surface-1); }
+.ctl button:hover:not([aria-pressed="true"]) { background: var(--surface-2); color: var(--text-primary); }
+.ctl button:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+
+/* ---------------- Section nav ---------------- */
+
+.secnav {
+  position: sticky; top: 51px; z-index: 55;
+  background: color-mix(in srgb, var(--page) 92%, transparent);
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+@media (max-width: 640px) { .secnav { top: 47px; } }
+.secnav-in {
+  max-width: var(--maxw); margin: 0 auto; padding: 0 20px;
+  display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+}
+.secnav-in::-webkit-scrollbar { display: none; }
+@media (max-width: 640px) { .secnav-in { padding: 0 14px; } }
+.secnav a {
+  flex: none; text-decoration: none; font-size: 12.5px; font-weight: 550;
+  color: var(--text-muted); padding: 11px 12px; white-space: nowrap;
+  border-bottom: 2px solid transparent; transition: color .16s, border-color .16s;
+}
+.secnav a:hover { color: var(--text-primary); }
+.secnav a[aria-current="true"] { color: var(--text-primary); border-bottom-color: var(--series-1); }
+
+/* ---------------- Hero ---------------- */
+
+.hero { padding: 56px 0 28px; position: relative; overflow: hidden; }
+@media (max-width: 640px) { .hero { padding: 32px 0 20px; } }
+.hero::before {
+  content: ""; position: absolute; inset: -40% 30% auto -20%; height: 480px;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--series-1) 16%, transparent), transparent);
+  pointer-events: none; filter: blur(20px);
+}
+.hero::after {
+  content: ""; position: absolute; inset: -30% -20% auto 45%; height: 420px;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--series-2) 13%, transparent), transparent);
+  pointer-events: none; filter: blur(20px);
+}
+.hero-in { position: relative; }
+.eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11.5px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-secondary);
+  border: 1px solid var(--border); background: var(--surface-1);
+  padding: 5px 11px; border-radius: 999px; margin-bottom: 18px;
+}
+.eyebrow .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--critical); }
+h1.hero-h {
+  font-size: clamp(30px, 6.2vw, 58px); font-weight: 700; letter-spacing: -0.032em;
+  max-width: 17ch;
+}
+.hero-lede {
+  margin-top: 16px; max-width: 66ch; font-size: clamp(15px, 1.9vw, 18px);
+  color: var(--text-secondary); line-height: 1.6;
+}
+.hero-meta {
+  margin-top: 22px; display: flex; flex-wrap: wrap; gap: 8px 20px;
+  font-size: 12.5px; color: var(--text-muted);
+}
+.hero-meta b { color: var(--text-secondary); font-weight: 600; }
+
+/* ---------------- Sections ---------------- */
+
+section.sec { padding: 40px 0 8px; scroll-margin-top: 96px; }
+@media (max-width: 640px) { section.sec { padding: 28px 0 4px; } }
+.sec-head { margin-bottom: 20px; max-width: 78ch; }
+.sec-num {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .1em; color: var(--series-1);
+  text-transform: uppercase; margin-bottom: 8px; display: block;
+}
+.sec-head h2 { font-size: clamp(21px, 3.4vw, 30px); letter-spacing: -0.026em; }
+.sec-head p { margin-top: 10px; color: var(--text-secondary); font-size: 15px; line-height: 1.62; }
+
+/* ---------------- Grid + cards ---------------- */
+
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(12, 1fr); }
+.c3  { grid-column: span 3; }
+.c4  { grid-column: span 4; }
+.c5  { grid-column: span 5; }
+.c6  { grid-column: span 6; }
+.c7  { grid-column: span 7; }
+.c8  { grid-column: span 8; }
+.c12 { grid-column: span 12; }
+@media (max-width: 1000px) {
+  .c3 { grid-column: span 6; } .c4 { grid-column: span 6; } .c5 { grid-column: span 12; }
+  .c6 { grid-column: span 12; } .c7 { grid-column: span 12; } .c8 { grid-column: span 12; }
+}
+@media (max-width: 620px) { .c3, .c4 { grid-column: span 12; } }
+
+.card {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
+  min-width: 0; display: flex; flex-direction: column;
+}
+@media (max-width: 640px) { .card { padding: 14px; border-radius: 12px; } }
+
+.card-head { margin-bottom: 14px; }
+.card-head h3 { font-size: 14.5px; font-weight: 650; letter-spacing: -0.012em; }
+.card-head .sub { margin-top: 4px; font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+.card-foot {
+  margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+  font-size: 12.5px; color: var(--text-secondary); line-height: 1.55;
+}
+.card-foot b { color: var(--text-primary); font-weight: 650; }
+
+/* ---------------- Stat tiles ---------------- */
+
+.stat { justify-content: space-between; gap: 10px; }
+.stat .label { font-size: 12px; font-weight: 600; color: var(--text-muted); letter-spacing: .01em; }
+.stat .value {
+  font-size: clamp(26px, 4.4vw, 38px); font-weight: 700; letter-spacing: -0.035em;
+  line-height: 1.02; margin-top: 8px;
+}
+.stat .unit { font-size: 0.5em; font-weight: 600; color: var(--text-secondary); letter-spacing: -0.01em; }
+.stat .note { margin-top: 8px; font-size: 12.5px; color: var(--text-secondary); line-height: 1.5; }
+.stat.is-critical .value { color: var(--critical); }
+.stat.is-warning  .value { color: var(--text-primary); }
+.stat .spark { margin-top: 12px; }
+
+.tone-bar { height: 3px; border-radius: 3px; margin-bottom: 14px; width: 34px; }
+
+/* ---------------- Chart chrome ---------------- */
+
+.chartbox { position: relative; width: 100%; }
+.chartbox svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chartbox svg text { font-family: var(--ff); }
+
+.ax-label { fill: var(--text-muted); font-size: 11px; }
+.ax-title { fill: var(--text-muted); font-size: 10.5px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; }
+.gridline { stroke: var(--grid); stroke-width: 1; shape-rendering: crispEdges; }
+.baseline { stroke: var(--baseline); stroke-width: 1; shape-rendering: crispEdges; }
+.zeroline { stroke: var(--baseline); stroke-width: 1.5; shape-rendering: crispEdges; }
+.dlabel { fill: var(--text-primary); font-size: 11px; font-weight: 650; }
+.dlabel-sm { fill: var(--text-secondary); font-size: 10.5px; font-weight: 600; }
+.annot { fill: var(--text-secondary); font-size: 11px; }
+.annot-line { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-bottom: 12px; }
+.legend-item { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; color: var(--text-secondary); font-weight: 550; }
+.legend-item.is-toggle { cursor: pointer; user-select: none; border: 0; background: none; font-family: inherit; padding: 0; }
+.legend-item[aria-pressed="false"] { opacity: .38; }
+.swatch { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+.swatch.line { height: 3px; border-radius: 2px; width: 15px; }
+
+/* tooltip */
+.tip {
+  position: absolute; z-index: 20; pointer-events: none; opacity: 0;
+  transform: translate(-50%, -100%) translateY(-10px);
+  background: var(--surface-1); border: 1px solid var(--border-strong);
+  border-radius: 10px; box-shadow: var(--shadow); padding: 9px 11px;
+  font-size: 12px; min-width: 128px; max-width: 260px;
+  transition: opacity .12s;
+}
+.tip.on { opacity: 1; }
+.tip-t { font-weight: 700; font-size: 12.5px; margin-bottom: 5px; letter-spacing: -0.01em; }
+.tip-r { display: flex; align-items: baseline; gap: 8px; justify-content: space-between; margin-top: 3px; }
+.tip-k { display: inline-flex; align-items: center; gap: 6px; color: var(--text-secondary); }
+.tip-v { font-weight: 650; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.tip-n { margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 11.5px; line-height: 1.45; }
+
+.hit { fill: transparent; cursor: pointer; }
+.hover-band { fill: var(--text-primary); opacity: 0; }
+.hover-band.on { opacity: .05; }
+.crosshair { stroke: var(--text-muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: 0; }
+.crosshair.on { opacity: 1; }
+
+/* ---------------- Table view ---------------- */
+
+.tbl-toggle {
+  margin-top: 12px; font: inherit; font-size: 11.5px; font-weight: 600;
+  color: var(--text-secondary); background: none; border: 0; padding: 2px 0;
+  cursor: pointer; text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: var(--border-strong);
+}
+.tbl-toggle:hover { color: var(--text-primary); }
+.tbl-wrap { display: none; margin-top: 12px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tbl-wrap.on { display: block; }
+table.dt { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+table.dt th, table.dt td { padding: 7px 10px; text-align: right; white-space: nowrap; border-bottom: 1px solid var(--border); }
+table.dt th:first-child, table.dt td:first-child { text-align: left; }
+table.dt thead th {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-muted);
+  font-weight: 650; border-bottom: 1px solid var(--border-strong);
+  position: sticky; top: 0; background: var(--surface-1);
+}
+table.dt td { font-variant-numeric: tabular-nums; color: var(--text-secondary); }
+table.dt td:first-child { color: var(--text-primary); font-weight: 550; }
+table.dt tbody tr:hover td { background: var(--surface-2); }
+
+/* sortable data table */
+table.dt th.sortable { cursor: pointer; user-select: none; }
+table.dt th.sortable:hover { color: var(--text-primary); }
+table.dt th.sortable::after { content: "↕"; margin-left: 5px; opacity: .35; font-size: 10px; }
+table.dt th.sortable[data-dir="asc"]::after  { content: "↑"; opacity: 1; }
+table.dt th.sortable[data-dir="desc"]::after { content: "↓"; opacity: 1; }
+
+/* ---------------- Insight callout ---------------- */
+
+.insight {
+  border-left: 3px solid var(--series-1); background: var(--surface-2);
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: 13px 15px; font-size: 13.5px; line-height: 1.6; color: var(--text-secondary);
+}
+.insight b, .insight strong { color: var(--text-primary); font-weight: 650; }
+.insight.warn { border-left-color: var(--warning); }
+.insight.crit { border-left-color: var(--critical); }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 11px; font-weight: 650;
+  padding: 3px 8px; border-radius: 999px; border: 1px solid var(--border-strong);
+  color: var(--text-secondary); white-space: nowrap;
+}
+.pill .ic { font-size: 10px; line-height: 1; }
+.pill.wrap { white-space: normal; text-align: left; line-height: 1.45; padding: 5px 10px; align-items: flex-start; }
+.pill.crit { color: var(--critical); border-color: color-mix(in srgb, var(--critical) 42%, transparent); background: color-mix(in srgb, var(--critical) 9%, transparent); }
+.pill.warn { color: var(--text-primary); border-color: color-mix(in srgb, var(--warning) 55%, transparent); background: color-mix(in srgb, var(--warning) 15%, transparent); }
+.pill.good { color: var(--good-ink); border-color: color-mix(in srgb, var(--good) 42%, transparent); background: color-mix(in srgb, var(--good) 10%, transparent); }
+.pill.info { color: var(--text-secondary); background: var(--surface-2); }
+
+/* ---------------- Filters ---------------- */
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 14px; }
+.chip {
+  font: inherit; font-size: 12px; font-weight: 600; padding: 6px 12px;
+  border-radius: 999px; border: 1px solid var(--border); background: var(--surface-1);
+  color: var(--text-secondary); cursor: pointer; transition: all .15s;
+}
+.chip:hover { border-color: var(--border-strong); color: var(--text-primary); }
+.chip[aria-pressed="true"] { background: var(--text-primary); color: var(--surface-1); border-color: var(--text-primary); }
+.chip:focus-visible { outline: 2px solid var(--series-1); outline-offset: 2px; }
+.filter-label { font-size: 11.5px; font-weight: 650; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); margin-right: 2px; }
+
+.searchbox {
+  font: inherit; font-size: 12.5px; padding: 7px 12px; border-radius: 999px;
+  border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary);
+  min-width: 190px; flex: 1 1 190px; max-width: 300px;
+}
+.searchbox::placeholder { color: var(--text-muted); }
+.searchbox:focus { outline: 2px solid var(--series-1); outline-offset: 1px; border-color: transparent; }
+
+/* ---------------- Timeline ---------------- */
+
+.tl { position: relative; padding-left: 22px; }
+.tl::before { content: ""; position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--grid); border-radius: 2px; }
+.tl-item { position: relative; padding-bottom: 18px; }
+.tl-item:last-child { padding-bottom: 0; }
+.tl-dot {
+  position: absolute; left: -22px; top: 4px; width: 12px; height: 12px; border-radius: 50%;
+  background: var(--surface-1); border: 2.5px solid var(--series-1); box-sizing: border-box;
+}
+.tl-dot.crit { border-color: var(--critical); }
+.tl-dot.warn { border-color: var(--warning); }
+.tl-dot.good { border-color: var(--good); }
+.tl-date { font-size: 11.5px; font-weight: 700; color: var(--text-muted); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+.tl-title { font-size: 13.5px; font-weight: 650; margin-top: 2px; letter-spacing: -0.01em; }
+.tl-desc { font-size: 12.5px; color: var(--text-secondary); margin-top: 3px; line-height: 1.55; }
+
+/* ---------------- Recommendation cards ---------------- */
+
+.rec-list { display: grid; gap: 10px; }
+.rec {
+  border: 1px solid var(--border); border-radius: var(--radius-sm);
+  padding: 13px 15px; background: var(--surface-1);
+  display: grid; grid-template-columns: 30px 1fr; gap: 12px; align-items: start;
+}
+.rec-n {
+  font-size: 12px; font-weight: 750; color: var(--surface-1); background: var(--text-primary);
+  width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+  font-variant-numeric: tabular-nums;
+}
+.rec-body h4 { font-size: 13.5px; font-weight: 650; letter-spacing: -0.01em; }
+.rec-body p { font-size: 12.5px; color: var(--text-secondary); margin-top: 5px; line-height: 1.55; }
+.rec-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+
+/* ---------------- Investment cards / treemap ---------------- */
+
+.tm-cell { cursor: pointer; }
+.tm-cell rect { transition: opacity .15s; }
+.tm-cell:hover rect { opacity: .82; }
+
+/* ---------------- Footer ---------------- */
+
+footer.ft {
+  margin-top: 56px; border-top: 1px solid var(--border); padding: 28px 0 44px;
+  font-size: 12.5px; color: var(--text-muted); line-height: 1.65;
+}
+footer.ft a { color: var(--text-secondary); text-decoration: underline; text-underline-offset: 3px; }
+footer.ft a:hover { color: var(--text-primary); }
+.ft-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 28px; }
+@media (max-width: 720px) { .ft-grid { grid-template-columns: 1fr; gap: 18px; } }
+.ft-note { max-width: 62ch; }
+.ft h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--text-secondary); margin-bottom: 8px; }
+
+/* ---------------- utility ---------------- */
+.mono { font-variant-numeric: tabular-nums; }
+.sr {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+.nowrap { white-space: nowrap; }
+.mt10 { margin-top: 10px; } .mt14 { margin-top: 14px; } .mt18 { margin-top: 18px; }
+.flexgrow { flex: 1 1 auto; }
+.dim { color: var(--text-muted); }
+
+@media print {
+  .topbar, .secnav, .tbl-toggle, .filters { display: none !important; }
+  .tbl-wrap { display: block !important; }
+  .card { break-inside: avoid; box-shadow: none; }
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <div class="brand-mark">TH</div>
+      <div class="brand-txt">
+        <div class="brand-title" data-i18n="brandTitle"></div>
+        <div class="brand-sub" data-i18n="brandSub"></div>
+      </div>
+    </div>
+    <div class="topbar-spacer"></div>
+    <div class="ctl" role="group" aria-label="Bahasa / Language">
+      <button type="button" id="langMs" aria-pressed="true">BM</button>
+      <button type="button" id="langEn" aria-pressed="false">EN</button>
+    </div>
+    <div class="ctl" role="group">
+      <button type="button" id="themeBtn" aria-pressed="false" title="Theme">◐</button>
+    </div>
+  </div>
+</header>
+
+<nav class="secnav" aria-label="Sections">
+  <div class="secnav-in" id="secnav"></div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <!-- ===== HERO ===== -->
+    <div class="hero">
+      <div class="hero-in">
+        <div class="eyebrow"><span class="dot"></span><span data-i18n="eyebrow"></span></div>
+        <h1 class="hero-h" data-i18n="heroH"></h1>
+        <p class="hero-lede" data-i18n="heroLede"></p>
+        <div class="hero-meta" id="heroMeta"></div>
+      </div>
+    </div>
+
+    <!-- ===== 0. OVERVIEW ===== -->
+    <section class="sec" id="overview" style="padding-top:8px">
+      <div class="grid" id="kpiGrid"></div>
+    </section>
+
+    <!-- ===== 1. THE GAP ===== -->
+    <section class="sec" id="crisis">
+      <div class="sec-head">
+        <span class="sec-num">01 — <span data-i18n="navCrisis"></span></span>
+        <h2 data-i18n="sec1t"></h2>
+        <p data-i18n="sec1p"></p>
+      </div>
+      <div class="grid">
+        <div class="card c7">
+          <div class="card-head">
+            <h3 data-i18n="c_gap_t"></h3>
+            <div class="sub" data-i18n="c_gap_s"></div>
+          </div>
+          <div class="legend" id="gapLegend"></div>
+          <div class="chartbox" id="gapChart"></div>
+          <button class="tbl-toggle" data-tbl="gapTbl"></button>
+          <div class="tbl-wrap" id="gapTbl"></div>
+        </div>
+        <div class="card c5">
+          <div class="card-head">
+            <h3 data-i18n="c_al_t"></h3>
+            <div class="sub" data-i18n="c_al_s"></div>
+          </div>
+          <div class="legend" id="alLegend"></div>
+          <div class="chartbox" id="alChart"></div>
+          <div class="card-foot" id="alFoot"></div>
+        </div>
+        <div class="c12"><div class="insight crit" id="gapInsight"></div></div>
+      </div>
+    </section>
+
+    <!-- ===== 2. HIBAH ===== -->
+    <section class="sec" id="hibah">
+      <div class="sec-head">
+        <span class="sec-num">02 — <span data-i18n="navHibah"></span></span>
+        <h2 data-i18n="sec2t"></h2>
+        <p data-i18n="sec2p"></p>
+      </div>
+      <div class="grid">
+        <div class="card c7">
+          <div class="card-head">
+            <h3 data-i18n="c_hib_t"></h3>
+            <div class="sub" data-i18n="c_hib_s"></div>
+          </div>
+          <div class="legend" id="hibLegend"></div>
+          <div class="chartbox" id="hibChart"></div>
+          <button class="tbl-toggle" data-tbl="hibTbl"></button>
+          <div class="tbl-wrap" id="hibTbl"></div>
+        </div>
+        <div class="card c5">
+          <div class="card-head">
+            <h3 data-i18n="c_dep_t"></h3>
+            <div class="sub" data-i18n="c_dep_s"></div>
+          </div>
+          <div class="chartbox" id="depChart"></div>
+          <div class="card-foot" id="depFoot"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 3. ACCOUNTING ===== -->
+    <section class="sec" id="accounting">
+      <div class="sec-head">
+        <span class="sec-num">03 — <span data-i18n="navAccounting"></span></span>
+        <h2 data-i18n="sec3t"></h2>
+        <p data-i18n="sec3p"></p>
+      </div>
+      <div class="grid">
+        <div class="card c7">
+          <div class="card-head">
+            <h3 data-i18n="c_wf_t"></h3>
+            <div class="sub" data-i18n="c_wf_s"></div>
+          </div>
+          <div class="chartbox" id="wfChart"></div>
+          <div class="card-foot" id="wfFoot"></div>
+        </div>
+        <div class="card c5">
+          <div class="card-head">
+            <h3 data-i18n="c_rav_t"></h3>
+            <div class="sub" data-i18n="c_rav_s"></div>
+          </div>
+          <div id="ravSteps" class="flexgrow"></div>
+        </div>
+        <div class="card c6">
+          <div class="card-head">
+            <h3 data-i18n="c_thr_t"></h3>
+            <div class="sub" data-i18n="c_thr_s"></div>
+          </div>
+          <div id="thrViz"></div>
+        </div>
+        <div class="card c6">
+          <div class="card-head">
+            <h3 data-i18n="c_aud_t"></h3>
+            <div class="sub" data-i18n="c_aud_s"></div>
+          </div>
+          <div id="audList" class="flexgrow"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 4. BAILOUT ===== -->
+    <section class="sec" id="bailout">
+      <div class="sec-head">
+        <span class="sec-num">04 — <span data-i18n="navBailout"></span></span>
+        <h2 data-i18n="sec4t"></h2>
+        <p data-i18n="sec4p"></p>
+      </div>
+      <div class="grid">
+        <div class="card c7">
+          <div class="card-head">
+            <h3 data-i18n="c_db_t"></h3>
+            <div class="sub" data-i18n="c_db_s"></div>
+          </div>
+          <div class="legend" id="dbLegend"></div>
+          <div class="chartbox" id="dbChart"></div>
+          <button class="tbl-toggle" data-tbl="dbTbl"></button>
+          <div class="tbl-wrap" id="dbTbl"></div>
+        </div>
+        <div class="card c5">
+          <div class="card-head">
+            <h3 data-i18n="c_suk_t"></h3>
+            <div class="sub" data-i18n="c_suk_s"></div>
+          </div>
+          <div id="sukukList" class="flexgrow"></div>
+        </div>
+        <div class="c12"><div class="insight crit" id="bailoutInsight"></div></div>
+      </div>
+    </section>
+
+    <!-- ===== 5. INVESTMENTS ===== -->
+    <section class="sec" id="investments">
+      <div class="sec-head">
+        <span class="sec-num">05 — <span data-i18n="navInvest"></span></span>
+        <h2 data-i18n="sec5t"></h2>
+        <p data-i18n="sec5p"></p>
+      </div>
+      <div class="filters" id="invFilters"></div>
+      <div class="grid">
+        <div class="card c7">
+          <div class="card-head">
+            <h3 data-i18n="c_tm_t"></h3>
+            <div class="sub" data-i18n="c_tm_s"></div>
+          </div>
+          <div class="legend" id="invLegend"></div>
+          <div class="chartbox" id="tmChart"></div>
+        </div>
+        <div class="card c5" id="invDetail"></div>
+        <div class="card c12">
+          <div class="card-head">
+            <h3 data-i18n="c_invtbl_t"></h3>
+            <div class="sub" data-i18n="c_invtbl_s"></div>
+          </div>
+          <div class="tbl-wrap on" id="invTbl"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 6. HAFIS ===== -->
+    <section class="sec" id="hafis">
+      <div class="sec-head">
+        <span class="sec-num">06 — <span data-i18n="navHafis"></span></span>
+        <h2 data-i18n="sec6t"></h2>
+        <p data-i18n="sec6p"></p>
+      </div>
+      <div class="grid">
+        <div class="card c7">
+          <div class="card-head">
+            <h3 data-i18n="c_haf_t"></h3>
+            <div class="sub" data-i18n="c_haf_s"></div>
+          </div>
+          <div class="legend" id="hafLegend"></div>
+          <div class="chartbox" id="hafChart"></div>
+          <button class="tbl-toggle" data-tbl="hafTbl"></button>
+          <div class="tbl-wrap" id="hafTbl"></div>
+        </div>
+        <div class="card c5">
+          <div class="card-head">
+            <h3 data-i18n="c_haft_t"></h3>
+            <div class="sub" data-i18n="c_haft_s"></div>
+          </div>
+          <div class="chartbox" id="hafTotalChart"></div>
+          <div class="card-foot" id="hafFoot"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 7. GOVERNANCE ===== -->
+    <section class="sec" id="governance">
+      <div class="sec-head">
+        <span class="sec-num">07 — <span data-i18n="navGov"></span></span>
+        <h2 data-i18n="sec7t"></h2>
+        <p data-i18n="sec7p"></p>
+      </div>
+      <div class="grid">
+        <div class="card c7">
+          <div class="card-head">
+            <h3 data-i18n="c_ten_t"></h3>
+            <div class="sub" data-i18n="c_ten_s"></div>
+          </div>
+          <div class="legend" id="tenLegend"></div>
+          <div class="chartbox" id="tenChart"></div>
+        </div>
+        <div class="card c5">
+          <div class="card-head">
+            <h3 data-i18n="c_sub_t"></h3>
+            <div class="sub" data-i18n="c_sub_s"></div>
+          </div>
+          <div class="chartbox" id="subChart"></div>
+        </div>
+        <div class="card c12">
+          <div class="card-head">
+            <h3 data-i18n="c_com_t"></h3>
+            <div class="sub" data-i18n="c_com_s"></div>
+          </div>
+          <div class="grid" id="comGrid" style="gap:10px"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 8. ACCOUNTABILITY ===== -->
+    <section class="sec" id="accountability">
+      <div class="sec-head">
+        <span class="sec-num">08 — <span data-i18n="navAccount"></span></span>
+        <h2 data-i18n="sec8t"></h2>
+        <p data-i18n="sec8p"></p>
+      </div>
+      <div class="grid">
+        <div class="card c6">
+          <div class="card-head">
+            <h3 data-i18n="c_pol_t"></h3>
+            <div class="sub" data-i18n="c_pol_s"></div>
+          </div>
+          <div class="tl" id="polList"></div>
+        </div>
+        <div class="card c6">
+          <div class="card-head">
+            <h3 data-i18n="c_dis_t"></h3>
+            <div class="sub" data-i18n="c_dis_s"></div>
+          </div>
+          <div id="disList" class="flexgrow"></div>
+        </div>
+        <div class="card c7">
+          <div class="card-head">
+            <h3 data-i18n="c_leg_t"></h3>
+            <div class="sub" data-i18n="c_leg_s"></div>
+          </div>
+          <div class="tbl-wrap on" id="legTbl"></div>
+        </div>
+        <div class="card c5">
+          <div class="card-head">
+            <h3 data-i18n="c_mac_t"></h3>
+            <div class="sub" data-i18n="c_mac_s"></div>
+          </div>
+          <div id="macList" class="flexgrow"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 9. RECOMMENDATIONS ===== -->
+    <section class="sec" id="recs">
+      <div class="sec-head">
+        <span class="sec-num">09 — <span data-i18n="navRecs"></span></span>
+        <h2 data-i18n="sec9t"></h2>
+        <p data-i18n="sec9p"></p>
+      </div>
+      <div class="filters" id="recFilters"></div>
+      <div class="rec-list" id="recList"></div>
+    </section>
+
+    <!-- ===== 10. TIMELINE ===== -->
+    <section class="sec" id="timeline">
+      <div class="sec-head">
+        <span class="sec-num">10 — <span data-i18n="navTimeline"></span></span>
+        <h2 data-i18n="sec10t"></h2>
+        <p data-i18n="sec10p"></p>
+      </div>
+      <div class="filters" id="tlFilters"></div>
+      <div class="card c12"><div class="tl" id="tlList"></div></div>
+    </section>
+
+  </div>
+
+  <footer class="ft">
+    <div class="wrap">
+      <div class="ft-grid">
+        <div class="ft-note" id="ftNote"></div>
+        <div>
+          <h4 data-i18n="ft_srcH"></h4>
+          <div id="ftSrc"></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+</main>
+<script>
+/* =============================================================
+   Mini SVG chart engine — no dependencies.
+   Every chart: render(container, spec) -> re-renders on resize.
+   ============================================================= */
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+
+/* ---------- number / string helpers ---------- */
+const NF = (n, d = 0) =>
+  n === null || n === undefined || Number.isNaN(n)
+    ? '—'
+    : n.toLocaleString('en-MY', { minimumFractionDigits: d, maximumFractionDigits: d });
+
+const fmtRM = (n, d = 1, unit = 'bil') =>
+  n === null || n === undefined ? '—' : `RM${NF(n, d)} ${unit}`;
+
+const fmtPct = (n, d = 2) => (n === null || n === undefined ? '—' : `${NF(n, d)}%`);
+
+/* short axis ticks: 70,317 -> 70.3k ; 1.5 -> 1.5 */
+function tickFmt(v, opts = {}) {
+  const a = Math.abs(v);
+  if (opts.pct) return `${NF(v, v % 1 === 0 ? 0 : 1)}%`;
+  if (opts.compact && a >= 1000) return `${NF(v / 1000, a >= 10000 ? 0 : 1)}k`;
+  if (a >= 100) return NF(v, 0);
+  if (a >= 10) return NF(v, v % 1 === 0 ? 0 : 1);
+  return NF(v, v % 1 === 0 ? 0 : 1);
+}
+
+/* ---------- element factory ---------- */
+function el(tag, attrs = {}, txt) {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) {
+    if (attrs[k] === null || attrs[k] === undefined) continue;
+    n.setAttribute(k, attrs[k]);
+  }
+  if (txt !== undefined) n.textContent = txt;
+  return n;
+}
+function h(tag, cls, txt) {
+  const n = document.createElement(tag);
+  if (cls) n.className = cls;
+  if (txt !== undefined) n.textContent = txt;
+  return n;
+}
+
+/* ---------- nice axis ticks ---------- */
+function niceTicks(min, max, count = 5) {
+  if (min === max) { min = Math.min(0, min); max = max || 1; }
+  const span = max - min;
+  const raw = span / count;
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const norm = raw / mag;
+  const step = (norm <= 1 ? 1 : norm <= 2 ? 2 : norm <= 2.5 ? 2.5 : norm <= 5 ? 5 : 10) * mag;
+  const lo = Math.floor(min / step) * step;
+  const hi = Math.ceil(max / step) * step;
+  const out = [];
+  for (let v = lo; v <= hi + step * 1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+
+/* ---------- tooltip ---------- */
+function makeTip(box) {
+  let tip = box.querySelector('.tip');
+  if (!tip) { tip = h('div', 'tip'); box.appendChild(tip); }
+  return {
+    show(x, y, html) {
+      tip.innerHTML = html;
+      tip.classList.add('on');
+      const bw = box.clientWidth;
+      const tw = tip.offsetWidth;
+      const cx = Math.max(tw / 2 + 4, Math.min(bw - tw / 2 - 4, x));
+      tip.style.left = cx + 'px';
+      tip.style.top = y + 'px';
+      const flip = tip.getBoundingClientRect().top < 8;
+      tip.style.transform = flip
+        ? 'translate(-50%, 0) translateY(14px)'
+        : 'translate(-50%, -100%) translateY(-10px)';
+    },
+    hide() { tip.classList.remove('on'); }
+  };
+}
+function tipRows(rows) {
+  return rows.map(r =>
+    `<div class="tip-r"><span class="tip-k">${r.c ? `<span class="swatch" style="background:${r.c}"></span>` : ''}${r.k}</span><span class="tip-v">${r.v}</span></div>`
+  ).join('');
+}
+
+/* ---------- responsive host ---------- */
+const _charts = [];
+function mount(container, drawFn) {
+  const box = typeof container === 'string' ? document.getElementById(container) : container;
+  if (!box) return;
+  // one record per container — re-mounting replaces rather than duplicates
+  const existing = _charts.find(r => r.box === box);
+  const rec = existing || { box, w: 0 };
+  rec.drawFn = drawFn;
+  if (!existing) _charts.push(rec);
+  redraw(rec);
+}
+function redraw(rec) {
+  const w = Math.max(220, rec.box.clientWidth);
+  rec.w = w;
+  const tip = rec.box.querySelector('.tip');
+  rec.box.querySelectorAll('svg').forEach(s => s.remove());
+  const svg = rec.drawFn(w, rec.box);
+  if (svg) rec.box.insertBefore(svg, tip || null);
+}
+let _rt;
+const _ro = new ResizeObserver(() => {
+  clearTimeout(_rt);
+  _rt = setTimeout(() => _charts.forEach(redraw), 90);
+});
+function observeCharts() { _charts.forEach(r => { try { _ro.observe(r.box); } catch (e) {} }); }
+function redrawAll() { _charts.forEach(redraw); }
+function resetCharts() {
+  _charts.forEach(r => { try { _ro.unobserve(r.box); } catch (e) {} });
+  _charts.length = 0;
+}
+
+/* =============================================================
+   1. COLUMN CHART  (grouped / stacked / diverging)
+   spec: { data:[{label, values:[..], note}], series:[{name,color}],
+           mode:'grouped'|'stacked', height, yTitle, fmt, valueLabels }
+   ============================================================= */
+function columnChart(box, spec) {
+  mount(box, (W, boxEl) => {
+    const tip = makeTip(boxEl);
+    const S = spec.series;
+    const D = spec.data;
+    const narrow = W < 460;
+    const H = spec.height || (narrow ? 260 : 300);
+    const m = { t: 14, r: narrow ? 8 : 14, b: 34, l: narrow ? 40 : 52 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+
+    let lo = 0, hi = 0;
+    D.forEach(d => {
+      if (spec.mode === 'stacked') {
+        let pos = 0, neg = 0;
+        d.values.forEach(v => { if (v >= 0) pos += v; else neg += v; });
+        hi = Math.max(hi, pos); lo = Math.min(lo, neg);
+      } else {
+        d.values.forEach(v => { if (v == null) return; hi = Math.max(hi, v); lo = Math.min(lo, v); });
+      }
+    });
+    if (spec.yMin !== undefined) lo = Math.min(lo, spec.yMin);
+    if (spec.yMax !== undefined) hi = Math.max(hi, spec.yMax);
+    const ticks = niceTicks(lo, hi, narrow ? 4 : 5);
+    const yLo = ticks[0], yHi = ticks[ticks.length - 1];
+    const y = v => m.t + ih - ((v - yLo) / (yHi - yLo)) * ih;
+    const zero = y(0);
+
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.aria || '' });
+
+    // gridlines
+    ticks.forEach(t => {
+      svg.appendChild(el('line', { class: t === 0 ? 'zeroline' : 'gridline', x1: m.l, x2: m.l + iw, y1: y(t), y2: y(t) }));
+      svg.appendChild(el('text', { class: 'ax-label', x: m.l - 8, y: y(t) + 4, 'text-anchor': 'end' }, tickFmt(t, spec.tick || {})));
+    });
+
+    const bandW = iw / D.length;
+    const gap = Math.min(18, bandW * 0.26);
+    const groupW = bandW - gap;
+
+    D.forEach((d, i) => {
+      const bx = m.l + i * bandW + gap / 2;
+      // hover band
+      const band = el('rect', { class: 'hover-band', x: m.l + i * bandW, y: m.t, width: bandW, height: ih, rx: 6 });
+      svg.appendChild(band);
+
+      if (spec.mode === 'stacked') {
+        let accP = 0, accN = 0;
+        d.values.forEach((v, si) => {
+          if (v == null || v === 0) return;
+          let y0, y1;
+          if (v >= 0) { y0 = y(accP + v); y1 = y(accP); accP += v; }
+          else { y0 = y(accN); y1 = y(accN + v); accN += v; }
+          const hgt = Math.max(1, Math.abs(y1 - y0) - 2); // 2px surface gap between segments
+          svg.appendChild(el('rect', {
+            x: bx, y: Math.min(y0, y1), width: groupW, height: hgt,
+            rx: 3, fill: S[si].color
+          }));
+        });
+      } else {
+        const n = S.length;
+        const bw = Math.max(3, (groupW - 2 * (n - 1)) / n); // 2px gap between adjacent bars
+        d.values.forEach((v, si) => {
+          if (v == null) return;
+          const x0 = bx + si * (bw + 2);
+          const yv = y(v), hgt = Math.max(1.5, Math.abs(yv - zero));
+          const r = Math.min(4, bw / 2);
+          const top = v >= 0 ? yv : zero;
+          svg.appendChild(el('path', {
+            d: v >= 0
+              ? `M${x0} ${top + hgt} L${x0} ${top + r} Q${x0} ${top} ${x0 + r} ${top} L${x0 + bw - r} ${top} Q${x0 + bw} ${top} ${x0 + bw} ${top + r} L${x0 + bw} ${top + hgt} Z`
+              : `M${x0} ${top} L${x0} ${top + hgt - r} Q${x0} ${top + hgt} ${x0 + r} ${top + hgt} L${x0 + bw - r} ${top + hgt} Q${x0 + bw} ${top + hgt} ${x0 + bw} ${top + hgt - r} L${x0 + bw} ${top} Z`,
+            fill: S[si].color
+          }));
+          if (spec.valueLabels && !narrow) {
+            svg.appendChild(el('text', {
+              class: 'dlabel-sm', x: x0 + bw / 2, y: v >= 0 ? yv - 6 : yv + 13, 'text-anchor': 'middle'
+            }, spec.fmt ? spec.fmt(v) : tickFmt(v, spec.tick || {})));
+          }
+        });
+      }
+
+      // x label
+      svg.appendChild(el('text', {
+        class: 'ax-label', x: m.l + i * bandW + bandW / 2, y: H - 12, 'text-anchor': 'middle'
+      }, d.label));
+
+      const hit = el('rect', { class: 'hit', x: m.l + i * bandW, y: m.t, width: bandW, height: ih });
+      hit.addEventListener('pointerenter', ev => {
+        band.classList.add('on');
+        tip.show(m.l + i * bandW + bandW / 2, m.t + ih * 0.34,
+          `<div class="tip-t">${d.tipTitle || d.label}</div>` +
+          tipRows(S.map((s, si) => ({
+            c: s.color, k: s.name,
+            v: d.values[si] == null ? '—' : (spec.fmt ? spec.fmt(d.values[si]) : tickFmt(d.values[si], spec.tick || {}))
+          })).filter((_, si) => d.values[si] != null)) +
+          (d.note ? `<div class="tip-n">${d.note}</div>` : ''));
+      });
+      hit.addEventListener('pointerleave', () => { band.classList.remove('on'); tip.hide(); });
+      svg.appendChild(hit);
+    });
+
+    svg.appendChild(el('line', { class: 'baseline', x1: m.l, x2: m.l + iw, y1: y(Math.max(yLo, Math.min(0, yHi))), y2: y(Math.max(yLo, Math.min(0, yHi))) }));
+    if (spec.yTitle && !narrow) svg.appendChild(el('text', { class: 'ax-title', x: m.l - 8, y: 10, 'text-anchor': 'end' }, spec.yTitle));
+    return svg;
+  });
+}
+
+/* =============================================================
+   2. LINE CHART (multi-series, crosshair)
+   spec: { x:[labels], series:[{name,color,values:[],dash}], height, fmt, yTitle,
+           annotations:[{xi, text, tone}], area:bool }
+   ============================================================= */
+function lineChart(box, spec) {
+  mount(box, (W, boxEl) => {
+    const tip = makeTip(boxEl);
+    const narrow = W < 460;
+    const H = spec.height || (narrow ? 250 : 300);
+    const m = { t: spec.annotations ? 26 : 14, r: narrow ? 12 : 18, b: 34, l: narrow ? 40 : 52 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const X = spec.x;
+    const vis = spec.series.filter(s => s.hidden !== true);
+
+    let lo = Infinity, hi = -Infinity;
+    vis.forEach(s => s.values.forEach(v => { if (v == null) return; lo = Math.min(lo, v); hi = Math.max(hi, v); }));
+    if (spec.zeroBase) lo = Math.min(lo, 0);
+    if (spec.yMin !== undefined) lo = Math.min(lo, spec.yMin);
+    if (spec.yMax !== undefined) hi = Math.max(hi, spec.yMax);
+    if (!isFinite(lo)) { lo = 0; hi = 1; }
+    const ticks = niceTicks(lo, hi, narrow ? 4 : 5);
+    const yLo = ticks[0], yHi = ticks[ticks.length - 1];
+    const px = i => m.l + (X.length === 1 ? iw / 2 : (i / (X.length - 1)) * iw);
+    const py = v => m.t + ih - ((v - yLo) / (yHi - yLo)) * ih;
+
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.aria || '' });
+    ticks.forEach(t => {
+      svg.appendChild(el('line', { class: t === 0 ? 'zeroline' : 'gridline', x1: m.l, x2: m.l + iw, y1: py(t), y2: py(t) }));
+      svg.appendChild(el('text', { class: 'ax-label', x: m.l - 8, y: py(t) + 4, 'text-anchor': 'end' }, tickFmt(t, spec.tick || {})));
+    });
+
+    // annotations (vertical markers)
+    (spec.annotations || []).forEach(a => {
+      const x = px(a.xi);
+      svg.appendChild(el('line', { class: 'annot-line', x1: x, x2: x, y1: m.t, y2: m.t + ih }));
+      if (!narrow) {
+        const t = el('text', { class: 'annot', x: Math.min(x + 6, m.l + iw - 4), y: m.t - 9, 'text-anchor': x > m.l + iw * 0.7 ? 'end' : 'start' }, a.text);
+        if (a.tone) t.setAttribute('fill', a.tone);
+        svg.appendChild(t);
+      }
+    });
+
+    // area fills
+    if (spec.area) {
+      vis.forEach(s => {
+        const pts = s.values.map((v, i) => (v == null ? null : [px(i), py(v)])).filter(Boolean);
+        if (pts.length < 2) return;
+        const d = `M${pts[0][0]} ${py(Math.max(yLo, 0))} L` + pts.map(p => `${p[0]} ${p[1]}`).join(' L') +
+          ` L${pts[pts.length - 1][0]} ${py(Math.max(yLo, 0))} Z`;
+        svg.appendChild(el('path', { d, fill: s.color, opacity: 0.13 }));
+      });
+    }
+
+    vis.forEach(s => {
+      const pts = s.values.map((v, i) => (v == null ? null : [px(i), py(v)]));
+      let d = '', pen = false;
+      pts.forEach(p => { if (!p) { pen = false; return; } d += (pen ? ' L' : ' M') + p[0] + ' ' + p[1]; pen = true; });
+      svg.appendChild(el('path', { d: d.trim(), fill: 'none', stroke: s.color, 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round', 'stroke-dasharray': s.dash || null }));
+      pts.forEach(p => {
+        if (!p) return;
+        svg.appendChild(el('circle', { cx: p[0], cy: p[1], r: 4.5, fill: s.color, stroke: 'var(--surface-1)', 'stroke-width': 2 }));
+      });
+      // direct label at the end
+      if (spec.directLabels && !narrow) {
+        const last = pts.filter(Boolean).pop();
+        const li = pts.lastIndexOf(pts.filter(Boolean).pop());
+        if (last && li < X.length - 0.5) {
+          svg.appendChild(el('text', { class: 'dlabel', x: last[0] + 8, y: last[1] + 4, fill: s.color }, s.name));
+        }
+      }
+    });
+
+    const cross = el('line', { class: 'crosshair', y1: m.t, y2: m.t + ih });
+    svg.appendChild(cross);
+    const dots = el('g');
+    svg.appendChild(dots);
+
+    X.forEach((lab, i) => {
+      const show = narrow ? (i % Math.ceil(X.length / 5) === 0 || i === X.length - 1) : true;
+      if (show) svg.appendChild(el('text', { class: 'ax-label', x: px(i), y: H - 12, 'text-anchor': 'middle' }, lab));
+    });
+
+    const bw = iw / Math.max(1, X.length - 1);
+    X.forEach((lab, i) => {
+      const hit = el('rect', { class: 'hit', x: px(i) - bw / 2, y: m.t, width: bw, height: ih });
+      hit.addEventListener('pointerenter', () => {
+        cross.setAttribute('x1', px(i)); cross.setAttribute('x2', px(i));
+        cross.classList.add('on');
+        dots.textContent = '';
+        vis.forEach(s => {
+          if (s.values[i] == null) return;
+          dots.appendChild(el('circle', { cx: px(i), cy: py(s.values[i]), r: 6, fill: s.color, stroke: 'var(--surface-1)', 'stroke-width': 2 }));
+        });
+        tip.show(px(i), m.t + ih * 0.3,
+          `<div class="tip-t">${spec.xTitle ? spec.xTitle + ' ' : ''}${lab}</div>` +
+          tipRows(vis.filter(s => s.values[i] != null).map(s => ({
+            c: s.color, k: s.name, v: spec.fmt ? spec.fmt(s.values[i], i, s) : tickFmt(s.values[i], spec.tick || {})
+          }))) +
+          (spec.notes && spec.notes[i] ? `<div class="tip-n">${spec.notes[i]}</div>` : ''));
+      });
+      hit.addEventListener('pointerleave', () => { cross.classList.remove('on'); dots.textContent = ''; tip.hide(); });
+      svg.appendChild(hit);
+    });
+
+    svg.appendChild(el('line', { class: 'baseline', x1: m.l, x2: m.l + iw, y1: py(Math.max(yLo, Math.min(0, yHi))), y2: py(Math.max(yLo, Math.min(0, yHi))) }));
+    if (spec.yTitle && !narrow) svg.appendChild(el('text', { class: 'ax-title', x: m.l - 8, y: 10, 'text-anchor': 'end' }, spec.yTitle));
+    return svg;
+  });
+}
+
+/* =============================================================
+   3. STACKED AREA
+   spec: { x, series:[{name,color,values}], height, fmt }
+   ============================================================= */
+function stackedArea(box, spec) {
+  mount(box, (W, boxEl) => {
+    const tip = makeTip(boxEl);
+    const narrow = W < 460;
+    const H = spec.height || (narrow ? 260 : 310);
+    const m = { t: 16, r: narrow ? 12 : 18, b: 34, l: narrow ? 44 : 56 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const X = spec.x, S = spec.series;
+
+    const stacks = X.map((_, i) => {
+      let acc = 0;
+      return S.map(s => { const v = s.values[i] || 0; const seg = [acc, acc + v]; acc += v; return seg; });
+    });
+    const hi = Math.max(...stacks.map(st => st[st.length - 1][1]));
+    const ticks = niceTicks(0, hi, narrow ? 4 : 5);
+    const yHi = ticks[ticks.length - 1];
+    const px = i => m.l + (i / (X.length - 1)) * iw;
+    const py = v => m.t + ih - (v / yHi) * ih;
+
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.aria || '' });
+    ticks.forEach(t => {
+      svg.appendChild(el('line', { class: 'gridline', x1: m.l, x2: m.l + iw, y1: py(t), y2: py(t) }));
+      svg.appendChild(el('text', { class: 'ax-label', x: m.l - 8, y: py(t) + 4, 'text-anchor': 'end' }, tickFmt(t, spec.tick || {})));
+    });
+
+    // forecast shading
+    if (spec.forecastFrom !== undefined) {
+      const fx = px(spec.forecastFrom);
+      svg.appendChild(el('rect', { x: fx, y: m.t, width: m.l + iw - fx, height: ih, fill: 'var(--text-primary)', opacity: 0.035 }));
+      svg.appendChild(el('line', { class: 'annot-line', x1: fx, x2: fx, y1: m.t, y2: m.t + ih }));
+      if (!narrow) svg.appendChild(el('text', { class: 'annot', x: fx + 6, y: m.t + 12 }, spec.forecastLabel || 'unjuran'));
+    }
+
+    S.forEach((s, si) => {
+      const up = X.map((_, i) => `${px(i)} ${py(stacks[i][si][1])}`).join(' L');
+      const dn = X.map((_, i) => `${px(X.length - 1 - i)} ${py(stacks[X.length - 1 - i][si][0])}`).join(' L');
+      svg.appendChild(el('path', { d: `M${up} L${dn} Z`, fill: s.color, opacity: 0.88 }));
+      svg.appendChild(el('path', {
+        d: 'M' + X.map((_, i) => `${px(i)} ${py(stacks[i][si][1])}`).join(' L'),
+        fill: 'none', stroke: 'var(--surface-1)', 'stroke-width': 2
+      }));
+    });
+
+    // overlay line (e.g. total cost)
+    if (spec.overlay) {
+      svg.appendChild(el('path', {
+        d: 'M' + X.map((_, i) => `${px(i)} ${py(spec.overlay.values[i])}`).join(' L'),
+        fill: 'none', stroke: spec.overlay.color, 'stroke-width': 2, 'stroke-dasharray': '5 4'
+      }));
+    }
+
+    const cross = el('line', { class: 'crosshair', y1: m.t, y2: m.t + ih });
+    svg.appendChild(cross);
+    const dots = el('g'); svg.appendChild(dots);
+
+    X.forEach((lab, i) => {
+      const show = narrow ? (i % Math.ceil(X.length / 5) === 0 || i === X.length - 1) : (X.length <= 12 || i % 2 === 0);
+      if (show) svg.appendChild(el('text', { class: 'ax-label', x: px(i), y: H - 12, 'text-anchor': 'middle' }, lab));
+    });
+
+    const bw = iw / Math.max(1, X.length - 1);
+    X.forEach((lab, i) => {
+      const hit = el('rect', { class: 'hit', x: px(i) - bw / 2, y: m.t, width: bw, height: ih });
+      hit.addEventListener('pointerenter', () => {
+        cross.setAttribute('x1', px(i)); cross.setAttribute('x2', px(i)); cross.classList.add('on');
+        dots.textContent = '';
+        S.forEach((s, si) => dots.appendChild(el('circle', { cx: px(i), cy: py(stacks[i][si][1]), r: 5, fill: s.color, stroke: 'var(--surface-1)', 'stroke-width': 2 })));
+        const tot = stacks[i][S.length - 1][1];
+        tip.show(px(i), m.t + ih * 0.25,
+          `<div class="tip-t">${lab}</div>` +
+          tipRows(S.map(s => ({ c: s.color, k: s.name, v: spec.fmt ? spec.fmt(s.values[i]) : tickFmt(s.values[i]) })).reverse()) +
+          `<div class="tip-r" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--border)"><span class="tip-k">${spec.totalLabel || 'Jumlah'}</span><span class="tip-v">${spec.fmt ? spec.fmt(tot) : tickFmt(tot)}</span></div>` +
+          (spec.notes && spec.notes[i] ? `<div class="tip-n">${spec.notes[i]}</div>` : ''));
+      });
+      hit.addEventListener('pointerleave', () => { cross.classList.remove('on'); dots.textContent = ''; tip.hide(); });
+      svg.appendChild(hit);
+    });
+
+    svg.appendChild(el('line', { class: 'baseline', x1: m.l, x2: m.l + iw, y1: py(0), y2: py(0) }));
+    if (spec.yTitle && !narrow) svg.appendChild(el('text', { class: 'ax-title', x: m.l - 8, y: 10, 'text-anchor': 'end' }, spec.yTitle));
+    return svg;
+  });
+}
+
+/* =============================================================
+   4. WATERFALL
+   spec: { steps:[{label,value,type:'start'|'delta'|'total',note,color}], height, fmt }
+   ============================================================= */
+function waterfall(box, spec) {
+  mount(box, (W, boxEl) => {
+    const tip = makeTip(boxEl);
+    const narrow = W < 560;
+    const H = spec.height || (narrow ? 320 : 320);
+    // bottom margin carries the value label (14px) then up to 3 wrapped x-label lines
+    const m = { t: 22, r: 10, b: narrow ? 78 : 68, l: narrow ? 44 : 58 };
+    const iw = W - m.l - m.r, ih = H - m.t - m.b;
+    const St = spec.steps;
+
+    let acc = 0, lo = 0, hi = 0;
+    const geo = St.map(s => {
+      if (s.type === 'start' || s.type === 'total') {
+        const g = { from: 0, to: s.value };
+        acc = s.value; lo = Math.min(lo, 0, s.value); hi = Math.max(hi, 0, s.value); return g;
+      }
+      const g = { from: acc, to: acc + s.value };
+      acc += s.value; lo = Math.min(lo, acc); hi = Math.max(hi, acc); return g;
+    });
+    const ticks = niceTicks(lo, hi, 5);
+    const yLo = ticks[0], yHi = ticks[ticks.length - 1];
+    const y = v => m.t + ih - ((v - yLo) / (yHi - yLo)) * ih;
+
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.aria || '' });
+    ticks.forEach(t => {
+      svg.appendChild(el('line', { class: t === 0 ? 'zeroline' : 'gridline', x1: m.l, x2: m.l + iw, y1: y(t), y2: y(t) }));
+      svg.appendChild(el('text', { class: 'ax-label', x: m.l - 8, y: y(t) + 4, 'text-anchor': 'end' }, tickFmt(t, spec.tick || {})));
+    });
+
+    const bandW = iw / St.length;
+    const bw = Math.min(narrow ? 34 : 62, bandW * 0.62);
+
+    St.forEach((s, i) => {
+      const cx = m.l + i * bandW + bandW / 2;
+      const g = geo[i];
+      const y0 = y(Math.max(g.from, g.to)), y1 = y(Math.min(g.from, g.to));
+      const hgt = Math.max(2, y1 - y0);
+      const color = s.color || (s.type === 'start' || s.type === 'total'
+        ? 'var(--text-secondary)'
+        : (s.value >= 0 ? 'var(--series-3)' : 'var(--critical)'));
+      const r = 4;
+      svg.appendChild(el('rect', { x: cx - bw / 2, y: y0, width: bw, height: hgt, rx: Math.min(r, hgt / 2), fill: color }));
+
+      // connector
+      if (i < St.length - 1 && St[i + 1].type === 'delta') {
+        const cy = y(g.to);
+        svg.appendChild(el('line', { x1: cx + bw / 2, x2: m.l + (i + 1) * bandW + bandW / 2 - bw / 2, y1: cy, y2: cy, stroke: 'var(--baseline)', 'stroke-width': 1, 'stroke-dasharray': '2 3' }));
+      }
+
+      // value label
+      const vTxt = spec.fmt ? spec.fmt(s.value) : tickFmt(s.value);
+      svg.appendChild(el('text', {
+        class: 'dlabel', x: cx, y: (g.to >= g.from ? y0 - 7 : y1 + 14), 'text-anchor': 'middle',
+        'font-size': narrow ? 10 : 11
+      }, (s.type === 'delta' && s.value > 0 ? '+' : '') + vTxt));
+
+      // x label (wrap into up to 3 lines)
+      const words = String(s.label).split(' ');
+      const maxChars = Math.max(7, Math.floor(bandW / (narrow ? 5.4 : 6.2)));
+      const lines = []; let cur = '';
+      words.forEach(w => {
+        if ((cur + ' ' + w).trim().length > maxChars && cur) { lines.push(cur); cur = w; } else cur = (cur + ' ' + w).trim();
+      });
+      if (cur) lines.push(cur);
+      lines.slice(0, 3).forEach((ln, li) => {
+        svg.appendChild(el('text', { class: 'ax-label', x: cx, y: m.t + ih + 32 + li * 11, 'text-anchor': 'middle', 'font-size': narrow ? 9.5 : 10.5 }, ln));
+      });
+
+      const hit = el('rect', { class: 'hit', x: m.l + i * bandW, y: m.t, width: bandW, height: ih });
+      hit.addEventListener('pointerenter', () => {
+        tip.show(cx, m.t + ih * 0.3,
+          `<div class="tip-t">${s.label}</div>` +
+          tipRows([{ c: color, k: s.type === 'delta' ? (spec.deltaLabel || 'Perubahan') : (spec.levelLabel || 'Kedudukan'), v: (s.type === 'delta' && s.value > 0 ? '+' : '') + vTxt }].concat(
+            s.type === 'delta' ? [{ k: spec.runningLabel || 'Baki terkumpul', v: spec.fmt ? spec.fmt(g.to) : tickFmt(g.to) }] : []
+          )) +
+          (s.note ? `<div class="tip-n">${s.note}</div>` : ''));
+      });
+      hit.addEventListener('pointerleave', () => tip.hide());
+      svg.appendChild(hit);
+    });
+
+    if (spec.yTitle && !narrow) svg.appendChild(el('text', { class: 'ax-title', x: m.l - 8, y: 10, 'text-anchor': 'end' }, spec.yTitle));
+    return svg;
+  });
+}
+
+/* =============================================================
+   5. HORIZONTAL BAR (ranked)
+   spec:{ data:[{label,value,color,note,sub}], height?, fmt, max? }
+   ============================================================= */
+function barChart(box, spec) {
+  mount(box, (W, boxEl) => {
+    const tip = makeTip(boxEl);
+    const narrow = W < 520;
+    const D = spec.data;
+    const rowH = spec.rowH || (narrow ? 34 : 30);
+    const m = { t: 6, r: narrow ? 8 : 12, b: 6, l: Math.min(narrow ? 168 : 230, W * 0.46) };
+    const ih = D.length * rowH;
+    const H = ih + m.t + m.b;
+    const iw = W - m.l - m.r;
+    const max = spec.max || Math.max(...D.map(d => Math.abs(d.value))) || 1;
+    const labelSpace = narrow ? 52 : 66;
+
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.aria || '' });
+    D.forEach((d, i) => {
+      const y0 = m.t + i * rowH;
+      const bh = Math.min(16, rowH - 12);
+      const bw = Math.max(2, (Math.abs(d.value) / max) * (iw - labelSpace));
+      const color = d.color || 'var(--series-1)';
+      svg.appendChild(el('rect', { class: 'hover-band', x: 0, y: y0, width: W, height: rowH - 2, rx: 6 }));
+      svg.appendChild(el('path', {
+        d: `M${m.l} ${y0 + rowH / 2 - bh / 2} L${m.l + bw - 4} ${y0 + rowH / 2 - bh / 2} Q${m.l + bw} ${y0 + rowH / 2 - bh / 2} ${m.l + bw} ${y0 + rowH / 2 - bh / 2 + 4} L${m.l + bw} ${y0 + rowH / 2 + bh / 2 - 4} Q${m.l + bw} ${y0 + rowH / 2 + bh / 2} ${m.l + bw - 4} ${y0 + rowH / 2 + bh / 2} L${m.l} ${y0 + rowH / 2 + bh / 2} Z`,
+        fill: color
+      }));
+      // label (truncate)
+      const maxChars = Math.floor(m.l / (narrow ? 5.6 : 6.3));
+      const lab = d.label.length > maxChars ? d.label.slice(0, maxChars - 1) + '…' : d.label;
+      const t = el('text', { class: 'dlabel', x: m.l - 10, y: y0 + rowH / 2 + (d.sub && !narrow ? -1 : 4), 'text-anchor': 'end', 'font-size': narrow ? 11 : 11.5 }, lab);
+      svg.appendChild(t);
+      if (d.sub && !narrow) svg.appendChild(el('text', { class: 'ax-label', x: m.l - 10, y: y0 + rowH / 2 + 11, 'text-anchor': 'end', 'font-size': 9.5 }, d.sub));
+      svg.appendChild(el('text', { class: 'dlabel', x: m.l + bw + 8, y: y0 + rowH / 2 + 4, 'font-size': narrow ? 10.5 : 11 }, spec.fmt ? spec.fmt(d.value) : tickFmt(d.value)));
+
+      const hit = el('rect', { class: 'hit', x: 0, y: y0, width: W, height: rowH });
+      hit.addEventListener('pointerenter', () => {
+        svg.querySelectorAll('.hover-band')[i].classList.add('on');
+        tip.show(Math.min(W - 20, m.l + bw / 2), y0 + 4,
+          `<div class="tip-t">${d.label}</div>` +
+          tipRows([{ c: color, k: spec.valueLabel || 'Nilai', v: spec.fmt ? spec.fmt(d.value) : tickFmt(d.value) }].concat(d.extra || [])) +
+          (d.note ? `<div class="tip-n">${d.note}</div>` : ''));
+      });
+      hit.addEventListener('pointerleave', () => { svg.querySelectorAll('.hover-band')[i].classList.remove('on'); tip.hide(); });
+      svg.appendChild(hit);
+    });
+    return svg;
+  });
+}
+
+/* =============================================================
+   6. DUMBBELL / SLOPE  (two values per row — e.g. transfer vs market)
+   spec:{ data:[{label, a, b, note}], aName, bName, aColor, bColor, fmt }
+   ============================================================= */
+function dumbbell(box, spec) {
+  mount(box, (W, boxEl) => {
+    const tip = makeTip(boxEl);
+    const narrow = W < 520;
+    const D = spec.data;
+    const rowH = narrow ? 42 : 38;
+    const m = { t: 10, r: narrow ? 14 : 20, b: 26, l: Math.min(narrow ? 128 : 240, W * 0.42) };
+    const ih = D.length * rowH, H = ih + m.t + m.b, iw = W - m.l - m.r;
+    const max = Math.max(...D.flatMap(d => [d.a, d.b])) * 1.06;
+    const x = v => m.l + (v / max) * iw;
+
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.aria || '' });
+    niceTicks(0, max, narrow ? 3 : 5).forEach(t => {
+      if (t > max) return;
+      svg.appendChild(el('line', { class: 'gridline', x1: x(t), x2: x(t), y1: m.t, y2: m.t + ih }));
+      svg.appendChild(el('text', { class: 'ax-label', x: x(t), y: H - 8, 'text-anchor': 'middle' }, tickFmt(t, spec.tick || {})));
+    });
+
+    D.forEach((d, i) => {
+      const cy = m.t + i * rowH + rowH / 2;
+      svg.appendChild(el('rect', { class: 'hover-band', x: 0, y: m.t + i * rowH, width: W, height: rowH - 2, rx: 6 }));
+      svg.appendChild(el('line', { x1: x(Math.min(d.a, d.b)), x2: x(Math.max(d.a, d.b)), y1: cy, y2: cy, stroke: 'var(--baseline)', 'stroke-width': 3, 'stroke-linecap': 'round' }));
+      svg.appendChild(el('circle', { cx: x(d.b), cy, r: 6, fill: spec.bColor || 'var(--series-3)', stroke: 'var(--surface-1)', 'stroke-width': 2 }));
+      svg.appendChild(el('circle', { cx: x(d.a), cy, r: 6, fill: spec.aColor || 'var(--series-2)', stroke: 'var(--surface-1)', 'stroke-width': 2 }));
+      const maxChars = Math.floor(m.l / (narrow ? 5.6 : 6.3));
+      svg.appendChild(el('text', { class: 'dlabel', x: m.l - 10, y: cy + 4, 'text-anchor': 'end', 'font-size': narrow ? 10.5 : 11.5 },
+        d.label.length > maxChars ? d.label.slice(0, maxChars - 1) + '…' : d.label));
+      const hit = el('rect', { class: 'hit', x: 0, y: m.t + i * rowH, width: W, height: rowH });
+      hit.addEventListener('pointerenter', () => {
+        svg.querySelectorAll('.hover-band')[i].classList.add('on');
+        tip.show(Math.min(W - 20, x(Math.max(d.a, d.b))), m.t + i * rowH,
+          `<div class="tip-t">${d.label}</div>` +
+          tipRows([
+            { c: spec.aColor || 'var(--series-2)', k: spec.aName, v: spec.fmt(d.a) },
+            { c: spec.bColor || 'var(--series-3)', k: spec.bName, v: spec.fmt(d.b) },
+            { k: spec.gapName || 'Beza', v: spec.fmt(d.a - d.b) }
+          ]) + (d.note ? `<div class="tip-n">${d.note}</div>` : ''));
+      });
+      hit.addEventListener('pointerleave', () => { svg.querySelectorAll('.hover-band')[i].classList.remove('on'); tip.hide(); });
+      svg.appendChild(hit);
+    });
+    return svg;
+  });
+}
+
+/* =============================================================
+   7. TREEMAP (squarified) — magnitude + category colour
+   spec:{ data:[{label,value,color,note,cat}], height, fmt }
+   ============================================================= */
+function treemap(box, spec) {
+  mount(box, (W, boxEl) => {
+    const tip = makeTip(boxEl);
+    const H = spec.height || (W < 520 ? 340 : 400);
+    const D = spec.data.filter(d => d.value > 0).slice().sort((a, b) => b.value - a.value);
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.aria || '' });
+    if (!D.length) return svg;
+    const total = D.reduce((s, d) => s + d.value, 0);
+    const rects = squarify(D.map(d => (d.value / total) * (W * H)), { x: 0, y: 0, w: W, h: H });
+
+    rects.forEach((r, i) => {
+      const d = D[i];
+      const g = el('g', { class: 'tm-cell' });
+      const pad = 1.5;
+      g.appendChild(el('rect', { x: r.x + pad, y: r.y + pad, width: Math.max(0, r.w - pad * 2), height: Math.max(0, r.h - pad * 2), rx: 5, fill: d.color }));
+      if (r.w > 62 && r.h > 30) {
+        const maxChars = Math.floor((r.w - 16) / 6.1);
+        const words = d.label.split(' ');
+        const lines = []; let cur = '';
+        words.forEach(w => { if ((cur + ' ' + w).trim().length > maxChars && cur) { lines.push(cur); cur = w; } else cur = (cur + ' ' + w).trim(); });
+        if (cur) lines.push(cur);
+        const maxLines = Math.max(1, Math.floor((r.h - 26) / 13));
+        const ink = { fill: '#fff', stroke: 'rgba(0,0,0,.5)', 'stroke-width': 2.6, 'paint-order': 'stroke', 'stroke-linejoin': 'round' };
+        lines.slice(0, maxLines).forEach((ln, li) => {
+          g.appendChild(el('text', { ...ink, x: r.x + 9, y: r.y + 19 + li * 13, 'font-size': 11.5, 'font-weight': 650 }, ln));
+        });
+        if (r.h > 44) g.appendChild(el('text', { ...ink, x: r.x + 9, y: r.y + 22 + Math.min(lines.length, maxLines) * 13, 'font-size': 11, 'font-weight': 600 }, spec.fmt(d.value)));
+      }
+      g.addEventListener('pointerenter', () => {
+        tip.show(r.x + r.w / 2, r.y + 6,
+          `<div class="tip-t">${d.label}</div>` +
+          tipRows([{ c: d.color, k: spec.valueLabel || 'Kerugian', v: spec.fmt(d.value) }].concat(d.extra || [])) +
+          (d.note ? `<div class="tip-n">${d.note}</div>` : ''));
+      });
+      g.addEventListener('pointerleave', () => tip.hide());
+      // bound inside the draw fn so it survives a resize-triggered redraw
+      if (spec.onSelect) g.addEventListener('click', () => spec.onSelect(d, i));
+      svg.appendChild(g);
+    });
+    return svg;
+  });
+}
+
+function squarify(areas, rect) {
+  const out = [];
+  let items = areas.map((a, i) => ({ a, i }));
+  let R = { ...rect };
+  const worst = (row, w) => {
+    const s = row.reduce((x, r) => x + r.a, 0);
+    const mx = Math.max(...row.map(r => r.a)), mn = Math.min(...row.map(r => r.a));
+    return Math.max((w * w * mx) / (s * s), (s * s) / (w * w * mn));
+  };
+  const layout = (row, w, horizontal) => {
+    const s = row.reduce((x, r) => x + r.a, 0);
+    const thick = s / w;
+    let off = 0;
+    row.forEach(r => {
+      const len = r.a / thick;
+      out[r.i] = horizontal
+        ? { x: R.x + off, y: R.y, w: len, h: thick }
+        : { x: R.x, y: R.y + off, w: thick, h: len };
+      off += len;
+    });
+    if (horizontal) { R = { x: R.x, y: R.y + thick, w: R.w, h: R.h - thick }; }
+    else { R = { x: R.x + thick, y: R.y, w: R.w - thick, h: R.h }; }
+  };
+  while (items.length) {
+    const horizontal = R.w >= R.h;
+    const w = horizontal ? R.w : R.h;
+    let row = [items.shift()];
+    while (items.length && worst(row, w) >= worst(row.concat(items[0]), w)) row.push(items.shift());
+    layout(row, w, horizontal);
+  }
+  return out.map(r => r || { x: 0, y: 0, w: 0, h: 0 });
+}
+
+/* =============================================================
+   8. GANTT / TENURE TIMELINE
+   spec:{ rows:[{label, spans:[{from,to,color,name,note}]}], min, max, height }
+   ============================================================= */
+function ganttChart(box, spec) {
+  mount(box, (W, boxEl) => {
+    const tip = makeTip(boxEl);
+    const narrow = W < 560;
+    const rows = spec.rows;
+    const rowH = narrow ? 30 : 28;
+    const m = { t: 20, r: narrow ? 8 : 14, b: 26, l: Math.min(narrow ? 132 : 230, W * 0.42) };
+    const ih = rows.length * rowH, H = ih + m.t + m.b, iw = W - m.l - m.r;
+    const x = v => m.l + ((v - spec.min) / (spec.max - spec.min)) * iw;
+
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.aria || '' });
+    for (let yr = Math.ceil(spec.min); yr <= spec.max; yr++) {
+      if (narrow && yr % 2) continue;
+      svg.appendChild(el('line', { class: 'gridline', x1: x(yr), x2: x(yr), y1: m.t - 6, y2: m.t + ih }));
+      svg.appendChild(el('text', { class: 'ax-label', x: x(yr), y: m.t - 10, 'text-anchor': 'middle', 'font-size': 10 }, `'` + String(yr).slice(2)));
+    }
+    // scope shading 2014-2020
+    if (spec.scope) {
+      svg.appendChild(el('rect', { x: x(spec.scope[0]), y: m.t, width: x(spec.scope[1]) - x(spec.scope[0]), height: ih, fill: 'var(--critical)', opacity: 0.055 }));
+    }
+
+    rows.forEach((r, i) => {
+      const y0 = m.t + i * rowH;
+      svg.appendChild(el('rect', { class: 'hover-band', x: 0, y: y0, width: W, height: rowH - 2, rx: 5 }));
+      const maxChars = Math.floor(m.l / (narrow ? 5.5 : 6.2));
+      svg.appendChild(el('text', { class: 'dlabel', x: m.l - 10, y: y0 + rowH / 2 + 4, 'text-anchor': 'end', 'font-size': narrow ? 10.5 : 11.5 },
+        r.label.length > maxChars ? r.label.slice(0, maxChars - 1) + '…' : r.label));
+      r.spans.forEach(sp => {
+        const x0 = x(Math.max(sp.from, spec.min)), x1 = x(Math.min(sp.to, spec.max));
+        const bh = rowH - 13;
+        const g = el('g');
+        g.appendChild(el('rect', { x: x0, y: y0 + 6.5, width: Math.max(3, x1 - x0), height: bh, rx: 4, fill: sp.color }));
+        g.addEventListener('pointerenter', () => {
+          svg.querySelectorAll('.hover-band')[i].classList.add('on');
+          tip.show((x0 + x1) / 2, y0,
+            `<div class="tip-t">${r.label}</div>` +
+            tipRows([{ c: sp.color, k: sp.name || (spec.spanLabel || 'Tempoh'), v: sp.range || `${sp.from}–${sp.to}` }]) +
+            (sp.note ? `<div class="tip-n">${sp.note}</div>` : ''));
+        });
+        g.addEventListener('pointerleave', () => { svg.querySelectorAll('.hover-band')[i].classList.remove('on'); tip.hide(); });
+        svg.appendChild(g);
+      });
+    });
+    return svg;
+  });
+}
+
+/* =============================================================
+   9. SPARKLINE (tiny, for stat tiles)
+   ============================================================= */
+function sparkline(box, values, color, opts = {}) {
+  mount(box, W => {
+    const H = opts.height || 34;
+    const lo = Math.min(...values, opts.zero ? 0 : Infinity), hi = Math.max(...values);
+    const px = i => (i / (values.length - 1)) * (W - 4) + 2;
+    const py = v => H - 3 - ((v - lo) / ((hi - lo) || 1)) * (H - 8);
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, 'aria-hidden': 'true' });
+    const d = 'M' + values.map((v, i) => `${px(i)} ${py(v)}`).join(' L');
+    if (opts.area) svg.appendChild(el('path', { d: d + ` L${px(values.length - 1)} ${H} L${px(0)} ${H} Z`, fill: color, opacity: 0.14 }));
+    svg.appendChild(el('path', { d, fill: 'none', stroke: color, 'stroke-width': 2, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }));
+    svg.appendChild(el('circle', { cx: px(values.length - 1), cy: py(values[values.length - 1]), r: 3, fill: color }));
+    return svg;
+  });
+}
+
+/* =============================================================
+   10. DONUT / PROPORTION BAR
+   spec:{ parts:[{name,value,color}], fmt, height }
+   ============================================================= */
+function propBar(box, spec) {
+  mount(box, (W, boxEl) => {
+    const tip = makeTip(boxEl);
+    const H = spec.height || 46;
+    const total = spec.parts.reduce((s, p) => s + p.value, 0);
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': spec.aria || '' });
+    let x = 0;
+    spec.parts.forEach((p, i) => {
+      const w = (p.value / total) * W;
+      const g = el('g');
+      const isFirst = i === 0, isLast = i === spec.parts.length - 1;
+      const r = 5;
+      const ww = Math.max(0, w - (isLast ? 0 : 2));
+      g.appendChild(el('rect', { x, y: 0, width: ww, height: H - 20, rx: (isFirst || isLast) ? r : 2, fill: p.color }));
+      if (w > 46) {
+        g.appendChild(el('text', {
+          x: x + 8, y: 18, fill: '#fff', 'font-size': 12, 'font-weight': 700,
+          stroke: 'rgba(0,0,0,.5)', 'stroke-width': 2.6, 'paint-order': 'stroke', 'stroke-linejoin': 'round'
+        }, `${Math.round((p.value / total) * 100)}%`));
+      }
+      g.appendChild(el('text', { class: 'ax-label', x: x + ww / 2, y: H - 5, 'text-anchor': 'middle', 'font-size': 10.5 }, w > 60 ? p.name : ''));
+      const xx = x;
+      g.addEventListener('pointerenter', () => tip.show(xx + ww / 2, 0,
+        `<div class="tip-t">${p.name}</div>` + tipRows([
+          { c: p.color, k: spec.valueLabel || 'Nilai', v: spec.fmt(p.value) },
+          { k: '% ' + (spec.ofLabel || 'daripada jumlah'), v: `${((p.value / total) * 100).toFixed(1)}%` }
+        ]) + (p.note ? `<div class="tip-n">${p.note}</div>` : '')));
+      g.addEventListener('pointerleave', () => tip.hide());
+      svg.appendChild(g);
+      x += w;
+    });
+    return svg;
+  });
+}
+
+/* =============================================================
+   DATA — Laporan RCI Tabung Haji (30 Ogos 2022)
+   Semua angka dipetik terus daripada laporan. Rujukan perenggan
+   disertakan supaya setiap nombor boleh dijejak ke sumber.
+   Bilingual: T(ms, en)
+   ============================================================= */
+
+const T = (ms, en) => ({ ms, en: en || ms });
+
+const DATA = {};
+
+/* ---------- 0. META ---------- */
+DATA.meta = {
+  reportDate: '2022-08-30',
+  scope: [2014, 2020],
+  commissioners: [
+    { name: 'Tun Md Raus bin Sharif', role: T('Pengerusi · Mantan Ketua Hakim Negara', 'Chair · Former Chief Justice') },
+    { name: 'Tan Sri Samsudin bin Osman', role: T('Mantan Ketua Setiausaha Negara', 'Former Chief Secretary to the Government') },
+    { name: 'Tan Sri Abdul Rashid bin Hussain', role: T('Pengasas RHB Group', 'Founder, RHB Group') },
+    { name: 'Tan Sri Dr. Mohd Munir bin Abdul Majid', role: T('Pengerusi CARI ASEAN', 'Chairman, CARI ASEAN') },
+    { name: 'Profesor Dr. Asmadi bin Mohamed Naim', role: T('Naib Canselor UniSHAMS', 'Vice-Chancellor, UniSHAMS') },
+    { name: 'Norsyahrin bin Hamidon', role: T('Akauntan Bertauliah', 'Chartered Accountant') }
+  ],
+  secretary: T('Datuk Hajah Hakimah binti Mohd Yusoff — Ketua Pengarah JAKIM', 'Datuk Hajah Hakimah binti Mohd Yusoff — Director-General, JAKIM'),
+  method: [
+    T('Pengumpulan rekod dan dokumen', 'Collection of records and documents'),
+    T('Taklimat agensi', 'Agency briefings'),
+    T('Akuan Berkanun Saksi', 'Witness statutory declarations'),
+    T('Prosiding Suruhanjaya', 'Commission proceedings')
+  ]
+};
+
+/* ---------- 1. KPI HERO TILES ---------- */
+DATA.kpi = [
+  {
+    id: 'swing2017',
+    label: T('Untung dilapor vs rugi sebenar, 2017', 'Reported profit vs true loss, 2017'),
+    value: '4.8', unit: T('bilion swing', 'billion swing'),
+    tone: 'critical',
+    note: T('LTH melapor untung <b>RM3.4 bilion</b>. Di bawah MFRS penuh, ia sepatutnya <b>rugi bersih RM1.4 bilion</b>.',
+            'LTH reported a <b>RM3.4 billion</b> profit. Under full MFRS it should have been a <b>RM1.4 billion net loss</b>.'),
+    ref: '¶2.1'
+  },
+  {
+    id: 'premium',
+    label: T('Premium bailout UJSB', 'UJSB bailout premium'),
+    value: '10.2', unit: T('bilion', 'billion'),
+    tone: 'critical',
+    note: T('Aset dipindah pada <b>RM19.9 bilion</b> sedangkan nilai pasaran hanya <b>RM9.7 bilion</b>.',
+            'Assets transferred at <b>RM19.9 billion</b> against a market value of just <b>RM9.7 billion</b>.'),
+    ref: '¶27'
+  },
+  {
+    id: 'govt',
+    label: T('Komitmen kerajaan, RMK-11 hingga RMK-13', 'Government commitment, 11th–13th Malaysia Plan'),
+    value: '17.8', unit: T('bilion', 'billion'),
+    tone: 'warning',
+    note: T('Diluluskan Jemaah Menteri 5 April 2019 untuk menampung kekurangan penebusan Sukuk UJSB.',
+            'Approved by Cabinet on 5 April 2019 to cover the UJSB Sukuk redemption shortfall.'),
+    ref: '¶29'
+  },
+  {
+    id: 'hibah',
+    label: T('Jumlah hibah dibayar, 2014–2017', 'Total hibah paid, 2014–2017'),
+    value: '12.65', unit: T('bilion', 'billion'),
+    tone: 'critical',
+    note: T('Lebihan sebenar sepanjang empat tahun itu hanya <b>RM0.99 bilion</b>. Bakinya datang daripada rizab.',
+            'The actual four-year surplus was only <b>RM0.99 billion</b>. The rest came out of reserves.'),
+    ref: '¶3.9.2'
+  }
+];
+
+/* ---------- 2. KUNCI KIRA-KIRA (PwC) — ¶3.9.2 ---------- */
+DATA.balanceSheet = [
+  { year: 2014, assets: 54751, liabilities: -51866, before: 2885,  hibah: -3237, after: -352 },
+  { year: 2015, assets: 60196, liabilities: -60062, before: 134,   hibah: -3220, after: -3086 },
+  { year: 2016, assets: 64321, liabilities: -65581, before: -1260, hibah: -2871, after: -4131 },
+  { year: 2017, assets: 70317, liabilities: -71086, before: -769,  hibah: -3324, after: -4093 }
+];
+DATA.balanceSheetNotes = {
+  2014: T('Satu-satunya tahun dengan lebihan sebenar — tetapi hibah RM3.24 bilion tetap menjadikannya defisit.',
+          'The only year with a real surplus — yet RM3.24 billion in hibah still tipped it into deficit.'),
+  2015: T('Lebihan menyusut kepada RM134 juta sahaja, namun hibah dikekalkan pada RM3.22 bilion.',
+          'Surplus collapsed to just RM134 million, yet hibah was held at RM3.22 billion.'),
+  2016: T('Liabiliti melebihi aset buat kali pertama. Hibah tetap dibayar RM2.87 bilion.',
+          'Liabilities exceeded assets for the first time. RM2.87 billion in hibah was still paid.'),
+  2017: T('Tahun krisis: hibah tertinggi (RM3.32 bilion) dibayar atas dasar aset yang dinilai semula secara dalaman.',
+          'Crisis year: the largest hibah (RM3.32 billion) paid on the back of internally revalued assets.')
+};
+
+/* ---------- 3. KADAR HIBAH — ¶3.9.22, kos ¶3.11.7 ---------- */
+DATA.hibah = [
+  { year: 2014, annual: 6.25, hajj: 2.00, cost: 3.237 },
+  { year: 2015, annual: 5.00, hajj: 3.00, cost: 3.220 },
+  { year: 2016, annual: 4.25, hajj: 1.50, cost: 2.871 },
+  { year: 2017, annual: 4.50, hajj: 1.75, cost: 3.324 },
+  { year: 2018, annual: 1.25, hajj: 0,    cost: null },
+  { year: 2019, annual: 3.05, hajj: 0,    cost: null },
+  { year: 2020, annual: 3.10, hajj: 0,    cost: null },
+  { year: 2021, annual: 3.10, hajj: 0,    cost: null }
+];
+DATA.hibahNotes = {
+  2014: T('Kadar tertinggi dalam tempoh siasatan: 8.25% termasuk hibah haji.', 'Highest rate in the inquiry period: 8.25% including the hajj bonus.'),
+  2017: T('KAN mengeluarkan "Emphasis of Matter". Tanpa Sijil Audit Bersih, hibah ini tidak sepatutnya diisytiharkan.',
+          'The Auditor-General issued an "Emphasis of Matter". Without a clean audit certificate this hibah should never have been declared.'),
+  2018: T('Selepas penstrukturan dan pematuhan penuh piawaian perakaunan, LTH hanya mampu 1.25%.',
+          'After restructuring and full compliance with accounting standards, LTH could afford only 1.25%.'),
+  2019: T('Normalisasi kepada 3.05% — dasar baharu: 50–100 mata asas melebihi purata deposit bank Islam.',
+          'Normalised to 3.05% — new policy: 50–100 basis points above the average Islamic bank deposit rate.')
+};
+
+/* ---------- 4. RESTATEMENT 2017 (waterfall) ---------- */
+DATA.restatement = [
+  { key: 'reported', label: T('Untung dilaporkan 2017', 'Reported profit 2017'), value: 3.4, type: 'start',
+    note: T('Seperti direkodkan dalam Laporan Kewangan 2017 yang diberi Sijil Audit Bersih.',
+            'As recorded in the 2017 financial statements, which received a clean audit certificate.') },
+  { key: 'fin', label: T('Rosot nilai aset kewangan tidak direkod', 'Unrecorded financial-asset impairment'), value: -1.310, type: 'delta',
+    note: T('Akuan Berkanun pegawai JAN: sepatutnya direkod jika FRS 139 dipatuhi. (¶3.9.13)',
+            'Auditor statutory declaration: should have been recorded had FRS 139 been followed. (¶3.9.13)') },
+  { key: 'sub', label: T('Rosot nilai anak & syarikat bersekutu', 'Subsidiary & associate impairment'), value: -0.228, type: 'delta',
+    note: T('RM227.81 juta merangkumi tiga subsidiari dan tiga syarikat bersekutu — RM164.58 juta daripadanya TH Heavy Engineering. (¶19)',
+            'RM227.81 million across three subsidiaries and three associates — RM164.58 million of it TH Heavy Engineering. (¶19)') },
+  { key: 'other', label: T('Pelarasan MFRS lain (baki penyesuaian)', 'Other MFRS adjustments (balancing figure)'), value: -3.262, type: 'delta', derived: true,
+    note: T('<b>Angka baki</b>, bukan angka tersurat dalam laporan. PwC menyenaraikan punca tanpa jumlah individu: tiada rosot nilai syarikat bersekutu, pembiayaan anak syarikat dan instrumen pendapatan tetap; FRS 140 tidak dipatuhi bagi pelaburan hartanah; dividen anak syarikat direkod walaupun tidak pernah dibayar. (¶20)',
+            '<b>A balancing figure</b>, not stated as such in the report. PwC lists the causes without individual amounts: no impairment on associates, subsidiary financing or fixed-income instruments; FRS 140 not applied to investment property; subsidiary dividends booked though never paid. (¶20)') },
+  { key: 'actual', label: T('Rugi bersih sebenar di bawah MFRS', 'True net loss under MFRS'), value: -1.4, type: 'total',
+    note: T('Kedudukan kewangan LTH sudah kritikal pada tahun kewangan 2017. (¶2.1)',
+            "LTH's financial position was already critical in FY2017. (¶2.1)") }
+];
+
+/* ---------- 5. RAV — ¶3.9.12 / ¶3.9.13 ---------- */
+DATA.rav = {
+  assets: 70317, uplift: 4466, assetsRav: 74783, liabilities: 74410, distributable: 373,
+  hiddenImpairment: 1537, netLiability: 1164, pwcNetLiability: 4093,
+  thpUplift: 2294, thpValuation: 4600, thpProfessional: 556, thpEstimate: 4044,
+  thresholds: [70, 85, 90],
+  rbLoss: 2.6
+};
+
+/* ---------- 6. DEPOSIT — ¶3.9.29 / ¶3.9.30 ---------- */
+DATA.deposits = [
+  { label: T('Sebelum 2018', 'Pre-2018'), value: 73, note: T('Saiz deposit sebelum pengumuman hibah 1.25%.', 'Deposit base before the 1.25% hibah announcement.') },
+  { label: T('Akhir 2019', 'End 2019'), value: 69, note: T('Pengecutan selepas pengumuman — terutamanya pendeposit besar. Bank run yang dikhuatiri tidak berlaku.', 'Contraction after the announcement — mainly large depositors. The feared bank run did not materialise.') },
+  { label: T('Akhir 2020', 'End 2020'), value: 76, note: T('Keyakinan pulih selepas penerangan media dan perjumpaan pemegang kepentingan.', 'Confidence recovered after media briefings and stakeholder meetings.') },
+  { label: T('Laporan RCI', 'At RCI report'), value: 88, note: T('8.6 juta pendeposit. Dijangka mencecah RM100 bilion dalam dua tahun.', '8.6 million depositors. Projected to reach RM100 billion within two years.') }
+];
+
+/* ---------- 7. BONUS — ¶3.12 ---------- */
+DATA.bonus = [
+  { year: 2010, total: 25,   months: 3.5,  profit: null },
+  { year: 2011, total: 35,   months: 4,    profit: null },
+  { year: 2012, total: 38,   months: 4.5,  profit: null },
+  { year: 2013, total: 49,   months: 10,   profit: 2634 },
+  { year: 2014, total: 74,   months: 13,   profit: 2979 },
+  { year: 2015, total: 65,   months: 10,   profit: 3537 },
+  { year: 2016, total: 25,   months: 3,    profit: 2481 },
+  { year: 2017, total: 56.7, months: 6,    profit: 2798 },
+  { year: 2018, total: 10.8, months: 1,    profit: null },
+  { year: 2019, total: 11.6, months: 1,    profit: null },
+  { year: 2020, total: 14.1, months: 1,    profit: null }
+];
+DATA.bonusFlagged = [
+  { entity: 'TH Properties Sdn. Bhd.', year: 2017, amount: 1148400,
+    issue: T('Bonus kepada Lembaga Pengarah tanpa kelulusan LTH sebagai pemegang ekuiti utama — melanggar seksyen 230 Akta Syarikat 2016.',
+             'Board-director bonuses paid without LTH shareholder approval — a breach of s.230 of the Companies Act 2016.') },
+  { entity: 'THP Australia Capital Sdn. Bhd.', year: 2018, amount: 1045000,
+    issue: T('Kelulusan Exco tidak mematuhi resolusi Lembaga; Exco tidak diberi mandat.',
+             'Exco approval did not follow the board resolution; the Exco had no mandate to grant it.') }
+];
+
+/* ---------- 8. UJSB ---------- */
+DATA.ujsb = {
+  transfer: { value: 19900, market: 9729, premium: 10171, book: 18981,
+              listedShares: 106, plantations: 1, properties: 29, cash: 300 },
+  assets: [
+    { name: T('Ekuiti tersenarai (106 kaunter)', 'Listed equities (106 counters)'), transfer: 16851, market: 7600, premium: 9251,
+      note: T('Termasuk baki 283.7 juta saham FGV yang diambil alih pada harga kos — mengelak kerugian direalisasi ~RM1.1 bilion.',
+              'Includes 283.7 million residual FGV shares taken over at cost — averting a realised loss of ~RM1.1 billion.') },
+    { name: T('Hartanah dan tanah (29 aset)', 'Property and land (29 assets)'), transfer: 2247, market: 1411, premium: 836,
+      note: T('Termasuk hotel dan kompleks haji dengan pulangan kurang 2%.', 'Includes hotels and hajj complexes yielding under 2%.') },
+    { name: T('Syarikat perladangan (Sri Aman, Sarawak)', 'Plantation company (Sri Aman, Sarawak)'), transfer: 802, market: 718, premium: 84,
+      note: T('LTH menolak Hak Penolakan Pertama pada 24 Januari 2020.', 'LTH declined its right of first refusal on 24 January 2020.') }
+  ],
+  sukuk: [
+    { series: 1, principal: 10.0, nominal: 13.2, tenure: 7,  ytm: 4.05, issued: 2018, matures: 2025 },
+    { series: 2, principal: 9.6,  nominal: 14.3, tenure: 10, ytm: 4.10, issued: 2018, matures: 2028 }
+  ],
+  govt: { total: 17.8, rmk11: 0.5, rmk1213: 17.3, perYear: 1.73, approved: '2019-04-05', grant2020: 0.5 },
+  incomeShare: 26,
+  guarantee: T('Sukuk UJSB <b>tidak dijamin Kerajaan</b> — hanya Surat Sokongan Kewangan (Letter of Comfort) daripada Menteri Kewangan di bawah seksyen 14 Akta 61 (27 Mei 2019).',
+               'The UJSB Sukuk is <b>not government-guaranteed</b> — only a Letter of Comfort from the Finance Minister under s.14 of Act 61 (27 May 2019).'),
+  disposalNote: T('Tender terbuka awal 2020: hanya sebidang tanah di Mukim Sungai Segamat, Johor terjual (RM920 ribu). 17 hartanah lain langsung tiada bidaan.',
+                  'Open tender in early 2020: only one plot in Mukim Sungai Segamat, Johor sold (RM920,000). The other 17 properties drew no bids at all.')
+};
+
+/* ---------- 9. HAFIS — ¶3.16 ---------- */
+DATA.hafis = [
+  { year: 2013, cost: 15553, pays: null,  subsidy: null,  pct: null,  total: null,   proj: false },
+  { year: 2014, cost: 16155, pays: 9980,  subsidy: 6175,  pct: 38.0,  total: 106,    proj: false },
+  { year: 2015, cost: 17270, pays: 9980,  subsidy: 7290,  pct: 42.0,  total: 135,    proj: false },
+  { year: 2016, cost: 18890, pays: 9980,  subsidy: 8910,  pct: 47.0,  total: 160,    proj: false },
+  { year: 2017, cost: 19550, pays: 9980,  subsidy: 9570,  pct: 49.0,  total: 298,    proj: false },
+  { year: 2018, cost: 22450, pays: 9980,  subsidy: 12470, pct: 56.0,  total: 314,    proj: false },
+  { year: 2019, cost: 22900, pays: 9980,  subsidy: 12920, pct: 56.0,  total: 299,    proj: false },
+  { year: 2022, cost: 25540, pays: 12980, subsidy: 12560, pct: 49.2,  total: 376.8,  proj: true },
+  { year: 2023, cost: 26280, pays: 12980, subsidy: 13300, pct: 50.6,  total: 399.0,  proj: true },
+  { year: 2024, cost: 28160, pays: 12980, subsidy: 15180, pct: 53.9,  total: 455.4,  proj: true },
+  { year: 2025, cost: 29570, pays: 12980, subsidy: 16590, pct: 56.1,  total: 497.7,  proj: true },
+  { year: 2026, cost: 31040, pays: 12980, subsidy: 18060, pct: 58.2,  total: 541.8,  proj: true },
+  { year: 2027, cost: 32592, pays: 12980, subsidy: 19612, pct: 60.2,  total: 588.4,  proj: true },
+  { year: 2028, cost: 34221, pays: 12980, subsidy: 21241, pct: 62.1,  total: 637.2,  proj: true },
+  { year: 2029, cost: 35932, pays: 12980, subsidy: 22952, pct: 63.9,  total: 688.6,  proj: true },
+  { year: 2030, cost: 37729, pays: 12980, subsidy: 24749, pct: 65.6,  total: 742.5,  proj: true }
+];
+DATA.hafisMeta = {
+  tiers: [
+    { tier: 'B40', fee: 10980 },
+    { tier: T('Bukan B40', 'Non-B40'), fee: 12980 }
+  ],
+  minFund: 60,
+  since2001: 2.02,
+  note: T('Bayaran haji dibekukan pada RM9,980 dari 2014 hingga 2019 walaupun kos sebenar naik 42%. Bezanya ditanggung LTH daripada keuntungan pelaburan — wang yang sepatutnya menjadi hibah pendeposit.',
+          'The pilgrim fee was frozen at RM9,980 from 2014 to 2019 even as the real cost rose 42%. LTH absorbed the gap out of investment income — money that would otherwise be depositors\' hibah.')
+};
+
+/* ---------- 10. PELABURAN BERMASALAH — ¶3.14 ---------- */
+DATA.investments = [
+  {
+    name: 'FGV Berhad', sector: 'plantation', type: T('Pelaburan portfolio', 'Portfolio investment'), country: 'MY',
+    year: 2012, invested: 1310.0, loss: 1058.9, severity: 'high',
+    what: T('LTH melanggan IPO FGV pada RM4.65/RM4.55 seunit (kos RM1.25 bilion) dan menambah lagi RM116 juta. Harga jatuh ke RM0.885. Tiada strategi keluar — LTH terus memegang sehingga baki 283.7 juta saham diambil alih UJSB pada harga kos, mengelak kerugian direalisasi ~RM1.1 bilion.',
+            'LTH subscribed to the FGV IPO at RM4.65/RM4.55 a unit (RM1.25 billion) and added a further RM116 million. The price fell to RM0.885. There was no exit strategy — LTH held on until UJSB absorbed the residual 283.7 million shares at cost, averting a realised loss of ~RM1.1 billion.'),
+    flags: [T('Tiada strategi keluar', 'No exit strategy'), T('Kerugian tidak nyata terbesar', 'Largest unrealised loss'), T('Diselamatkan UJSB', 'Rescued by UJSB')],
+    status: T('Diambil alih UJSB pada harga kos', 'Absorbed by UJSB at cost')
+  },
+  {
+    name: 'Al-Rawda Real Estates', sector: 'hospitality', type: T('Pelaburan portfolio', 'Portfolio investment'), country: 'SA',
+    year: 2015, invested: null, loss: 386.8, severity: 'high',
+    what: T('Pajakan jangka panjang empat hotel di Makkah dan Madinah (SR1,426 juta), dengan Al-Rawda sebagai pengendali. Sejak Mac 2019 sewa tidak dibayar; tunggakan SR560.7 juta setakat Disember 2021. ECL RM202.8 juta (2020) + jangkaan RM184 juta (2021).',
+            'Long-term leases on four hotels in Makkah and Madinah (SR1,426 million), with Al-Rawda as operator. Rent stopped in March 2019; arrears reached SR560.7 million by December 2021. ECL of RM202.8 million (2020) plus an expected RM184 million (2021).'),
+    flags: [T('Kegagalan bayaran sewa berterusan', 'Sustained rent default'), T('Bergantung pada nota janji peribadi', 'Reliance on a personal promissory note'), T('Pertikaian syariah', 'Shariah dispute')],
+    status: T('Perintah penguatkuasaan diperoleh; likuidasi aset & timbang tara berjalan', 'Enforcement orders obtained; asset liquidation and arbitration ongoing')
+  },
+  {
+    name: 'Trurich Resources Sdn. Bhd.', sector: 'plantation', type: T('Usaha sama', 'Joint venture'), country: 'ID',
+    year: 2009, invested: 364.3, loss: 364.3, severity: 'high',
+    what: T('Usaha sama dengan Felda Global Ventures Kalimantan untuk membangunkan sehingga 200,000 hektar ladang sawit. Tidak memberi hasil; Trurich menjadi insolven (liabiliti semasa bersih RM119.67 juta pada 2017). Pelaburan LTH dirosot nilai 100%. Baki pinjaman Maybank USD179 juta tertunggak.',
+            'A joint venture with Felda Global Ventures Kalimantan to develop up to 200,000 hectares of oil palm. It never produced; Trurich became insolvent (net current liabilities of RM119.67 million in 2017). LTH wrote the investment down to zero. A USD179 million Maybank loan remains outstanding.'),
+    flags: [T('Laporan kesesuaian tanah dimanipulasi', 'Land-suitability report manipulated'), T('Syarikat insolven', 'Insolvent company'), T('Rosot nilai penuh', 'Fully impaired')],
+    status: T('Laporan polis 13 Dis 2018; siasatan rentas sempadan berterusan', 'Police report 13 Dec 2018; cross-border investigation ongoing')
+  },
+  {
+    name: 'Alam Maritim / TH Marine', sector: 'oilgas', type: T('Usaha sama', 'Joint venture'), country: 'MY',
+    year: 2015, invested: 334.0, loss: 278.0, severity: 'high',
+    what: T('51% ekuiti dalam usaha sama perkhidmatan kapal sokongan luar pesisir (6 AHTS, USD20.27 juta) ditambah 2 AHTS milik penuh. Ekuiti RM198 juta dirosot nilai sepenuhnya; RM80 juta daripada RM136 juta pembiayaan turut dirosot nilai. PwC menganggarkan hanya RM70.4 juta boleh diperoleh semula.',
+            'A 51% stake in an offshore support-vessel joint venture (6 AHTS, USD20.27 million) plus 2 wholly-owned AHTS. The RM198 million equity was fully impaired; RM80 million of the RM136 million financing was impaired too. PwC estimates only RM70.4 million is recoverable.'),
+    flags: [T('Kemelesetan industri minyak & gas', 'Oil & gas downturn'), T('Kebolehpulihan rendah', 'Low recoverability')],
+    status: T('PwC: hanya RM70.4 juta dijangka pulih', 'PwC: only RM70.4 million expected to be recovered')
+  },
+  {
+    name: 'Deru Semangat Sdn. Bhd.', sector: 'plantation', type: T('Usaha sama', 'Joint venture'), country: 'MY',
+    year: 2014, invested: 257.0, loss: 225.0, severity: 'high',
+    what: T('Usaha sama ladang sawit di Mukim Tembeling, Pahang (kelulusan Menteri 2014, RM526.16 juta) melibatkan pembalakan hutan simpan. Ini melanggar polisi NOPE Wilmar International, menyebabkan TH Plantations tidak dapat menjual hasil sawitnya. Pelaburan RM257 juta dirosot nilai kepada RM32 juta.',
+            'An oil-palm joint venture in Mukim Tembeling, Pahang (ministerial approval 2014, RM526.16 million) that involved logging a forest reserve. This breached Wilmar International\'s NOPE policy, leaving TH Plantations unable to sell its crop. The RM257 million investment was written down to RM32 million.'),
+    flags: [T('Pembalakan hutan simpan', 'Logging in a forest reserve'), T('Melanggar polisi NOPE', 'NOPE policy breach'), T('Kehilangan pembeli utama', 'Lost its main buyer')],
+    status: T('Ekuiti dirungkai kepada YAM Tengku Muda Pahang (RM259 juta)', 'Stake unwound to YAM Tengku Muda Pahang (RM259 million)')
+  },
+  {
+    name: 'TH Plantations Berhad', sector: 'plantation', type: T('Anak syarikat', 'Subsidiary'), country: 'MY',
+    year: 2012, invested: 1200.0, loss: 170.0, severity: 'high',
+    what: T('Pembelian ladang 2012–2014 dibiayai Sukuk RM1.2 bilion daripada LTH, tetapi hanya 58% ladang produktif. Laporan forensik PwC (25 April 2019) mendapati pengurusan kanan dan Lembaga THP gagal memenuhi tanggungjawab fidusiari — khususnya pengambilalihan Bumi Suria Ventures, Maju Warisanmas dan PT Persada Kencana Prima.',
+            'Estate acquisitions in 2012–2014 were funded by a RM1.2 billion sukuk from LTH, yet only 58% of the land was productive. A PwC forensic report (25 April 2019) found THP\'s senior management and board had failed their fiduciary duties — notably over the Bumi Suria Ventures, Maju Warisanmas and PT Persada Kencana Prima acquisitions.'),
+    flags: [T('Kegagalan tanggungjawab fidusiari', 'Fiduciary-duty failure'), T('Hanya 58% ladang produktif', 'Only 58% of estates productive'), T('Nilai RAV digelembungkan', 'RAV valuation inflated')],
+    status: T('Siasatan SC dan PDRM berterusan', 'Securities Commission and police investigations ongoing')
+  },
+  {
+    name: 'Putrajaya Perdana Berhad', sector: 'other', type: T('Pelaburan portfolio', 'Portfolio investment'), country: 'MY',
+    year: 2014, invested: 193.5, loss: 145.3, severity: 'high',
+    what: T('30% ekuiti dibeli Disember 2014 (RM193.5 juta) daripada Cendana Destini, dengan sasaran penyenaraian dalam setahun. PPB gagal disenaraikan dan gagal capai sasaran untung RM86 juta. Put Option RM210.7 juta dikeluarkan pada 7 Mac 2018 — Cendana Destini gagal membayar. Nilai buku bersih kini RM48.2 juta.',
+            'A 30% stake bought in December 2014 (RM193.5 million) from Cendana Destini, targeting a listing within a year. PPB never listed and missed its RM86 million profit target. A RM210.7 million put option was exercised on 7 March 2018 — Cendana Destini failed to pay. Net book value is now RM48.2 million.'),
+    flags: [T('Penyenaraian gagal', 'Listing failed'), T('Sasaran untung tidak dicapai', 'Profit target missed'), T('Put Option tidak dibayar', 'Put option unpaid')],
+    status: T('Cadangan pengaturan penyelesaian dalam kelulusan dalaman', 'Settlement arrangement under internal approval')
+  },
+  {
+    name: 'Al-Fareeda Residential Fund', sector: 'property', type: T('Pelaburan portfolio', 'Portfolio investment'), country: 'SA',
+    year: 2013, invested: 63.0, loss: 63.0, severity: 'high',
+    what: T('SR76 juta (RM63 juta, 13.8% daripada dana SR550 juta) dilaburkan melalui pengurus dana Anfaal Capital dalam sektor perumahan Arab Saudi. Undang-undang buruh baharu, kontraktor bermasalah dan kejatuhan harga minyak menjejaskan dana. Tiada perkembangan sejak 2017 dan pengurus dana hilang kesan.',
+            'SR76 million (RM63 million, 13.8% of an SR550 million fund) invested through fund manager Anfaal Capital in Saudi residential property. New labour laws, troubled contractors and the oil-price collapse sank the fund. Nothing has moved since 2017 and the fund manager cannot be traced.'),
+    flags: [T('Pengurus dana hilang kesan', 'Fund manager untraceable'), T('Tiada perkembangan sejak 2017', 'Dormant since 2017'), T('Dihapus kira 100%', '100% written off')],
+    status: T('Dihapus kira sepenuhnya', 'Fully written off')
+  },
+  {
+    name: 'Abraj Sdn. Bhd.', sector: 'property', type: T('Usaha sama', 'Joint venture'), country: 'MY',
+    year: 2009, invested: 85.0, loss: 40.25, severity: 'medium',
+    what: T('Usaha sama hartanah dengan Amanah Raya Berhad sejak 11 November 2009. Sejak 2015 syarikat tidak mampu menjana pendapatan mencukupi untuk membayar pinjaman bank, bertambah buruk selepas penyewa utama berpindah.',
+            'A property joint venture with Amanah Raya Berhad from 11 November 2009. From 2015 the company could not generate enough income to service its bank borrowings, worsening after the anchor tenant left.'),
+    flags: [T('Kehilangan penyewa utama', 'Anchor tenant lost'), T('Pendapatan sewa tidak mencukupi', 'Rental income insufficient')],
+    status: T('50% pegangan dijual kepada Amanah Raya, Disember 2020', '50% stake sold to Amanah Raya, December 2020')
+  },
+  {
+    name: 'Emrail Sdn. Bhd.', sector: 'other', type: T('Pelaburan portfolio', 'Portfolio investment'), country: 'MY',
+    year: 2016, invested: 20.17, loss: 19.3, severity: 'medium',
+    what: T('15.3% ekuiti dibeli 7 Jun 2016 (RM20.17 juta) daripada Lingkaran Hartaniaga. Emrail gagal disenaraikan dan gagal capai sasaran untung RM36.1 juta. LTH menguatkuasakan Put Option RM20.3 juta — Lingkaran Hartaniaga hanya membayar RM2 juta.',
+            'A 15.3% stake bought on 7 June 2016 (RM20.17 million) from Lingkaran Hartaniaga. Emrail never listed and missed its RM36.1 million profit target. LTH exercised a RM20.3 million put option — Lingkaran Hartaniaga paid only RM2 million.'),
+    flags: [T('Penyenaraian gagal', 'Listing failed'), T('Put Option tidak dibayar', 'Put option unpaid')],
+    status: T('Timbang tara AIAC didaftarkan 22 April 2022', 'AIAC arbitration registered 22 April 2022')
+  },
+  {
+    name: 'Wellspring Worldwide Limited', sector: 'other', type: T('Pelaburan portfolio', 'Portfolio investment'), country: 'MY',
+    year: 2014, invested: 18.4, loss: 19.03, severity: 'medium',
+    what: T('10% ekuiti dibeli 21 September 2014 (RM18.4 juta). Selepas syarikat gagal disenaraikan, LTH menguatkuasakan Put Option RM19.03 juta. Mahkamah memerintahkan promoter membayar RM20.8 juta pada 5 Oktober 2018 — mereka gagal membayar.',
+            'A 10% stake bought on 21 September 2014 (RM18.4 million). After the company failed to list, LTH exercised a RM19.03 million put option. The court ordered the promoters to pay RM20.8 million on 5 October 2018 — they did not.'),
+    flags: [T('Penyenaraian gagal', 'Listing failed'), T('Promoter tidak berkemampuan', 'Promoters unable to pay')],
+    status: T('Notis kebankrapan dibenarkan mahkamah, 25 Januari 2022', 'Bankruptcy notice allowed by the court, 25 January 2022')
+  },
+  {
+    name: 'TH Hotel & Residences', sector: 'hospitality', type: T('Anak syarikat', 'Subsidiary'), country: 'MY',
+    year: 2007, invested: null, loss: 5.9, severity: 'medium',
+    what: T('Hotel dan kompleks haji di Alor Setar, Kuching, Pulau Pinang, Kuala Terengganu dan Kota Kinabalu — semuanya berpulangan kurang 2% — dipindahkan kepada UJSB pada RM804.1 juta, premium ~55% atas nilai buku. Aset yang dikekalkan di Kelana Jaya mencatat kejatuhan hasil sewa 62% (RM16.5 juta → RM6.2 juta pada 2020).',
+            'Hotels and hajj complexes in Alor Setar, Kuching, Penang, Kuala Terengganu and Kota Kinabalu — all yielding under 2% — were transferred to UJSB at RM804.1 million, a ~55% premium to book. The retained Kelana Jaya asset saw rental income fall 62% (RM16.5 million → RM6.2 million in 2020).'),
+    flags: [T('Pulangan pelaburan kurang 2%', 'Returns below 2%'), T('Hasil sewa jatuh 62%', 'Rental income down 62%')],
+    status: T('Aset berpulangan rendah dipindahkan kepada UJSB, 2018', 'Low-yield assets transferred to UJSB, 2018')
+  },
+  {
+    name: 'PT TH Indo Plantations', sector: 'plantation', type: T('Syarikat bersekutu', 'Associate'), country: 'ID',
+    year: 2012, invested: null, loss: null, severity: 'high',
+    what: T('Penjualan 95% ekuiti LTH (83,000 hektar tanah di Riau, Sumatera) kepada PT Borneo Pacific. Syer dipindahkan sebelum bayaran penuh diterima, harga asal USD910 juta dikurangkan USD100 juta, dan LTH terpaksa memberi pendahuluan USD178.6 juta yang sepatutnya ditanggung pembeli.',
+            'The sale of LTH\'s 95% stake (83,000 hectares in Riau, Sumatra) to PT Borneo Pacific. Shares were transferred before full payment, the USD910 million price was cut by USD100 million, and LTH had to advance USD178.6 million that the buyer should have covered.'),
+    flags: [T('Syer dipindah sebelum bayaran penuh', 'Shares transferred before full payment'), T('Penyembunyian maklumat', 'Concealment of information'), T('Salah nyataan', 'Misrepresentation')],
+    status: T('Laporan polis 30 Nov 2018; siasatan rentas sempadan berterusan', 'Police report 30 Nov 2018; cross-border investigation ongoing'),
+    noAmount: T('Kerugian dalam ringgit tidak dinyatakan dalam laporan.', 'The report does not state a ringgit loss figure.')
+  },
+  {
+    name: 'TH Properties Sdn. Bhd.', sector: 'property', type: T('Anak syarikat', 'Subsidiary'), country: 'MY',
+    year: null, invested: null, loss: 2.2, severity: 'medium',
+    what: T('Bonus istimewa RM2.2 juta dibayar kepada Ahli Lembaga dan pengurusan bagi 2017 dan 2018 tanpa kelulusan LTH sebagai pemegang ekuiti utama. Kelulusan Exco tidak mematuhi resolusi Lembaga kerana Exco tidak diberi mandat.',
+            'RM2.2 million in special bonuses paid to directors and management for 2017 and 2018 without approval from LTH as majority shareholder. The Exco approval breached the board resolution because the Exco had no mandate.'),
+    flags: [T('Konflik kepentingan', 'Conflict of interest'), T('Tiada kelulusan pemegang saham', 'No shareholder approval'), T('Exco di luar mandat', 'Exco acted beyond mandate')],
+    status: T('Lembaga TH Properties bersetuju menuntut semula bonus, 12 Ogos 2020', 'TH Properties board agreed to claw the bonuses back, 12 August 2020')
+  }
+];
+
+DATA.sectors = {
+  plantation:  { label: T('Perladangan', 'Plantation'),  color: 'var(--series-3)' },
+  hospitality: { label: T('Hospitaliti', 'Hospitality'), color: 'var(--series-2)' },
+  oilgas:      { label: T('Minyak & Gas', 'Oil & Gas'),  color: 'var(--series-1)' },
+  property:    { label: T('Hartanah', 'Property'),       color: 'var(--series-7)' },
+  other:       { label: T('Lain-lain', 'Other'),         color: 'var(--series-4)' }
+};
+
+/* ---------- 11. TADBIR URUS — ¶3.2–3.5 ---------- */
+DATA.chairmen = [
+  { name: 'Datuk Seri Abdul Azeez bin Abdul Rahim', from: 2013.5, to: 2018.4, politician: true,
+    bg: T('Ahli Parlimen Baling; Ahli Majlis Tertinggi UMNO', 'MP for Baling; UMNO Supreme Council member'), range: T('Jul 2013 – Mei 2018', 'Jul 2013 – May 2018') },
+  { name: 'Tan Sri Md Nor bin Md Yusof', from: 2018.5, to: 2021.8, politician: false,
+    bg: T('Perkhidmatan ditamatkan Menteri pada 15 Okt 2021, walaupun kontrak baru disambung dua tahun mulai 20 Jul 2020', 'Terminated by the Minister on 15 Oct 2021 despite a two-year renewal from 20 Jul 2020'), range: T('Jul 2018 – Okt 2021', 'Jul 2018 – Oct 2021') },
+  { name: 'Tan Sri Azman bin Mokhtar', from: 2021.97, to: 2022.7, politician: false,
+    bg: T('Menjawat jawatan sehingga tarikh laporan', 'In post as at the report date'), range: T('Dis 2021 – kini', 'Dec 2021 – present') }
+];
+DATA.ceos = [
+  { name: 'Tan Sri Ismee bin Ismail', from: 2013.0, to: 2016.5, subs: 7,
+    note: T('Kekal memegang jawatan di TH Plantations, Trurich dan TH Travel sehingga Mei 2018 selepas tamat perkhidmatan.', 'Stayed on the boards of TH Plantations, Trurich and TH Travel until May 2018 after leaving LTH.'), range: T('2006 – Jun 2016', '2006 – Jun 2016') },
+  { name: 'Datuk Seri Johan bin Abdullah', from: 2016.5, to: 2018.5, subs: 18,
+    note: T('Memegang 18 jawatan di anak syarikat LTH secara serentak — bilangan tertinggi bagi mana-mana KPE.', 'Held 18 subsidiary directorships at once — the highest of any CEO.'), range: T('Jul 2016 – Jun 2018', 'Jul 2016 – Jun 2018') },
+  { name: "Dato' Sri Zukri bin Samat", from: 2018.5, to: 2019.67, subs: 4,
+    note: T('Melepaskan jawatan di anak syarikat untuk mengelak konflik kepentingan.', 'Gave up subsidiary directorships to avoid conflicts of interest.'), range: T('Jul 2018 – Ogos 2019', 'Jul 2018 – Aug 2019') },
+  { name: 'Datuk Nik Mohd Hasyudeen bin Yusoff', from: 2019.67, to: 2021.35, subs: 4,
+    note: T('Perkhidmatan ditamatkan Menteri pada 5 Mei 2021, sebelum tempoh sebenar berakhir 31 Ogos 2021.', 'Terminated by the Minister on 5 May 2021, ahead of the actual 31 August 2021 end date.'), range: T('Sep 2019 – Mei 2021', 'Sep 2019 – May 2021') },
+  { name: 'Datuk Sri Amrin bin Awaluddin', from: 2021.35, to: 2022.7, subs: 3,
+    note: T('Meneruskan usaha menghidupkan semula Panel Pelaburan.', 'Continued the effort to revive the Investment Panel.'), range: T('Mei 2021 – kini', 'May 2021 – present') }
+];
+DATA.subsidiaryLoad = [
+  { name: 'Datuk Rozaida binti Omar', n: 23, role: T('Ketua Pegawai Kewangan', 'Chief Financial Officer') },
+  { name: 'Datuk Seri Johan bin Abdullah', n: 18, role: T('Ketua Pegawai Eksekutif', 'Chief Executive Officer') },
+  { name: "Dato' Noordin bin Sulaiman", n: 9, role: T('Anggota Lembaga', 'Board member') },
+  { name: 'Datuk Seri Abdul Azeez bin Abdul Rahim', n: 8, role: T('Pengerusi', 'Chairman') },
+  { name: 'Datuk Zaiton binti Mohd Hassan', n: 7, role: T('Anggota Lembaga', 'Board member') },
+  { name: 'Tan Sri Ismee bin Ismail', n: 7, role: T('Ketua Pegawai Eksekutif', 'Chief Executive Officer') },
+  { name: "Dato' Sri Zukri bin Samat", n: 4, role: T('Ketua Pegawai Eksekutif', 'Chief Executive Officer') },
+  { name: 'Datuk Nik Mohd Hasyudeen bin Yusoff', n: 4, role: T('Ketua Pegawai Eksekutif', 'Chief Executive Officer') },
+  { name: 'Tan Sri Badruddin bin Amiruldin', n: 3, role: T('Anggota Lembaga (ahli politik)', 'Board member (politician)') },
+  { name: 'Datuk Sri Amrin bin Awaluddin', n: 3, role: T('Ketua Pegawai Eksekutif', 'Chief Executive Officer') },
+  { name: 'Encik Abd Kadir bin Sahlan', n: 3, role: T('Pengurusan kanan', 'Senior management') }
+];
+DATA.committees = [
+  { name: T('Jawatankuasa Audit', 'Audit Committee'), statutory: true, state: 'active',
+    note: T('Ditubuhkan di bawah seksyen 11 Akta 535; kekal selepas penstrukturan 2018.', 'Established under s.11 of Act 535; retained after the 2018 restructuring.') },
+  { name: T('Jawatankuasa Risiko', 'Risk Committee'), statutory: true, state: 'active',
+    note: T('Kekal selepas penstrukturan semula jawatankuasa Lembaga, Julai 2018.', 'Retained after the July 2018 board-committee restructuring.') },
+  { name: T('Lembaga Tender', 'Tender Board'), statutory: true, state: 'active',
+    note: T('Jawatankuasa asal Lembaga yang kekal.', 'An original board committee that was retained.') },
+  { name: T('Panel Pelaburan', 'Investment Panel'), statutory: false, state: 'dissolved',
+    note: T('Meluluskan kertas pelaburan sebelum ke Lembaga dan Menteri — tetapi tiada anggota Lembaga menganggotainya. Dibubarkan Mei 2018 dan digantikan Exco Perniagaan yang diakui tidak pernah berfungsi. Kini diwujudkan semula.',
+            'Approved investment papers before they reached the board and Minister — yet no board member sat on it. Dissolved in May 2018 and replaced by a Business Exco that admittedly never functioned. Since revived.') },
+  { name: T('Majlis Penasihat Haji', 'Hajj Advisory Council'), statutory: false, state: 'dissolved',
+    note: T('Wujud sejak 1969 untuk menasihati Menteri tentang kebajikan jemaah; dibubarkan 2018.', 'In place since 1969 to advise the Minister on pilgrim welfare; dissolved in 2018.') },
+  { name: T('Jawatankuasa Urusan Haji', 'Hajj Management Committee'), statutory: false, state: 'new',
+    note: T('Ditubuhkan 2018 menggantikan Majlis Penasihat Haji. Suruhanjaya mencadangkan ia dikanunkan dan dipengerusikan Pengerusi LTH.', 'Formed in 2018 to replace the Hajj Advisory Council. The Commission recommends it be written into the Act and chaired by the LTH Chairman.') },
+  { name: T('Jawatankuasa Penasihat Syariah', 'Shariah Advisory Committee'), statutory: false, state: 'active',
+    note: T('Ditubuhkan 2015. Skopnya hanya isu mikro sehingga 2016 dan keputusannya tidak mengikat sepenuhnya.', 'Formed in 2015. Its scope covered only micro issues until 2016 and its rulings were not fully binding.') }
+];
+
+/* ---------- 12. AKAUNTABILITI — ¶3.15 ---------- */
+DATA.police = [
+  { date: '2018-11-30', ref: 'Dang Wangi/31331/2018',
+    subject: T('Salah nyataan dan penyembunyian maklumat dalam penjualan 95% ekuiti PT TH Indo Plantations kepada PT Borneo Pacific.',
+               'Misrepresentation and concealment in the sale of the 95% PT TH Indo Plantations stake to PT Borneo Pacific.'),
+    outcome: T('Siasatan PDRM berterusan — menunggu dokumen dan soal siasat di Indonesia.', 'Police investigation ongoing — awaiting documents and interviews in Indonesia.'), state: 'open' },
+  { date: '2018-11-30', ref: 'Dang Wangi/31347/2018',
+    subject: T('Penganjuran aktiviti dan penggunaan wang Yayasan Tabung Haji yang didakwa melanggar M&A. Pengadu: Idrus bin Ismail, mantan Setiausaha Syarikat LTH.',
+               'Activities and spending by Yayasan Tabung Haji alleged to breach its memorandum and articles. Complainant: Idrus bin Ismail, former LTH company secretary.'),
+    outcome: T('Kertas siasatan dirujuk kepada Jabatan Peguam Negara.', 'Investigation papers referred to the Attorney-General\'s Chambers.'), state: 'referred' },
+  { date: '2018-12-13', ref: 'Dang Wangi/32724/2018',
+    subject: T('Manipulasi laporan kesesuaian tanah bagi pengambilalihan ladang Trurich di Kalimantan. Pengadu: Aliatun binti Mahmud, mantan Setiausaha Trurich.',
+               'Manipulation of the land-suitability report for the Trurich estate acquisitions in Kalimantan. Complainant: Aliatun binti Mahmud, former Trurich secretary.'),
+    outcome: T('Siasatan PDRM berterusan — menunggu kebenaran pihak berkuasa Indonesia.', 'Police investigation ongoing — awaiting Indonesian authorities\' clearance.'), state: 'open' },
+  { date: '2019-01-16', ref: 'Dang Wangi/1484/2019',
+    subject: T('Salah nyataan berkaitan pengisytiharan hibah/untung boleh agih tahun kewangan 2017 — melanggar seksyen 22 Akta 535.',
+               'Misrepresentation over the FY2017 declaration of distributable profit/hibah — a breach of s.22 of Act 535.'),
+    outcome: T('Kertas siasatan dirujuk kepada Jabatan Peguam Negara.', 'Investigation papers referred to the Attorney-General\'s Chambers.'), state: 'referred' }
+];
+DATA.discipline = [
+  { cluster: T('Kluster 1 — penjualan saham THIP', 'Cluster 1 — THIP share sale'), charged: '2020-05-29', officers: 4,
+    first: T('Buang kerja (21 April 2021)', 'Dismissal (21 April 2021)'),
+    final: T('Turun pangkat (6 September 2021)', 'Demotion (6 September 2021)'),
+    note: T('Kesemua empat pegawai masih bertugas di LTH atau anak syarikatnya.', 'All four officers remain employed at LTH or its subsidiaries.') },
+  { cluster: T('Kluster 2 — sumbangan RM22.12 juta kepada Yayasan Tabung Haji tanpa kelulusan Menteri', 'Cluster 2 — RM22.12 million donation to Yayasan Tabung Haji without ministerial approval'), charged: '2019-03-15', officers: 3,
+    first: T('Turun pangkat (31 Mei & 1 November 2019)', 'Demotion (31 May & 1 November 2019)'),
+    final: T('Amaran keras; seorang ditangguh kenaikan gaji', 'Stern warning; one had a salary increment deferred'),
+    note: T('Pelanggaran seksyen 24(3)(5) Akta Syarikat 1965.', 'A breach of s.24(3)(5) of the Companies Act 1965.') },
+  { cluster: T('Kluster 3 — pengisytiharan hibah 2017', 'Cluster 3 — 2017 hibah declaration'), charged: '2020-01-03', officers: 1,
+    first: T('Buang kerja (16 April 2021)', 'Dismissal (16 April 2021)'),
+    final: T('Turun pangkat (6 September 2021)', 'Demotion (6 September 2021)'),
+    note: T('Pegawai yang sama juga dipertuduh dalam Kluster 1 dan 2.', 'The same officer was also charged in Clusters 1 and 2.') },
+  { cluster: T('Kluster 4 — tuntutan palsu kepada Unit Bayaran', 'Cluster 4 — false claims to the Payments Unit'), charged: '2019-01-11', officers: 1,
+    first: T('Turun pangkat (1 November 2019)', 'Demotion (1 November 2019)'),
+    final: T('Dikekalkan (28 Januari 2020)', 'Upheld (28 January 2020)'),
+    note: T('Satu-satunya kluster yang hukumannya tidak dikurangkan semasa rayuan.', 'The only cluster where the penalty was not reduced on appeal.') }
+];
+DATA.legalCases = [
+  { case: 'Emrail Sdn. Bhd.', forum: T('Timbang tara AIAC', 'AIAC arbitration'), amount: 20.3,
+    status: T('Didaftarkan 22 April 2022; penimbang tara belum dilantik.', 'Registered 22 April 2022; arbitrator not yet appointed.') },
+  { case: 'Wellspring Worldwide', forum: T('Mahkamah — kebankrapan', 'Court — bankruptcy'), amount: 20.8,
+    status: T('Notis kebankrapan terhadap promoter dibenarkan, 25 Januari 2022.', 'Bankruptcy notice against the promoters allowed, 25 January 2022.') },
+  { case: 'Al-Rawda Real Estates', forum: T('Mahkamah Arab Saudi & timbang tara', 'Saudi courts & arbitration'), amount: null,
+    status: T('Perintah penguatkuasaan diperoleh; likuidasi aset berjalan.', 'Enforcement orders obtained; asset liquidation under way.') },
+  { case: 'Putrajaya Perdana / Cendana Destini', forum: T('Penyelesaian', 'Settlement'), amount: 210.7,
+    status: T('Cadangan pengaturan penyelesaian dalam kelulusan dalaman LTH.', 'Settlement arrangement under LTH internal approval.') },
+  { case: 'THIP – PT Borneo Pacific', forum: T('Tuntutan sivil', 'Civil claim'), amount: null,
+    status: T('Berkaitan pendahuluan USD178.6 juta yang belum dilangsaikan.', 'Concerns the outstanding USD178.6 million advance.') }
+];
+DATA.macc = [
+  T('Pelaburan dalam Al-Rawda Real Estates', 'Investment in Al-Rawda Real Estates'),
+  T('Pengambilalihan ladang Trurich di Kalimantan', 'Trurich estate acquisitions in Kalimantan'),
+  T('Penjualan ekuiti PT TH Indo Plantations', 'Sale of the PT TH Indo Plantations stake'),
+  T('Urus niaga TH Plantations Berhad', 'TH Plantations Berhad transactions'),
+  T('Sumbangan kepada Yayasan Tabung Haji', 'Donations to Yayasan Tabung Haji'),
+  T('Pemberian bonus tidak mengikut peraturan', 'Bonus payments made outside the rules')
+];
+
+/* ---------- 13. CADANGAN SURUHANJAYA — BAB EMPAT ---------- */
+DATA.recommendations = [
+  { num: 1, cat: 'law', target: T('Parlimen / Kerajaan', 'Parliament / Government'), priority: 'high',
+    text: T('Akta 535 perlu dipinda untuk mewujudkan kriteria kelayakan khusus dan kaedah pemilihan anggota Lembaga LTH.', 'Akta 535 should be amended to establish specific eligibility criteria and a selection method for LTH Board members.') },
+  { num: 2, cat: 'law', target: T('Parlimen / Kerajaan', 'Parliament / Government'), priority: 'high',
+    text: T('Akta 535 perlu dipinda untuk menyatakan secara khusus bidang kepakaran yang diperlukan bagi anggota Lembaga yang dilantik.', 'Akta 535 should be amended to specify the fields of expertise required for appointed Board members.') },
+  { num: 3, cat: 'law', target: T('Parlimen / Kerajaan', 'Parliament / Government'), priority: 'high',
+    text: T('Akta 535 perlu dipinda untuk melarang ahli politik aktif daripada dilantik atau memegang jawatan sebagai Pengerusi atau anggota Lembaga LTH dan anak-anak syarikatnya.', 'Akta 535 should be amended to bar active politicians from being appointed or holding office as Chairman or Board member of LTH and its subsidiaries.') },
+  { num: 4, cat: 'law', target: T('Parlimen / Kerajaan', 'Parliament / Government'), priority: 'medium',
+    text: T('Akta 535 perlu dipinda supaya sebarang pembatalan pelantikan anggota Lembaga dirujuk dahulu kepada jawatankuasa atau badan penasihat bebas yang dicadangkan.', 'Akta 535 should be amended so any revocation of a Board member\'s appointment is first referred to the proposed independent advisory committee or body.') },
+  { num: 5, cat: 'law', target: T('Parlimen / Kerajaan', 'Parliament / Government'), priority: 'medium',
+    text: T('Akta 535 perlu dipinda supaya penamatan perkhidmatan mana-mana anggota Lembaga disertai sebab yang munasabah.', 'Akta 535 should be amended to require that termination of any Board member\'s service be accompanied by a reasonable justification.') },
+  { num: 6, cat: 'law', target: T('Parlimen / Kerajaan', 'Parliament / Government'), priority: 'high',
+    text: T('Akta 535 perlu dipinda untuk mengkanunkan penubuhan Jawatankuasa Urusan Haji, Jawatankuasa Penasihat Syariah dan Panel Pelaburan, lengkap dengan peruntukan kuorum, perjalanan mesyuarat, undi pemutus Pengerusi, kekosongan jawatan, hilang kelayakan dan penzahiran kepentingan.', 'Akta 535 should be amended to give statutory footing to the Hajj Management Committee, Shariah Advisory Committee and Investment Panel, complete with provisions on quorum, meeting procedure, the Chairman\'s casting vote, vacancies, disqualification and declaration of interest.') },
+  { num: 7, cat: 'law', target: T('Parlimen / Kerajaan', 'Parliament / Government'), priority: 'high',
+    text: T('Akta 535 perlu dipinda untuk memperjelaskan peruntukan pengiraan agihan keuntungan (hibah) berdasarkan penyata kewangan tahunan yang diaudit mengikut piawaian perakaunan MIA.', 'Akta 535 should be amended to clarify the provisions for calculating profit distribution (hibah) based on annual financial statements audited to MIA accounting standards.') },
+  { num: 8, cat: 'law', target: T('Parlimen / Kerajaan / LTH', 'Parliament / Government / Tabung Haji'), priority: 'high',
+    text: T('Akta 535 perlu dipinda untuk menubuhkan sebuah jabatan bernama Dana Haji yang bertanggungjawab ke atas pelaburan LTH dan dikawal selia oleh Suruhanjaya Sekuriti Malaysia.', 'Akta 535 should be amended to establish a department called Dana Haji, responsible for LTH\'s investments and regulated by the Securities Commission Malaysia.') },
+  { num: 9, cat: 'law', target: T('Parlimen / Kerajaan', 'Parliament / Government'), priority: 'medium',
+    text: T('Seksyen 26 Akta 535 perlu dipinda untuk mengecualikan LTH daripada pemakaian Akta Badan Berkanun (Akuan dan Laporan Tahunan) 1980 (Akta 240).', 'Section 26 of Akta 535 should be amended to exempt LTH from the Statutory Bodies (Accounts and Annual Reports) Act 1980 (Akta 240).') },
+  { num: 10, cat: 'governance', target: T('Kerajaan', 'Government'), priority: 'high',
+    text: T('Struktur tadbir urus LTH perlu disusun semula supaya Menteri Hal Ehwal Agama diberi mandat bagi pengurusan haji dan Menteri Kewangan bagi pengurusan kewangan, dana dan pelaburan, manakala pelantikan anggota Lembaga dan Ketua Pegawai Eksekutif dibuat oleh Perdana Menteri atas syor badan penasihat bebas.', 'LTH\'s governance structure should be restructured so the Minister for Religious Affairs is mandated over hajj management and the Finance Minister over finance, funds and investment, while Board members and the Chief Executive Officer are appointed by the Prime Minister on the recommendation of an independent advisory body.') },
+  { num: 11, cat: 'governance', target: T('LTH', 'Tabung Haji'), priority: 'medium',
+    text: T('Penglibatan anggota Lembaga dan pengurusan LTH dalam pengurusan anak-anak syarikat LTH hendaklah dihadkan bagi mengelak konflik kepentingan.', 'Involvement of LTH Board members and management in managing LTH\'s subsidiaries should be limited to avoid conflicts of interest.') },
+  { num: 12, cat: 'oversight', target: T('BNM / Kerajaan', 'Bank Negara Malaysia / Government'), priority: 'high',
+    text: T('BNM tidak seharusnya mengawal selia LTH, dan jika pengawalseliaan masih diperlukan, ia hendaklah dihadkan kepada kawalan rizab dan pengurusan kecairan sahaja tanpa tertakluk kepada Akta 759, Akta 758 dan Akta 618.', 'BNM should not regulate LTH; if oversight is still needed, it should be limited to reserve control and liquidity management only, without LTH being subject to Akta 759, Akta 758 and Akta 618.') },
+  { num: 13, cat: 'finance', target: T('LTH / Kerajaan', 'Tabung Haji / Government'), priority: 'medium',
+    text: T('Pengauditan penyata kewangan LTH tidak lagi perlu dipertanggungjawabkan kepada JAN, sebaliknya LTH dibenarkan melantik firma akauntan swasta untuk mengaudit penyata kewangannya.', 'Auditing of LTH\'s financial statements should no longer be the responsibility of the National Audit Department (JAN); LTH should instead be allowed to appoint a private accounting firm to audit its financial statements.') },
+  { num: 14, cat: 'finance', target: T('LTH', 'Tabung Haji'), priority: 'high',
+    text: T('Kadar pengagihan keuntungan (hibah) perlu berdasarkan penyata kewangan tahunan yang diaudit dan bukan Laporan Proforma, dan nilai aset serta liabiliti dalam RAV tidak boleh dijadikan asas pembayaran hibah.', 'The profit distribution (hibah) rate should be based on audited annual financial statements, not the Proforma Report, and asset and liability values in the RAV must not be used as the basis for hibah payments.') },
+  { num: 15, cat: 'finance', target: T('LTH', 'Tabung Haji'), priority: 'medium',
+    text: T('Penyata kewangan LTH hendaklah mematuhi sepenuhnya piawaian dan prinsip pelaporan Akta 240 serta PA 3.1 Garis Panduan Penyediaan dan Pembentangan Laporan Tahunan dan Penyata Kewangan Badan Berkanun Persekutuan.', 'LTH\'s financial statements must fully comply with the reporting standards and principles of Akta 240 and PA 3.1, the Guidelines on the Preparation and Presentation of Annual Reports and Financial Statements of Federal Statutory Bodies.') },
+  { num: 16, cat: 'governance', target: T('LTH', 'Tabung Haji'), priority: 'high',
+    text: T('Amalan pemberian bonus yang terlalu tinggi kepada kakitangan hendaklah dihentikan.', 'The practice of awarding excessively high bonuses to staff should be stopped.') },
+  { num: 17, cat: 'governance', target: T('LTH', 'Tabung Haji'), priority: 'high',
+    text: T('Usaha perlu dibuat untuk mendapatkan semula bonus yang telah diberikan kepada ahli Lembaga dan Pengurusan TH Properties kerana bonus itu diberikan tanpa mematuhi peraturan yang ditetapkan.', 'Efforts should be made to recover the bonuses paid to Board members and TH Properties management, as these were given without complying with the rules set.') },
+  { num: 18, cat: 'finance', target: T('LTH / Kerajaan', 'Tabung Haji / Government'), priority: 'high',
+    text: T('Audit forensik perlu dilaksanakan untuk meneliti bagaimana keputusan pelaburan lalu dibuat sehingga menyebabkan penurunan nilai aset yang teruk, melibatkan pelaburan seperti THIP, Emrail, Wellspring Worldwide, DSSB, Trurich, Abraj, Putrajaya Perdana, Al-Rawda, Al-Fareeda, THP, TH Properties, Alam Maritim/TH Marine, THHR dan FGV.', 'A forensic audit should be carried out to examine how past investment decisions led to severe asset impairment, covering investments such as THIP, Emrail, Wellspring Worldwide, DSSB, Trurich, Abraj, Putrajaya Perdana, Al-Rawda, Al-Fareeda, THP, TH Properties, Alam Maritim/TH Marine, THHR and FGV.') },
+  { num: 19, cat: 'governance', target: T('Pihak Berkuasa / Kerajaan', 'Authorities / Government'), priority: 'high',
+    text: T('Pihak berkuasa wajib mengambil tindakan tegas dan segera ke atas setiap laporan polis atau aduan berkaitan salah laku di LTH.', 'Authorities must take firm and prompt action on every police report or complaint related to misconduct at LTH.') },
+  { num: 20, cat: 'governance', target: T('LTH', 'Tabung Haji'), priority: 'medium',
+    text: T('Proses penyempurnaan tindakan tatatertib di LTH, termasuk durasi penahanan kerja, perlu diperkemas dan disegerakan agar dilihat sebagai proses yang berkesan, cekap, adil dan telus.', 'The disciplinary process at LTH, including the duration of work suspensions, should be streamlined and expedited so it is seen as effective, efficient, fair and transparent.') },
+  { num: 21, cat: 'finance', target: T('LTH', 'Tabung Haji'), priority: 'medium',
+    text: T('Transaksi pelaburan yang masih bertikai di mahkamah atau prosiding timbang tara perlu dipantau rapi oleh Pengurusan dan Lembaga; penyelesaian di luar mahkamah/timbang tara harus dipertingkatkan.', 'Investment transactions still under litigation or arbitration should be closely monitored by Management and the Board, and out-of-court/arbitration settlements should be pursued more actively.') },
+  { num: 22, cat: 'finance', target: T('LTH', 'Tabung Haji'), priority: 'medium',
+    text: T('LTH perlu memastikan bayaran zakat dilaksanakan dengan sempurna; isu perubahan akad simpanan perlu dikemukakan kepada Jawatankuasa Muzakarah MKI untuk keputusan hukum.', 'LTH must ensure zakat payments are carried out properly, and any issue over changing the savings akad (contract) should be referred to the MKI Muzakarah Committee for a religious ruling.') },
+  { num: 23, cat: 'finance', target: T('Kerajaan', 'Government'), priority: 'high',
+    text: T('Kerajaan perlu memberi perhatian serius terhadap pelaksanaan Pelan Pemulihan dan Penstrukturan LTH 2018 bagi memastikan matlamatnya tercapai, memandangkan kegagalan LTH akan mengaktifkan jaminan Kerajaan bernilai RM88 bilion di bawah seksyen 24 Akta 535.', 'The Government must pay serious attention to implementing the 2018 LTH Recovery and Restructuring Plan to ensure its goals are met, since LTH\'s failure would trigger the Government\'s RM88 billion guarantee under section 24 of Akta 535.') },
+  { num: 24, cat: 'finance', target: T('Kerajaan / UJSB', 'Government / UJSB'), priority: 'medium',
+    text: T('Penstrukturan semula Sukuk yang dicadangkan perlu mempunyai ciri boleh diniagakan (tradeable) untuk memberi fleksibiliti kepada LTH mengurus aset dan mengoptimumkan pendapatan.', 'The proposed Sukuk restructuring should be made tradeable to give LTH flexibility in managing assets and optimising income.') },
+  { num: 25, cat: 'finance', target: T('Kerajaan / UJSB', 'Government / UJSB'), priority: 'medium',
+    text: T('Penerbitan Sukuk tidak hanya ditawarkan kepada LTH atau Kerajaan tetapi juga kepada institusi-institusi kewangan lain.', 'Sukuk issuance should be offered not only to LTH or the Government but also to other financial institutions.') },
+  { num: 26, cat: 'finance', target: T('Kerajaan', 'Government'), priority: 'high',
+    text: T('Kerajaan hendaklah memastikan peruntukan sebanyak RM1.73 bilion setahun dibuat, seperti dipersetujui Jemaah Menteri, bagi tujuan penebusan awal Sukuk-sukuk UJSB.', 'The Government must ensure the RM1.73 billion annual allocation agreed by the Cabinet is made for the early redemption of UJSB Sukuk.') },
+  { num: 27, cat: 'finance', target: T('UJSB', 'UJSB'), priority: 'medium',
+    text: T('UJSB digalakkan membuat penebusan awal Sukuk hasil daripada pelupusan aset-aset yang telah dipindahkan dari LTH kepada UJSB.', 'UJSB should be encouraged to redeem its Sukuk early using proceeds from disposing of assets transferred from LTH to UJSB.') },
+  { num: 28, cat: 'hajj', target: T('LTH', 'Tabung Haji'), priority: 'high',
+    text: T('Deposit minimum untuk pendeposit layak diberi giliran haji secara automatik (haji kali pertama) dinaikkan daripada RM1,300 kepada kos bayaran haji Muassasah semasa (RM12,980).', 'The minimum deposit for depositors to automatically qualify for a hajj turn (first-time pilgrims) should be raised from RM1,300 to the current Muassasah hajj fee (RM12,980).') },
+  { num: 29, cat: 'hajj', target: T('LTH', 'Tabung Haji'), priority: 'medium',
+    text: T('Jumlah pengeluaran deposit yang besar dihadkan; pendeposit perlu memberi notis pengeluaran selama sebulan sebelum pengeluaran dibuat.', 'Large deposit withdrawals should be capped, and depositors should be required to give a month\'s notice before making a withdrawal.') },
+  { num: 30, cat: 'hajj', target: T('LTH', 'Tabung Haji'), priority: 'high',
+    text: T('Sebarang bentuk bantuan haji atau subsidi hanya diberikan kepada jemaah yang benar-benar memerlukan sahaja, selaras dengan prinsip istito\'ah.', 'Any form of hajj assistance or subsidy should be given only to pilgrims who genuinely need it, in line with the principle of istito\'ah (financial capability).') },
+  { num: 31, cat: 'hajj', target: T('LTH', 'Tabung Haji'), priority: 'medium',
+    text: T('LTH perlu merancang agar mampu membawa lebih ramai jemaah haji pada masa hadapan dan menggunakan sepenuhnya kuota tambahan yang ditawarkan Kerajaan Arab Saudi.', 'LTH should plan to be able to send more pilgrims in future and make full use of the additional quota offered by the Saudi Arabian Government.') },
+  { num: 32, cat: 'hajj', target: T('LTH', 'Tabung Haji'), priority: 'high',
+    text: T('LTH perlu menaikkan minimum bayaran pendaftaran haji Muassasah daripada RM1,300 kepada bayaran semasa RM12,980, sekaligus mengurangkan tempoh menunggu giliran haji daripada 130 tahun kepada 33 tahun.', 'LTH should raise the minimum Muassasah hajj registration payment from RM1,300 to the current rate of RM12,980, which would also cut the hajj waiting period from 130 years to about 33 years.') },
+  { num: 33, cat: 'invest', target: T('LTH / Suruhanjaya Sekuriti', 'Tabung Haji / Securities Commission'), priority: 'high',
+    text: T('Fungsi pelaburan LTH (pengurusan pelaburan dan agihan hibah) perlu dijalankan secara bebas dan profesional tetapi kekal dalam entiti yang sama dengan pengurusan haji sebagai jabatan Dana Haji, memandangkan wujud unsur subsidi silang, dan Dana Haji ini dikawal selia oleh Suruhanjaya Sekuriti Malaysia.', 'LTH\'s investment function (fund management and hibah distribution) should be run independently and professionally but remain within the same entity as hajj management, as the Dana Haji department, given the cross-subsidy between the two, with Dana Haji regulated by the Securities Commission Malaysia.') },
+  { num: 34, cat: 'invest', target: T('LTH', 'Tabung Haji'), priority: 'high',
+    text: T('LTH hendaklah memfokuskan kepada portfolio pengurusan dana dan tidak seharusnya terlibat dengan pelaburan berisiko tinggi, khususnya pelaburan yang diklasifikasikan sebagai \'strategik\'.', 'LTH should focus on fund management and should not engage in high-risk investments, particularly those classified as \'strategic\'.') },
+  { num: 35, cat: 'governance', target: T('Kerajaan', 'Government'), priority: 'high',
+    text: T('Kerajaan hendaklah mengambil langkah penambahbaikan menyeluruh untuk memperkukuh model perniagaan dan pelaburan LTH, termasuk memperkasa tadbir urus melalui pengurusan profesional tanpa campur tangan politik.', 'The Government should take comprehensive improvement measures to strengthen LTH\'s business and investment model, including empowering governance through professional management free of political interference.') }
+];
+
+DATA.recCats = {
+  law:        { label: T('Perundangan', 'Legislation') },
+  governance: { label: T('Tadbir Urus', 'Governance') },
+  finance:    { label: T('Kewangan', 'Finance') },
+  invest:     { label: T('Pelaburan', 'Investment') },
+  hajj:       { label: T('Operasi Haji', 'Hajj Operations') },
+  oversight:  { label: T('Pengawalseliaan', 'Regulatory Oversight') }
+};
+
+/* ---------- 14. KRONOLOGI UTAMA ---------- */
+DATA.timeline = [
+  { date: '2014', tone: 'warn', cat: 'finance',
+    t: T('Hibah 8.25% diisytiharkan', 'Hibah declared at 8.25%'),
+    d: T('Kadar tertinggi dalam tempoh siasatan, menelan RM3.24 bilion — melebihi lebihan sebenar RM2.89 bilion.',
+         'The highest rate in the inquiry period, costing RM3.24 billion — more than the RM2.89 billion actual surplus.') },
+  { date: '2016', tone: 'crit', cat: 'finance',
+    t: T('Liabiliti melebihi aset buat kali pertama', 'Liabilities exceed assets for the first time'),
+    d: T('Kekurangan RM1.26 bilion sebelum hibah. RM2.87 bilion hibah tetap dibayar.',
+         'A RM1.26 billion shortfall before hibah. RM2.87 billion in hibah was paid anyway.') },
+  { date: '2018-07-04', tone: 'crit', cat: 'audit',
+    t: T('KAN berbincang dengan Perdana Menteri', 'Auditor-General meets the Prime Minister'),
+    d: T('Pendapat Berteguran dicadangkan bagi Penyata Kewangan 2017 sekiranya tiada pelarasan dibuat.',
+         'A qualified opinion was proposed for the 2017 accounts if no adjustment was made.') },
+  { date: '2018-07-16', tone: 'crit', cat: 'audit',
+    t: T('"Emphasis of Matter" dikeluarkan', '"Emphasis of Matter" issued'),
+    d: T('Pendapat Tanpa Teguran tetap diberikan. KAN kemudian mengaku laporan itu sepatutnya mengandungi teguran. Rosot nilai RM227.81 juta tidak direkod.',
+         'An unqualified opinion was still issued. The Auditor-General later conceded the report should have been qualified. RM227.81 million of impairment went unrecorded.') },
+  { date: '2018-11-30', tone: 'warn', cat: 'enforce',
+    t: T('Dua laporan polis pertama difailkan', 'First two police reports filed'),
+    d: T('Berkaitan penjualan ekuiti THIP dan penggunaan wang Yayasan Tabung Haji.',
+         'Concerning the THIP stake sale and Yayasan Tabung Haji spending.') },
+  { date: '2018-12-07', tone: 'good', cat: 'bailout',
+    t: T('Jemaah Menteri meluluskan pelan pemulihan', 'Cabinet approves the recovery plan'),
+    d: T('Diarah dilaksanakan sebelum akhir 2018 — kurang dua minggu untuk memuktamadkan struktur RM19.9 bilion.',
+         'Ordered to be executed before the end of 2018 — under two weeks to finalise a RM19.9 billion structure.') },
+  { date: '2018-12-14', tone: 'good', cat: 'bailout',
+    t: T('Urusharta Jamaah Sdn. Bhd. ditubuhkan', 'Urusharta Jamaah Sdn. Bhd. incorporated'),
+    d: T('Syarikat pengurusan aset milik penuh Menteri Kewangan Diperbadankan, dimodelkan atas Danaharta (1998).',
+         'An asset-management company wholly owned by the Minister of Finance Inc., modelled on Danaharta (1998).') },
+  { date: '2018-12-27', tone: 'crit', cat: 'bailout',
+    t: T('Perjanjian pemindahan aset ditandatangani', 'Asset transfer agreement signed'),
+    d: T('106 saham tersenarai, satu syarikat perladangan dan 29 hartanah dipindah pada RM19.9 bilion — premium RM10.2 bilion atas nilai pasaran.',
+         '106 listed counters, one plantation company and 29 properties transferred at RM19.9 billion — a RM10.2 billion premium to market value.') },
+  { date: '2019-02', tone: 'crit', cat: 'finance',
+    t: T('Hibah 2018 jatuh ke 1.25%', '2018 hibah falls to 1.25%'),
+    d: T('Deposit mengecut daripada ~RM73 bilion kepada RM69 bilion menjelang akhir 2019.',
+         'Deposits contracted from ~RM73 billion to RM69 billion by the end of 2019.') },
+  { date: '2019-04-05', tone: 'warn', cat: 'bailout',
+    t: T('Jemaah Menteri meluluskan RM17.8 bilion', 'Cabinet approves RM17.8 billion'),
+    d: T('RM500 juta di bawah RMK-11 dan RM17.3 bilion (purata RM1.73 bilion setahun) di bawah RMK-12 dan RMK-13.',
+         'RM500 million under the 11th Malaysia Plan and RM17.3 billion (averaging RM1.73 billion a year) under the 12th and 13th.') },
+  { date: '2019-05-27', tone: 'crit', cat: 'bailout',
+    t: T('Sukuk UJSB tidak dijamin Kerajaan', 'UJSB Sukuk left without a government guarantee'),
+    d: T('Hanya Surat Sokongan Kewangan daripada Menteri Kewangan di bawah seksyen 14 Akta 61.',
+         'Only a Letter of Comfort from the Finance Minister under s.14 of Act 61.') },
+  { date: '2020', tone: 'crit', cat: 'bailout',
+    t: T('Tender hartanah UJSB hampir gagal sepenuhnya', 'UJSB property tender all but fails'),
+    d: T('Daripada 18 hartanah ditender, hanya sebidang tanah di Johor terjual — RM920 ribu.',
+         'Of 18 properties tendered, only one plot in Johor sold — for RM920,000.') },
+  { date: '2021-05-05', tone: 'warn', cat: 'gov',
+    t: T('KPE ditamatkan sebelum tempoh', 'CEO terminated before term end'),
+    d: T('Datuk Nik Mohd Hasyudeen ditamatkan Menteri, tiga bulan sebelum 31 Ogos 2021.',
+         'Datuk Nik Mohd Hasyudeen was terminated by the Minister, three months before 31 August 2021.') },
+  { date: '2021-09-06', tone: 'warn', cat: 'enforce',
+    t: T('Hukuman buang kerja dikurangkan kepada turun pangkat', 'Dismissals reduced to demotions'),
+    d: T('Jawatankuasa Rayuan Tatatertib mengurangkan hukuman bagi Kluster 1 dan 3. Kesemua pegawai masih bertugas.',
+         'The Disciplinary Appeal Committee softened the penalties in Clusters 1 and 3. All the officers remain employed.') },
+  { date: '2021-10-15', tone: 'warn', cat: 'gov',
+    t: T('Pengerusi ditamatkan tanpa sebab', 'Chairman terminated without cause'),
+    d: T('Tan Sri Md Nor bin Md Yusof ditamatkan walaupun kontrak baru disambung dua tahun mulai 20 Julai 2020.',
+         'Tan Sri Md Nor bin Md Yusof was removed despite a two-year renewal from 20 July 2020.') },
+  { date: '2022-01-20', tone: 'good', cat: 'rci',
+    t: T('Enam Pesuruhjaya dilantik', 'Six Commissioners appointed'),
+    d: T('Dilantik oleh Yang di-Pertuan Agong untuk tempoh enam bulan.',
+         'Appointed by the Yang di-Pertuan Agong for a six-month term.') },
+  { date: '2022-08-30', tone: 'good', cat: 'rci',
+    t: T('Laporan dipersembahkan', 'Report presented'),
+    d: T('35 cadangan penambahbaikan, termasuk penubuhan Dana Haji dan larangan ahli politik aktif dalam Lembaga.',
+         '35 recommendations, including the creation of a Dana Haji and a ban on active politicians serving on the board.') }
+];
+DATA.timelineCats = {
+  finance: { label: T('Kewangan', 'Finance') },
+  audit:   { label: T('Audit', 'Audit') },
+  bailout: { label: T('Bailout UJSB', 'UJSB bailout') },
+  enforce: { label: T('Penguatkuasaan', 'Enforcement') },
+  gov:     { label: T('Tadbir Urus', 'Governance') },
+  rci:     { label: T('Suruhanjaya', 'Commission') }
+};
+
+/* ---------- 15. UI STRINGS ---------- */
+const UI = {
+  brandTitle: T('Laporan RCI Tabung Haji', 'Tabung Haji RCI Report'),
+  brandSub: T('Dashboard analisis interaktif', 'Interactive analysis dashboard'),
+  eyebrow: T('Suruhanjaya Siasatan Diraja · 30 Ogos 2022', 'Royal Commission of Inquiry · 30 August 2022'),
+  heroH: T('Bagaimana jurang RM10 bilion terbentuk dalam tabungan haji rakyat Malaysia',
+           'How a RM10 billion hole opened up in Malaysia\'s hajj savings fund'),
+  heroLede: T('Suruhanjaya Siasatan Diraja menyiasat pengurusan dan operasi Lembaga Tabung Haji dari 2014 hingga 2020. Dashboard ini menyusun semula setiap angka utama dalam laporan itu — kadar hibah, jurang aset-liabiliti, pelaburan bermasalah, bailout UJSB dan 35 cadangan Suruhanjaya — supaya coraknya boleh dilihat, bukan sekadar dibaca.',
+              'A Royal Commission of Inquiry examined the management and operations of Lembaga Tabung Haji from 2014 to 2020. This dashboard reassembles every key figure in that report — hibah rates, the asset-liability gap, the problem investments, the UJSB bailout and the Commission\'s 35 recommendations — so the pattern can be seen rather than merely read.'),
+  metaScope: T('Skop siasatan', 'Inquiry scope'),
+  metaCommissioners: T('Pesuruhjaya', 'Commissioners'),
+  metaPages: T('Sumber', 'Source'),
+  metaPagesV: T('Laporan penuh, 201 muka surat', 'Full report, 201 pages'),
+
+  navOverview:   T('Gambaran', 'Overview'),
+  navCrisis:     T('Jurang', 'The gap'),
+  navHibah:      T('Hibah', 'Hibah'),
+  navAccounting: T('Perakaunan', 'Accounting'),
+  navBailout:    T('Bailout', 'Bailout'),
+  navInvest:     T('Pelaburan', 'Investments'),
+  navHafis:      T('HAFIS', 'HAFIS'),
+  navGov:        T('Tadbir Urus', 'Governance'),
+  navAccount:    T('Akauntabiliti', 'Accountability'),
+  navRecs:       T('Cadangan', 'Recommendations'),
+  navTimeline:   T('Kronologi', 'Timeline'),
+
+  tblShow: T('Papar jadual data', 'Show data table'),
+  tblHide: T('Sembunyi jadual data', 'Hide data table'),
+  all: T('Semua', 'All'),
+  search: T('Cari…', 'Search…'),
+  none: T('Tiada rekod sepadan.', 'No matching records.'),
+  year: T('Tahun', 'Year'),
+  theme: T('Tukar tema', 'Toggle theme'),
+
+  sec1t: T('Empat tahun membayar lebih daripada yang mampu', 'Four years of paying out more than it earned'),
+  sec1p: T('Laporan PwC yang dibentangkan kepada Suruhanjaya membandingkan aset dan liabiliti LTH sebelum dan selepas agihan keuntungan. Coraknya jelas: lebihan sebenar merosot setiap tahun, tetapi hibah dikekalkan pada paras RM3 bilion.',
+           'The PwC review presented to the Commission compared LTH\'s assets and liabilities before and after profit distribution. The pattern is unmistakable: the real surplus shrank every year, yet hibah was held at around RM3 billion.'),
+  sec2t: T('Hibah yang menarik wang, dan menahannya', 'The hibah that pulled money in — and trapped it'),
+  sec2p: T('Kadar hibah LTH melebihi kadar deposit bank Islam sepanjang 2014–2017, walaupun deposit LTH dijamin Kerajaan, patuh syariah, zakatnya dibayar dan sebahagian keuntungannya menyubsidi kos haji. Kadar tinggi menarik pendeposit besar — lalu menjadikan sebarang penurunan satu risiko sistemik.',
+           'LTH\'s hibah beat Islamic bank deposit rates throughout 2014–2017 — even though its deposits are government-guaranteed, Shariah-compliant, have zakat paid on them, and part of the returns subsidises the cost of hajj. High rates attracted large depositors, which turned any cut into a systemic risk.'),
+  sec3t: T('Bagaimana angka itu dibuat kelihatan cukup', 'How the numbers were made to look sufficient'),
+  sec3p: T('Untuk mengisytiharkan hibah di bawah seksyen 22 Akta 535, aset mesti melebihi liabiliti. Apabila ia tidak lagi begitu, pengurusan LTH menukar cara aset dinilai dan cara kerugian diiktiraf.',
+           'To declare hibah under s.22 of Act 535, assets must exceed liabilities. When they no longer did, LTH management changed how assets were valued and when losses were recognised.'),
+  sec4t: T('Bailout RM19.9 bilion', 'The RM19.9 billion bailout'),
+  sec4p: T('Urusharta Jamaah Sdn. Bhd. membeli aset lemah LTH pada harga jauh melebihi nilai pasaran, dibayar dengan Sukuk berkupon sifar yang dilanggan LTH sendiri. Jurang itu akhirnya ditanggung Belanjawan Persekutuan.',
+           'Urusharta Jamaah Sdn. Bhd. bought LTH\'s weak assets at far above market value, paying with zero-coupon sukuk that LTH itself subscribed to. The gap ultimately lands on the federal budget.'),
+  sec5t: T('Ke mana wang itu pergi', 'Where the money went'),
+  sec5p: T('Suruhanjaya menyenaraikan 14 pelaburan bermasalah — daripada ladang sawit di Kalimantan sehingga hotel di Makkah. Saiz petak menunjukkan kerugian atau rosot nilai yang dilaporkan; warna menunjukkan sektor.',
+           'The Commission catalogued 14 problem investments — from oil-palm estates in Kalimantan to hotels in Makkah. Tile size shows the reported loss or impairment; colour shows the sector.'),
+  sec6t: T('Subsidi haji yang membesar setiap tahun', 'A hajj subsidy that grows every year'),
+  sec6p: T('Bayaran haji dibekukan pada RM9,980 dari 2014 hingga 2019 sementara kos sebenar melonjak. Perbezaannya — HAFIS — ditanggung daripada keuntungan pelaburan yang sepatutnya menjadi hibah pendeposit.',
+           'The pilgrim fee was frozen at RM9,980 from 2014 to 2019 while the real cost climbed. The difference — HAFIS — comes out of investment income that would otherwise be depositors\' hibah.'),
+  sec7t: T('Siapa yang memutuskan', 'Who was deciding'),
+  sec7p: T('Akta 535 memberi Menteri kuasa luas dan menetapkan hanya dua syarat untuk menjadi anggota Lembaga: muslim dan warganegara Malaysia. Tiada kriteria kepakaran, dan tiada sebab diperlukan untuk memecat sesiapa.',
+           'Act 535 gives the Minister sweeping powers and sets only two conditions for board membership: Muslim and Malaysian. There is no expertise criterion, and no reason is required to remove anyone.'),
+  sec8t: T('Apa yang berlaku selepas itu', 'What happened next'),
+  sec8p: T('Empat laporan polis, empat kluster tindakan tatatertib, enam rujukan SPRM dan lima kes mahkamah atau timbang tara. Hukuman buang kerja dalam dua kluster dikurangkan kepada turun pangkat semasa rayuan.',
+           'Four police reports, four disciplinary clusters, six MACC referrals and five court or arbitration matters. Dismissals in two clusters were reduced to demotions on appeal.'),
+  sec9t: T('35 cadangan Suruhanjaya', 'The Commission\'s 35 recommendations'),
+  sec9p: T('Sebahagian besarnya memerlukan pindaan Akta Tabung Haji 1995. Tapis mengikut kategori atau keutamaan.',
+           'Most require amendments to the Tabung Haji Act 1995. Filter by category or priority.'),
+  sec10t: T('Kronologi', 'Timeline'),
+  sec10p: T('Daripada hibah pertama yang melampau kemampuan sehingga laporan dipersembahkan kepada Yang di-Pertuan Agong.',
+            'From the first hibah that outran capacity to the report\'s presentation to the Yang di-Pertuan Agong.'),
+
+  /* --- card titles --- */
+  c_gap_t: T('Lebihan sebenar berbanding hibah yang dibayar', 'Actual surplus versus hibah paid'),
+  c_gap_s: T('RM juta. Sumber: laporan PwC kepada Suruhanjaya (¶3.9.2).', 'RM million. Source: the PwC review submitted to the Commission (¶3.9.2).'),
+  c_al_t: T('Aset berbanding liabiliti', 'Assets versus liabilities'),
+  c_al_s: T('RM juta. Liabiliti memintas aset pada 2016.', 'RM million. Liabilities crossed above assets in 2016.'),
+  c_hib_t: T('Kadar agihan keuntungan (hibah)', 'Profit distribution (hibah) rates'),
+  c_hib_s: T('Peratus setahun, 2014–2021 (¶3.9.22).', 'Per cent per annum, 2014–2021 (¶3.9.22).'),
+  c_dep_t: T('Saiz deposit LTH', 'LTH deposit base'),
+  c_dep_s: T('RM bilion. Kesan pengumuman hibah 1.25%.', 'RM billion. The effect of the 1.25% hibah announcement.'),
+  c_wf_t: T('Daripada untung RM3.4 bilion kepada rugi RM1.4 bilion', 'From a RM3.4 billion profit to a RM1.4 billion loss'),
+  c_wf_s: T('RM bilion, tahun kewangan 2017 di bawah MFRS penuh.', 'RM billion, FY2017 restated under full MFRS.'),
+  c_rav_t: T('Nilai Aset Yang Boleh Direalisasi (RAV)', 'Realisable Asset Value (RAV)'),
+  c_rav_s: T('Bagaimana RM373 juta "boleh diagihkan" dihasilkan (¶3.9.12).', 'How RM373 million of "distributable" value was produced (¶3.9.12).'),
+  c_thr_t: T('Bila kerugian diiktiraf', 'When a loss got recognised'),
+  c_thr_s: T('Ambang rosot nilai LTH berbanding amalan pasaran (¶3.9.8).', "LTH's impairment threshold against market practice (¶3.9.8)."),
+  c_aud_t: T('Pendapat audit, 2014–2017', 'Audit opinions, 2014–2017'),
+  c_aud_s: T('Kesemua empat tahun menerima Sijil Audit Bersih.', 'All four years received a clean audit certificate.'),
+  c_db_t: T('Nilai pemindahan berbanding nilai pasaran', 'Transfer value versus market value'),
+  c_db_s: T('RM juta, mengikut kelas aset (¶3.13.29).', 'RM million, by asset class (¶3.13.29).'),
+  c_suk_t: T('Sukuk Murabahah berkupon sifar', 'Zero-coupon Murabahah sukuk'),
+  c_suk_s: T('Dilanggan sepenuhnya oleh LTH sendiri.', 'Subscribed in full by LTH itself.'),
+  c_tm_t: T('Kerugian dan rosot nilai mengikut pelaburan', 'Losses and impairments by investment'),
+  c_tm_s: T('RM juta. Klik petak untuk butiran penuh.', 'RM million. Click a tile for the full detail.'),
+  c_invtbl_t: T('Semua pelaburan bermasalah', 'All problem investments'),
+  c_invtbl_s: T('Klik tajuk lajur untuk menyusun.', 'Click a column header to sort.'),
+  c_haf_t: T('Kos haji seorang jemaah Muassasah', 'Cost of hajj per Muassasah pilgrim'),
+  c_haf_s: T('RM. Bahagian bawah dibayar jemaah; bahagian atas ditanggung LTH. Tiada data 2020–2021.', 'RM. The lower band is paid by the pilgrim; the upper band is absorbed by LTH. No data for 2020–2021.'),
+  c_haft_t: T('Jumlah HAFIS setahun', 'Total HAFIS per year'),
+  c_haft_s: T('RM juta, termasuk unjuran sehingga 2030. Tiada data 2020–2021.', 'RM million, including projections to 2030. No data for 2020–2021.'),
+  c_ten_t: T('Pengerusi dan Ketua Pegawai Eksekutif', 'Chairmen and Chief Executives'),
+  c_ten_s: T('Kawasan berlorek ialah tempoh siasatan 2014–2020.', 'The shaded band is the 2014–2020 inquiry period.'),
+  c_sub_t: T('Jawatan dalam anak syarikat', 'Subsidiary directorships held'),
+  c_sub_s: T('Bilangan jawatan dipegang serentak (¶3.3, ¶3.4).', 'Positions held concurrently (¶3.3, ¶3.4).'),
+  c_com_t: T('Jawatankuasa Lembaga', 'Board committees'),
+  c_com_s: T('Jawatankuasa penting tidak dikanunkan — jadi boleh dibubarkan secara pentadbiran.', 'Key committees were never written into the Act — so they could be dissolved administratively.'),
+  c_pol_t: T('Laporan polis', 'Police reports'),
+  c_pol_s: T('Empat laporan difailkan di Dang Wangi, 2018–2019.', 'Four reports filed at Dang Wangi, 2018–2019.'),
+  c_dis_t: T('Tindakan tatatertib', 'Disciplinary action'),
+  c_dis_s: T('Hukuman asal berbanding hukuman selepas rayuan.', 'Original penalty versus the penalty after appeal.'),
+  c_leg_t: T('Kes mahkamah dan timbang tara', 'Court and arbitration matters'),
+  c_leg_s: T('Tuntutan dalam RM juta di mana dinyatakan.', 'Claims in RM million where stated.'),
+  c_mac_t: T('Rujukan SPRM', 'MACC referrals'),
+  c_mac_s: T('Enam perkara dirujuk oleh LTH.', 'Six matters referred by LTH.'),
+
+  /* --- labels --- */
+  l_before: T('Lebihan sebelum hibah', 'Surplus before hibah'),
+  l_hibah: T('Hibah dibayar', 'Hibah paid'),
+  l_after: T('Kedudukan selepas hibah', 'Position after hibah'),
+  l_assets: T('Jumlah aset', 'Total assets'),
+  l_liab: T('Jumlah liabiliti', 'Total liabilities'),
+  l_annual: T('Hibah tahunan', 'Annual hibah'),
+  l_hajj: T('Hibah haji', 'Hajj bonus'),
+  l_cost: T('Kos hibah', 'Cost of hibah'),
+  l_deposit: T('Deposit', 'Deposits'),
+  l_transfer: T('Nilai pemindahan', 'Transfer value'),
+  l_market: T('Nilai pasaran', 'Market value'),
+  l_premium: T('Premium', 'Premium'),
+  l_pays: T('Dibayar jemaah', 'Paid by pilgrim'),
+  l_subsidy: T('Ditanggung LTH (HAFIS)', 'Absorbed by LTH (HAFIS)'),
+  l_totalcost: T('Kos sebenar', 'Actual cost'),
+  l_chair: T('Pengerusi', 'Chairman'),
+  l_ceo: T('Ketua Pegawai Eksekutif', 'Chief Executive'),
+  l_politician: T('Ahli politik aktif', 'Active politician'),
+  l_positions: T('Jawatan', 'Positions'),
+  l_loss: T('Kerugian / rosot nilai', 'Loss / impairment'),
+  l_invested: T('Jumlah dilaburkan', 'Amount invested'),
+  l_sector: T('Sektor', 'Sector'),
+  l_status: T('Status', 'Status'),
+  l_priority: T('Keutamaan', 'Priority'),
+  l_target: T('Tindakan oleh', 'Action by'),
+  l_statutory: T('Dikanunkan', 'In statute'),
+  l_notstatutory: T('Tidak dikanunkan', 'Not in statute'),
+  l_dissolved: T('Dibubarkan', 'Dissolved'),
+  l_active: T('Aktif', 'Active'),
+  l_new: T('Baharu 2018', 'New in 2018'),
+  l_first: T('Hukuman asal', 'Original penalty'),
+  l_final: T('Selepas rayuan', 'After appeal'),
+  l_officers: T('pegawai', 'officers'),
+  l_charged: T('Dipertuduh', 'Charged'),
+  l_claim: T('Tuntutan', 'Claim'),
+  l_forum: T('Forum', 'Forum'),
+  l_case: T('Kes', 'Case'),
+  l_high: T('Tinggi', 'High'),
+  l_medium: T('Sederhana', 'Medium'),
+  l_low: T('Rendah', 'Low'),
+  l_selectInv: T('Pilih satu pelaburan', 'Select an investment'),
+  l_selectInvSub: T('Klik mana-mana petak di sebelah untuk membaca penemuan penuh Suruhanjaya.', 'Click any tile alongside to read the Commission\'s full finding.'),
+  l_redflags: T('Isu dibangkitkan', 'Issues raised'),
+  l_noAmount: T('Jumlah tidak dinyatakan', 'Amount not stated'),
+  l_marketNote: T('Ambang LTH', 'LTH threshold'),
+  l_practice: T('Amalan pasaran (FRSIC 14)', 'Market practice (FRSIC 14)'),
+
+  ft_srcH: T('Sumber & nota', 'Source & notes'),
+  ft_note: T('Setiap angka dalam dashboard ini dipetik daripada <b>Laporan Suruhanjaya Siasatan Diraja bagi Menyiasat Isu Pengurusan dan Operasi Lembaga Tabung Haji dari Tahun 2014 hingga 2020</b>, dipersembahkan kepada Yang di-Pertuan Agong pada 30 Ogos 2022. Rujukan perenggan (¶) disertakan supaya setiap nombor boleh dijejak ke sumbernya. Teks sumber adalah hasil OCR — beberapa digit yang jelas rosak telah dibetulkan dan dinyatakan. Satu angka dalam carta penyata semula 2017 ialah baki penyesuaian, bukan angka tersurat dalam laporan; ia ditanda dengan jelas. Dashboard ini bukan terbitan rasmi Lembaga Tabung Haji, Suruhanjaya, atau mana-mana agensi Kerajaan.',
+             'Every figure here is drawn from the <b>Report of the Royal Commission of Inquiry into the Management and Operations of Lembaga Tabung Haji from 2014 to 2020</b>, presented to the Yang di-Pertuan Agong on 30 August 2022. Paragraph references (¶) are included so each number can be traced to its source. The source text is OCR output — a few clearly corrupted digits have been corrected and flagged. One figure in the 2017 restatement chart is a balancing amount rather than one stated in the report; it is marked as such. This dashboard is not an official publication of Lembaga Tabung Haji, the Commission, or any government agency.')
+};
+
+/* =============================================================
+   APP — state, i18n, section builders
+   ============================================================= */
+
+let LANG = (localStorage.getItem('rci-lang') === 'en') ? 'en' : 'ms';
+const t = o => (o && typeof o === 'object' && 'ms' in o) ? (o[LANG] || o.ms) : o;
+const U = k => t(UI[k]);
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const C = n => `var(--series-${n})`;
+const rm = (v, d = 1) => v === null || v === undefined ? '—' : `RM${NF(v, d)}`;
+const rmBil = (v, d = 2) => v === null || v === undefined ? '—' : `RM${NF(v, d)} ${LANG === 'ms' ? 'bil' : 'bn'}`;
+const rmMil = (v, d = 0) => v === null || v === undefined ? '—' : `RM${NF(v, d)} ${LANG === 'ms' ? 'juta' : 'm'}`;
+
+const SECTIONS = [
+  ['overview', 'navOverview'], ['crisis', 'navCrisis'], ['hibah', 'navHibah'],
+  ['accounting', 'navAccounting'], ['bailout', 'navBailout'], ['investments', 'navInvest'],
+  ['hafis', 'navHafis'], ['governance', 'navGov'], ['accountability', 'navAccount'],
+  ['recs', 'navRecs'], ['timeline', 'navTimeline']
+];
+
+/* filter state (persists across language switches) */
+const ST = { invSector: 'all', invQuery: '', invSelected: 0, recCat: 'all', recPri: 'all', tlCat: 'all', sortKey: 'loss', sortDir: 'desc' };
+
+/* ---------- helpers ---------- */
+function setHTML(id, html) { const n = document.getElementById(id); if (n) n.innerHTML = html; }
+function legend(id, items, style) {
+  setHTML(id, items.map(i =>
+    `<span class="legend-item"><span class="swatch${style === 'line' ? ' line' : ''}" style="background:${i.color}"></span>${esc(i.name)}</span>`
+  ).join(''));
+}
+function dataTable(id, cols, rows) {
+  setHTML(id, `<table class="dt"><thead><tr>${cols.map(c => `<th>${esc(c)}</th>`).join('')}</tr></thead>` +
+    `<tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c === null || c === undefined ? '—' : c}</td>`).join('')}</tr>`).join('')}</tbody></table>`);
+}
+const priPill = p => `<span class="pill ${p === 'high' ? 'crit' : p === 'medium' ? 'warn' : 'info'}"><span class="ic">${p === 'high' ? '▲' : p === 'medium' ? '●' : '○'}</span>${U('l_' + p)}</span>`;
+
+/* =============================================================
+   BUILDERS
+   ============================================================= */
+
+function buildNav() {
+  setHTML('secnav', SECTIONS.map(([id, k]) => `<a href="#${id}">${U(k)}</a>`).join(''));
+}
+
+function buildHero() {
+  const m = DATA.meta;
+  setHTML('heroMeta',
+    `<span><b>${U('metaScope')}:</b> ${m.scope[0]}–${m.scope[1]}</span>` +
+    `<span><b>${U('metaCommissioners')}:</b> ${m.commissioners.length}</span>` +
+    `<span><b>${U('metaPages')}:</b> ${U('metaPagesV')}</span>`);
+}
+
+function buildKPI() {
+  const spark = { swing2017: null };
+  setHTML('kpiGrid', DATA.kpi.map(k =>
+    `<div class="card c3 stat ${k.tone === 'critical' ? 'is-critical' : 'is-warning'}">
+       <div class="tone-bar" style="background:var(--${k.tone === 'critical' ? 'critical' : 'warning'})"></div>
+       <div class="label">${t(k.label)}</div>
+       <div class="value">RM${k.value}<span class="unit"> ${t(k.unit)}</span></div>
+       <div class="note">${t(k.note)} <span class="dim">${k.ref}</span></div>
+     </div>`).join(''));
+}
+
+/* ---------- 1. THE GAP ---------- */
+function buildGap() {
+  const S = [
+    { name: U('l_before'), color: C(1) },
+    { name: U('l_hibah'), color: C(2) },
+    { name: U('l_after'), color: 'var(--critical)' }
+  ];
+  legend('gapLegend', S);
+  columnChart('gapChart', {
+    mode: 'grouped', series: S, height: 320,
+    tick: { compact: true }, fmt: v => rmMil(v),
+    aria: U('c_gap_t'),
+    data: DATA.balanceSheet.map(d => ({
+      label: String(d.year), values: [d.before, d.hibah, d.after],
+      note: t(DATA.balanceSheetNotes[d.year])
+    }))
+  });
+  dataTable('gapTbl',
+    [U('year'), U('l_assets'), U('l_liab'), U('l_before'), U('l_hibah'), U('l_after')],
+    DATA.balanceSheet.map(d => [d.year, NF(d.assets), NF(d.liabilities), NF(d.before), NF(d.hibah), NF(d.after)]));
+
+  const AL = [
+    { name: U('l_assets'), color: C(1), values: DATA.balanceSheet.map(d => d.assets) },
+    { name: U('l_liab'), color: C(8), values: DATA.balanceSheet.map(d => -d.liabilities) }
+  ];
+  legend('alLegend', AL, 'line');
+  lineChart('alChart', {
+    x: DATA.balanceSheet.map(d => String(d.year)), series: AL, height: 250,
+    tick: { compact: true }, fmt: v => rmMil(v), aria: U('c_al_t'),
+    annotations: [{ xi: 2, text: LANG === 'ms' ? 'liabiliti > aset' : 'liabilities > assets', tone: 'var(--critical)' }]
+  });
+  setHTML('alFoot', LANG === 'ms'
+    ? 'Menjelang 2016 liabiliti LTH melebihi asetnya sebanyak <b>RM1.26 bilion</b>. Seksyen 22 Akta 535 melarang agihan keuntungan dalam keadaan ini — melainkan aset dinilai semula.'
+    : 'By 2016 LTH\'s liabilities exceeded its assets by <b>RM1.26 billion</b>. Section 22 of Act 535 bars a profit distribution in that state — unless the assets are revalued.');
+
+  const totalHibah = DATA.balanceSheet.reduce((s, d) => s - d.hibah, 0) / 1000;
+  const totalBefore = DATA.balanceSheet.reduce((s, d) => s + d.before, 0) / 1000;
+  setHTML('gapInsight', LANG === 'ms'
+    ? `Sepanjang 2014–2017 LTH menjana lebihan terkumpul <b>RM${NF(totalBefore, 2)} bilion</b> sebelum agihan — tetapi mengagihkan <b>RM${NF(totalHibah, 2)} bilion</b> sebagai hibah. Beza <b>RM${NF(totalHibah - totalBefore, 2)} bilion</b> itu datang daripada suatu tempat: rizab pendeposit sendiri.`
+    : `Across 2014–2017 LTH generated a cumulative surplus of <b>RM${NF(totalBefore, 2)} billion</b> before distribution — and paid out <b>RM${NF(totalHibah, 2)} billion</b> in hibah. That <b>RM${NF(totalHibah - totalBefore, 2)} billion</b> difference had to come from somewhere: the depositors' own reserves.`);
+}
+
+/* ---------- 2. HIBAH ---------- */
+function buildHibah() {
+  const S = [{ name: U('l_annual'), color: C(1) }, { name: U('l_hajj'), color: C(4) }];
+  legend('hibLegend', S);
+  columnChart('hibChart', {
+    mode: 'stacked', series: S, height: 300, tick: { pct: true }, fmt: v => fmtPct(v),
+    aria: U('c_hib_t'),
+    data: DATA.hibah.map(d => ({
+      label: String(d.year), values: [d.annual, d.hajj],
+      tipTitle: String(d.year), note: t(DATA.hibahNotes[d.year]) || null
+    }))
+  });
+  dataTable('hibTbl',
+    [U('year'), U('l_annual'), U('l_hajj'), LANG === 'ms' ? 'Jumlah' : 'Total', U('l_cost')],
+    DATA.hibah.map(d => [d.year, fmtPct(d.annual), fmtPct(d.hajj), fmtPct(d.annual + d.hajj), d.cost ? rmBil(d.cost) : '—']));
+
+  lineChart('depChart', {
+    x: DATA.deposits.map(d => t(d.label)),
+    series: [{ name: U('l_deposit'), color: C(3), values: DATA.deposits.map(d => d.value) }],
+    height: 250, area: true, zeroBase: false, fmt: v => rmBil(v, 0), aria: U('c_dep_t'),
+    notes: DATA.deposits.map(d => t(d.note))
+  });
+  setHTML('depFoot', LANG === 'ms'
+    ? 'Pengumuman hibah <b>1.25%</b> mencetuskan pengecutan deposit RM4 bilion. Suruhanjaya menyifatkannya sebagai nasib baik — kesan sebenar jauh lebih kecil daripada yang dikhuatiri.'
+    : 'The <b>1.25%</b> hibah announcement triggered a RM4 billion contraction. The Commission called it fortunate — the actual impact was far smaller than feared.');
+}
+
+/* ---------- 3. ACCOUNTING ---------- */
+function buildAccounting() {
+  waterfall('wfChart', {
+    steps: DATA.restatement.map(s => ({
+      label: t(s.label), value: s.value, type: s.type, note: t(s.note),
+      color: s.type === 'start' ? C(1) : s.type === 'total' ? 'var(--critical)' : (s.derived ? C(7) : 'var(--serious)')
+    })),
+    height: 340, fmt: v => rmBil(Math.abs(v), 2), aria: U('c_wf_t'),
+    deltaLabel: LANG === 'ms' ? 'Pelarasan' : 'Adjustment',
+    levelLabel: LANG === 'ms' ? 'Kedudukan' : 'Position',
+    runningLabel: LANG === 'ms' ? 'Baki terkumpul' : 'Running total'
+  });
+  setHTML('wfFoot', LANG === 'ms'
+    ? 'Jika piawaian MFRS diguna pakai sepenuhnya bagi tahun kewangan 2017, LTH sepatutnya merekodkan <b>kerugian bersih RM1.4 bilion</b> berbanding keuntungan RM3.4 bilion yang dilaporkan. Petak ungu ialah baki penyesuaian — laporan menyenaraikan puncanya tanpa jumlah individu.'
+    : 'Applying MFRS in full to FY2017, LTH should have booked a <b>RM1.4 billion net loss</b> against the RM3.4 billion profit it reported. The violet bar is a balancing figure — the report names its causes without giving individual amounts.');
+
+  const R = DATA.rav;
+  const steps = [
+    { l: LANG === 'ms' ? 'Jumlah aset (penyata beraudit)' : 'Total assets (audited)', v: R.assets, c: C(1) },
+    { l: LANG === 'ms' ? '+ Tokokan RAV (anggaran pengurusan)' : '+ RAV uplift (management estimate)', v: R.uplift, c: C(4), flag: true },
+    { l: LANG === 'ms' ? '= Jumlah aset atas dasar RAV' : '= Total assets on a RAV basis', v: R.assetsRav, c: C(3), rule: true },
+    { l: LANG === 'ms' ? '− Jumlah liabiliti' : '− Total liabilities', v: -R.liabilities, c: C(8) },
+    { l: LANG === 'ms' ? '= "Boleh diagihkan"' : '= "Distributable"', v: R.distributable, c: 'var(--critical)', rule: true, big: true }
+  ];
+  setHTML('ravSteps',
+    steps.map(s => `<div style="display:flex;align-items:baseline;gap:10px;justify-content:space-between;padding:9px 0;${s.rule ? 'border-top:1px solid var(--border);' : ''}">
+      <span style="font-size:12.5px;color:var(--text-secondary);display:flex;align-items:center;gap:8px">
+        <span class="swatch" style="background:${s.c}"></span>${esc(s.l)}</span>
+      <span class="mono" style="font-weight:${s.big ? 750 : 650};font-size:${s.big ? '17px' : '13px'};white-space:nowrap;${s.big ? 'color:var(--critical)' : ''}">${NF(s.v)}</span>
+    </div>`).join('') +
+    `<div class="insight warn" style="margin-top:12px;font-size:12.5px">${LANG === 'ms'
+      ? `Daripada tokokan RM${NF(R.uplift)} juta itu, <b>RM${NF(R.thpUplift)} juta</b> berkaitan TH Plantations sahaja — berdasarkan penilaian hartanah RM${NF(R.thpValuation)} juta yang mana hanya <b>RM${NF(R.thpProfessional)} juta</b> disokong laporan penilai profesional. Bakinya anggaran pengurusan semata-mata. Rosot nilai tersembunyi RM${NF(R.hiddenImpairment)} juta jauh melebihi RM${NF(R.distributable)} juta yang dikira "boleh diagihkan".`
+      : `Of that RM${NF(R.uplift)} million uplift, <b>RM${NF(R.thpUplift)} million</b> related to TH Plantations alone — resting on a RM${NF(R.thpValuation)} million property valuation of which only <b>RM${NF(R.thpProfessional)} million</b> came from professional valuers. The rest was management estimate. The RM${NF(R.hiddenImpairment)} million of hidden impairment dwarfs the RM${NF(R.distributable)} million deemed "distributable".`}</div>`);
+
+  const bars = [
+    { pct: 20, label: U('l_practice'), color: C(3), note: LANG === 'ms' ? 'Kerugian dikira signifikan apabila nilai turun 20% atau lebih.' : 'A loss counts as significant once value falls 20% or more.' },
+    { pct: 70, label: U('l_marketNote') + ' — 2016', color: C(4), note: LANG === 'ms' ? 'LTH hanya merosotnilaikan apabila nilai jatuh 70%.' : 'LTH impaired only after a 70% fall.' },
+    { pct: 85, label: U('l_marketNote') + ' — 2017', color: 'var(--serious)', note: LANG === 'ms' ? 'Ambang dinaikkan kepada 85%.' : 'Threshold raised to 85%.' },
+    { pct: 90, label: U('l_marketNote') + ' — 2017', color: 'var(--critical)', note: LANG === 'ms' ? 'Dinaikkan sekali lagi kepada 90% — dalam tempoh satu hari.' : 'Raised again to 90% — within a single day.' }
+  ];
+  setHTML('thrViz',
+    bars.map(b => `<div style="margin-bottom:11px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span style="color:var(--text-secondary);font-weight:600">${esc(b.label)}</span>
+        <span class="mono" style="font-weight:700">${b.pct}%</span></div>
+      <div style="height:9px;background:var(--surface-2);border-radius:5px;overflow:hidden">
+        <div style="height:100%;width:${b.pct}%;background:${b.color};border-radius:5px"></div></div>
+      <div style="font-size:11.5px;color:var(--text-muted);margin-top:4px">${esc(b.note)}</div>
+    </div>`).join('') +
+    `<div class="insight crit" style="font-size:12.5px">${LANG === 'ms'
+      ? 'Pada ambang 90%, pelaburan saham RM1,000 hanya dirosotnilaikan setelah nilai pasarannya jatuh ke <b>RM100</b>. Sehingga itu, penyata kewangan masih menunjukkan RM1,000.'
+      : 'At a 90% threshold, a RM1,000 shareholding is impaired only once its market value hits <b>RM100</b>. Until then the accounts still show RM1,000.'}</div>`);
+
+  const audRows = [2014, 2015, 2016, 2017].map(y => ({
+    y, eom: y === 2017,
+    n: y === 2017
+      ? (LANG === 'ms' ? 'Sijil Audit Bersih dengan "Emphasis of Matter". KAN kemudian mengaku ia sepatutnya laporan berteguran.' : 'Clean certificate with an "Emphasis of Matter". The Auditor-General later conceded it should have been qualified.')
+      : (LANG === 'ms' ? 'Sijil Audit Bersih tanpa teguran.' : 'Clean audit certificate, unqualified.')
+  }));
+  setHTML('audList', audRows.map(r =>
+    `<div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start">
+       <span class="mono" style="font-weight:750;font-size:14px;min-width:38px">${r.y}</span>
+       <div style="flex:1">
+         <span class="pill ${r.eom ? 'crit' : 'good'}"><span class="ic">${r.eom ? '▲' : '✓'}</span>${r.eom ? (LANG === 'ms' ? 'Emphasis of Matter' : 'Emphasis of Matter') : (LANG === 'ms' ? 'Bersih' : 'Clean')}</span>
+         <div style="font-size:12.5px;color:var(--text-secondary);margin-top:5px;line-height:1.5">${esc(r.n)}</div>
+       </div>
+     </div>`).join('') +
+    `<div class="insight crit" style="margin-top:12px;font-size:12.5px">${LANG === 'ms'
+      ? 'Surat KAN kepada Perdana Menteri (19 Disember 2018) mengakui Pendapat Berteguran telah dicadangkan, tetapi ditarik balik kerana ia "akan mempengaruhi espektasi dan persepsi negatif pihak berkepentingan, khususnya pendeposit".'
+      : "The Auditor-General's 19 December 2018 letter to the Prime Minister admits a qualified opinion was proposed, then dropped because it would \"affect stakeholder expectations and negative perception, particularly among depositors\"."}</div>`);
+}
+
+/* ---------- 4. BAILOUT ---------- */
+function buildBailout() {
+  const A = DATA.ujsb.assets;
+  legend('dbLegend', [{ name: U('l_transfer'), color: C(2) }, { name: U('l_market'), color: C(3) }]);
+  dumbbell('dbChart', {
+    data: A.map(a => ({ label: t(a.name), a: a.transfer, b: a.market, note: t(a.note) })),
+    aName: U('l_transfer'), bName: U('l_market'), gapName: U('l_premium'),
+    aColor: C(2), bColor: C(3), tick: { compact: true },
+    fmt: v => rmMil(v), aria: U('c_db_t')
+  });
+  dataTable('dbTbl',
+    [LANG === 'ms' ? 'Kelas aset' : 'Asset class', U('l_transfer'), U('l_market'), U('l_premium'), '%'],
+    A.concat([{ name: T(LANG === 'ms' ? 'Jumlah' : 'Total'), transfer: DATA.ujsb.transfer.value, market: DATA.ujsb.transfer.market, premium: DATA.ujsb.transfer.premium }])
+      .map(a => [t(a.name), NF(a.transfer), NF(a.market), NF(a.premium), NF((a.premium / a.market) * 100, 0) + '%']));
+
+  const G = DATA.ujsb.govt;
+  setHTML('sukukList',
+    DATA.ujsb.sukuk.map(s => `<div style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-weight:650;font-size:13.5px">${LANG === 'ms' ? 'Sukuk Siri' : 'Sukuk Series'} ${s.series}</span>
+        <span class="mono" style="font-weight:700;font-size:15px">${rmBil(s.principal, 1)}</span></div>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:7px;font-size:12px;color:var(--text-secondary)">
+        <span>${LANG === 'ms' ? 'Nilai nominal' : 'Nominal'} <b class="mono">${rmBil(s.nominal, 1)}</b></span>
+        <span>${LANG === 'ms' ? 'Tempoh' : 'Tenure'} <b class="mono">${s.tenure} ${LANG === 'ms' ? 'tahun' : 'yrs'}</b></span>
+        <span>YTM <b class="mono">${fmtPct(s.ytm)}</b></span>
+        <span>${LANG === 'ms' ? 'Matang' : 'Matures'} <b class="mono">${s.matures}</b></span></div>
+    </div>`).join('') +
+    `<div style="border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px">
+       <div style="display:flex;justify-content:space-between;align-items:baseline">
+         <span style="font-weight:650;font-size:13.5px">${LANG === 'ms' ? 'Bayaran tunai' : 'Cash consideration'}</span>
+         <span class="mono" style="font-weight:700;font-size:15px">${rmMil(DATA.ujsb.transfer.cash)}</span></div>
+       <div style="font-size:12px;color:var(--text-secondary);margin-top:6px">${LANG === 'ms' ? 'RM100 juta pada 30 Dis 2019, RM200 juta pada 30 Dis 2020.' : 'RM100 million on 30 Dec 2019, RM200 million on 30 Dec 2020.'}</div>
+     </div>` +
+    `<div class="insight crit" style="font-size:12.5px">${t(DATA.ujsb.guarantee)}</div>` +
+    `<div class="insight warn" style="font-size:12.5px;margin-top:10px">${LANG === 'ms'
+      ? `Hasil pengakruan Sukuk UJSB menyumbang hampir <b>${DATA.ujsb.incomeShare}%</b> daripada keseluruhan pendapatan tahunan LTH — melebihi satu pertiga daripada jumlah hibah tahunan. Suruhanjaya menyifatkan kegagalan melunaskan obligasi UJSB sebagai <b>risiko terbesar LTH</b>.`
+      : `Accrued income on the UJSB sukuk supplies nearly <b>${DATA.ujsb.incomeShare}%</b> of LTH's total annual income — more than a third of its yearly hibah. The Commission calls a failure to meet the UJSB obligation <b>LTH's single biggest risk</b>.`}</div>`);
+
+  setHTML('bailoutInsight', LANG === 'ms'
+    ? `Aset berjumlah <b>RM${NF(DATA.ujsb.transfer.market)} juta</b> nilai pasaran dibeli pada <b>RM${NF(DATA.ujsb.transfer.value)} juta</b>. Untuk menutup jurang itu, Jemaah Menteri memperuntukkan <b>RM${NF(G.total, 1)} bilion</b> — purata <b>RM${NF(G.perYear, 2)} bilion setahun</b> daripada RMK-12 dan RMK-13. ${t(DATA.ujsb.disposalNote)}`
+    : `Assets worth <b>RM${NF(DATA.ujsb.transfer.market)} million</b> at market were bought for <b>RM${NF(DATA.ujsb.transfer.value)} million</b>. To close that gap the Cabinet earmarked <b>RM${NF(G.total, 1)} billion</b> — an average of <b>RM${NF(G.perYear, 2)} billion a year</b> across the 12th and 13th Malaysia Plans. ${t(DATA.ujsb.disposalNote)}`);
+}
+
+/* ---------- 5. INVESTMENTS ---------- */
+function filteredInv() {
+  const q = ST.invQuery.trim().toLowerCase();
+  return DATA.investments.filter(i =>
+    (ST.invSector === 'all' || i.sector === ST.invSector) &&
+    (!q || i.name.toLowerCase().includes(q) || t(i.what).toLowerCase().includes(q)));
+}
+
+function buildInvFilters() {
+  const cats = [['all', U('all')]].concat(Object.entries(DATA.sectors).map(([k, v]) => [k, t(v.label)]));
+  setHTML('invFilters',
+    `<span class="filter-label">${U('l_sector')}</span>` +
+    cats.map(([k, l]) => `<button class="chip" data-sector="${k}" aria-pressed="${ST.invSector === k}">${esc(l)}</button>`).join('') +
+    `<input class="searchbox" id="invSearch" type="search" placeholder="${U('search')}" value="${esc(ST.invQuery)}">`);
+  document.querySelectorAll('#invFilters .chip').forEach(b =>
+    b.addEventListener('click', () => { ST.invSector = b.dataset.sector; ST.invSelected = 0; renderInv(); }));
+  const s = document.getElementById('invSearch');
+  s.addEventListener('input', () => { ST.invQuery = s.value; ST.invSelected = 0; renderInv(true); });
+}
+
+function renderInv(keepFocus) {
+  const list = filteredInv();
+  document.querySelectorAll('#invFilters .chip').forEach(b => b.setAttribute('aria-pressed', String(ST.invSector === b.dataset.sector)));
+
+  legend('invLegend', Object.entries(DATA.sectors)
+    .filter(([k]) => ST.invSector === 'all' || ST.invSector === k)
+    .map(([k, v]) => ({ name: t(v.label), color: v.color })));
+
+  const withLoss = list.filter(i => i.loss);
+  resetChartsIn('tmChart');
+  treemap('tmChart', {
+    data: withLoss.map(i => ({
+      label: i.name, value: i.loss, color: DATA.sectors[i.sector].color,
+      note: t(i.status), ref: i,
+      extra: [{ k: U('l_sector'), v: t(DATA.sectors[i.sector].label) }].concat(
+        i.invested ? [{ k: U('l_invested'), v: rmMil(i.invested, 1) }] : [])
+    })),
+    height: 400, fmt: v => rmMil(v, 1), valueLabel: U('l_loss'), aria: U('c_tm_t'),
+    onSelect: d => { ST.invSelected = DATA.investments.indexOf(d.ref); renderInvDetail(); }
+  });
+  observeCharts();
+
+  renderInvDetail();
+  renderInvTable();
+  if (keepFocus) { const s = document.getElementById('invSearch'); if (s) { s.focus(); s.setSelectionRange(s.value.length, s.value.length); } }
+}
+
+function renderInvDetail() {
+  const list = filteredInv();
+  const i = DATA.investments[ST.invSelected] && list.includes(DATA.investments[ST.invSelected])
+    ? DATA.investments[ST.invSelected]
+    : (list.slice().sort((a, b) => (b.loss || 0) - (a.loss || 0))[0]);
+  if (!i) {
+    setHTML('invDetail', `<div class="card-head"><h3>${U('l_selectInv')}</h3><div class="sub">${U('none')}</div></div>`);
+    return;
+  }
+  const sec = DATA.sectors[i.sector];
+  setHTML('invDetail',
+    `<div class="card-head">
+       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px">
+         <span class="pill" style="border-color:${sec.color};color:var(--text-primary)"><span class="swatch" style="background:${sec.color}"></span>${t(sec.label)}</span>
+         <span class="pill info">${t(i.type)}</span>
+         ${i.year ? `<span class="pill info">${i.year}</span>` : ''}
+         <span class="pill ${i.severity === 'high' ? 'crit' : 'warn'}"><span class="ic">${i.severity === 'high' ? '▲' : '●'}</span>${i.severity === 'high' ? U('l_high') : U('l_medium')}</span>
+       </div>
+       <h3 style="font-size:16px">${esc(i.name)}</h3>
+     </div>
+     <div style="display:flex;gap:22px;flex-wrap:wrap;margin-bottom:14px">
+       <div><div style="font-size:11.5px;color:var(--text-muted);font-weight:600">${U('l_loss')}</div>
+         <div class="mono" style="font-size:22px;font-weight:750;color:var(--critical);letter-spacing:-.03em">${i.loss ? rmMil(i.loss, 1) : U('l_noAmount')}</div></div>
+       ${i.invested ? `<div><div style="font-size:11.5px;color:var(--text-muted);font-weight:600">${U('l_invested')}</div>
+         <div class="mono" style="font-size:22px;font-weight:750;letter-spacing:-.03em">${rmMil(i.invested, 1)}</div></div>` : ''}
+     </div>
+     <p style="font-size:13px;color:var(--text-secondary);line-height:1.6">${t(i.what)}</p>
+     <div style="margin-top:13px">
+       <div style="font-size:11.5px;color:var(--text-muted);font-weight:650;text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px">${U('l_redflags')}</div>
+       <div style="display:flex;flex-wrap:wrap;gap:5px">${i.flags.map(f => `<span class="pill crit">${esc(t(f))}</span>`).join('')}</div>
+     </div>
+     <div class="card-foot"><b>${U('l_status')}:</b> ${esc(t(i.status))}${i.noAmount ? ` <span class="dim">${esc(t(i.noAmount))}</span>` : ''}</div>`);
+}
+
+function renderInvTable() {
+  const cols = [
+    { k: 'name', l: LANG === 'ms' ? 'Pelaburan' : 'Investment' },
+    { k: 'sector', l: U('l_sector') },
+    { k: 'year', l: U('year') },
+    { k: 'invested', l: U('l_invested') },
+    { k: 'loss', l: U('l_loss') },
+    { k: 'status', l: U('l_status') }
+  ];
+  const rows = filteredInv().slice().sort((a, b) => {
+    const k = ST.sortKey, d = ST.sortDir === 'asc' ? 1 : -1;
+    let x = a[k], y = b[k];
+    if (k === 'sector') { x = t(DATA.sectors[a.sector].label); y = t(DATA.sectors[b.sector].label); }
+    if (k === 'status') { x = t(a.status); y = t(b.status); }
+    if (x === null || x === undefined) return 1;
+    if (y === null || y === undefined) return -1;
+    return typeof x === 'number' ? (x - y) * d : String(x).localeCompare(String(y)) * d;
+  });
+  setHTML('invTbl', `<table class="dt"><thead><tr>${cols.map(c =>
+    `<th class="sortable" data-k="${c.k}"${ST.sortKey === c.k ? ` data-dir="${ST.sortDir}"` : ''}>${esc(c.l)}</th>`).join('')}</tr></thead><tbody>` +
+    (rows.length ? rows.map(r => `<tr>
+      <td>${esc(r.name)}</td>
+      <td><span class="swatch" style="display:inline-block;background:${DATA.sectors[r.sector].color};margin-right:6px;vertical-align:middle"></span>${esc(t(DATA.sectors[r.sector].label))}</td>
+      <td>${r.year || '—'}</td>
+      <td>${r.invested ? rmMil(r.invested, 1) : '—'}</td>
+      <td style="color:var(--critical);font-weight:650">${r.loss ? rmMil(r.loss, 1) : '—'}</td>
+      <td style="white-space:normal;max-width:340px;font-size:12px">${esc(t(r.status))}</td></tr>`).join('')
+      : `<tr><td colspan="6" style="text-align:center;padding:24px">${U('none')}</td></tr>`) +
+    `</tbody></table>`);
+  document.querySelectorAll('#invTbl th.sortable').forEach(th =>
+    th.addEventListener('click', () => {
+      if (ST.sortKey === th.dataset.k) ST.sortDir = ST.sortDir === 'asc' ? 'desc' : 'asc';
+      else { ST.sortKey = th.dataset.k; ST.sortDir = 'desc'; }
+      renderInvTable();
+    }));
+}
+
+/* ---------- 6. HAFIS ---------- */
+function buildHafis() {
+  const H = DATA.hafis.filter(d => d.pays !== null);
+  const S = [
+    { name: U('l_pays'), color: C(1), values: H.map(d => d.pays) },
+    { name: U('l_subsidy'), color: 'var(--serious)', values: H.map(d => d.subsidy) }
+  ];
+  legend('hafLegend', S);
+  const fcIdx = H.findIndex(d => d.proj);
+  stackedArea('hafChart', {
+    x: H.map(d => String(d.year)), series: S, height: 320,
+    tick: { compact: true }, fmt: v => rm(v, 0), aria: U('c_haf_t'),
+    forecastFrom: fcIdx, forecastLabel: LANG === 'ms' ? 'unjuran' : 'projected',
+    totalLabel: U('l_totalcost'),
+    notes: H.map(d => `${U('l_subsidy')}: <b>${NF(d.pct, 1)}%</b> ${LANG === 'ms' ? 'daripada kos' : 'of cost'}${d.proj ? (LANG === 'ms' ? ' · unjuran' : ' · projected') : ''}`)
+  });
+  dataTable('hafTbl',
+    [U('year'), U('l_totalcost'), U('l_pays'), U('l_subsidy'), '% ' + (LANG === 'ms' ? 'kos' : 'of cost'), LANG === 'ms' ? 'Jumlah HAFIS' : 'Total HAFIS'],
+    DATA.hafis.map(d => [d.year + (d.proj ? '*' : ''), rm(d.cost, 0), rm(d.pays, 0), rm(d.subsidy, 0), d.pct ? NF(d.pct, 1) + '%' : '—', d.total ? rmMil(d.total, 1) : '—']));
+
+  const HT = DATA.hafis.filter(d => d.total !== null);
+  columnChart('hafTotalChart', {
+    mode: 'grouped', series: [{ name: LANG === 'ms' ? 'Jumlah HAFIS' : 'Total HAFIS', color: 'var(--serious)' }],
+    height: 250, tick: { compact: true }, fmt: v => rmMil(v, 0), aria: U('c_haft_t'),
+    data: HT.map(d => ({
+      label: String(d.year).slice(2), tipTitle: String(d.year), values: [d.total],
+      note: d.proj ? (LANG === 'ms' ? 'Unjuran Suruhanjaya.' : 'Commission projection.') : null
+    }))
+  });
+  setHTML('hafFoot', LANG === 'ms'
+    ? `Menjelang 2030 HAFIS dijangka mencecah <b>RM742.5 juta setahun</b> — <b>65.6%</b> daripada kos haji sebenar. Suruhanjaya menganggarkan LTH memerlukan asas deposit minimum <b>RM${DATA.hafisMeta.minFund} bilion</b> semata-mata untuk menampungnya.`
+    : `By 2030 HAFIS is projected to reach <b>RM742.5 million a year</b> — <b>65.6%</b> of the true cost of hajj. The Commission estimates LTH needs a minimum deposit base of <b>RM${DATA.hafisMeta.minFund} billion</b> just to carry it.`);
+}
+
+/* ---------- 7. GOVERNANCE ---------- */
+function buildGovernance() {
+  legend('tenLegend', [
+    { name: U('l_chair'), color: C(7) },
+    { name: U('l_ceo'), color: C(1) },
+    { name: U('l_politician'), color: 'var(--critical)' }
+  ]);
+  const rows = DATA.chairmen.map(c => ({
+    label: c.name,
+    spans: [{ from: c.from, to: c.to, color: c.politician ? 'var(--critical)' : C(7), name: U('l_chair'), range: t(c.range), note: t(c.bg) }]
+  })).concat(DATA.ceos.map(c => ({
+    label: c.name,
+    spans: [{ from: c.from, to: c.to, color: C(1), name: U('l_ceo'), range: t(c.range), note: t(c.note) }]
+  })));
+  ganttChart('tenChart', { rows, min: 2013, max: 2023, scope: [2014, 2020], aria: U('c_ten_t') });
+
+  barChart('subChart', {
+    data: DATA.subsidiaryLoad.map(s => ({
+      label: s.name.replace(/^(Datuk Seri |Datuk Sri |Tan Sri |Datuk |Dato' Sri |Dato' |Encik )/, ''),
+      value: s.n, sub: t(s.role),
+      color: s.n >= 15 ? 'var(--critical)' : s.n >= 7 ? 'var(--serious)' : C(1),
+      note: s.name
+    })),
+    rowH: 34, fmt: v => NF(v), valueLabel: U('l_positions'), aria: U('c_sub_t')
+  });
+
+  setHTML('comGrid', DATA.committees.map(c => {
+    const state = c.state === 'dissolved' ? 'crit' : c.state === 'new' ? 'warn' : 'good';
+    const stLabel = c.state === 'dissolved' ? U('l_dissolved') : c.state === 'new' ? U('l_new') : U('l_active');
+    return `<div class="c4" style="border:1px solid var(--border);border-radius:10px;padding:13px">
+      <div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px">
+        <span class="pill ${c.statutory ? 'good' : 'crit'}"><span class="ic">${c.statutory ? '✓' : '✕'}</span>${c.statutory ? U('l_statutory') : U('l_notstatutory')}</span>
+        <span class="pill ${state}">${stLabel}</span>
+      </div>
+      <div style="font-weight:650;font-size:13.5px">${esc(t(c.name))}</div>
+      <div style="font-size:12.5px;color:var(--text-secondary);margin-top:6px;line-height:1.55">${esc(t(c.note))}</div>
+    </div>`;
+  }).join(''));
+}
+
+/* ---------- 8. ACCOUNTABILITY ---------- */
+function buildAccountability() {
+  setHTML('polList', DATA.police.map(p =>
+    `<div class="tl-item"><div class="tl-dot ${p.state === 'open' ? 'crit' : 'warn'}"></div>
+      <div class="tl-date">${p.date} · ${esc(p.ref)}</div>
+      <div class="tl-desc" style="margin-top:5px">${esc(t(p.subject))}</div>
+      <div style="margin-top:7px"><span class="pill wrap ${p.state === 'open' ? 'crit' : 'warn'}">${esc(t(p.outcome))}</span></div>
+    </div>`).join(''));
+
+  setHTML('disList', DATA.discipline.map(d =>
+    `<div style="padding:11px 0;border-bottom:1px solid var(--border)">
+      <div style="font-weight:650;font-size:13px">${esc(t(d.cluster))}</div>
+      <div style="font-size:11.5px;color:var(--text-muted);margin-top:3px">${U('l_charged')} ${d.charged} · ${d.officers} ${U('l_officers')}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <span class="pill wrap crit">${esc(t(d.first))}</span>
+        <span style="color:var(--text-muted);font-size:13px">→</span>
+        <span class="pill wrap warn">${esc(t(d.final))}</span>
+      </div>
+      <div style="font-size:12px;color:var(--text-secondary);margin-top:7px;line-height:1.5">${esc(t(d.note))}</div>
+    </div>`).join('') +
+    `<div class="insight warn" style="margin-top:12px;font-size:12.5px">${LANG === 'ms'
+      ? 'Dalam tiga daripada empat kluster, hukuman dikurangkan semasa rayuan. Kesemua pegawai yang dipertuduh masih bertugas di LTH atau anak syarikatnya.'
+      : 'In three of the four clusters the penalty was reduced on appeal. Every charged officer remains employed at LTH or one of its subsidiaries.'}</div>`);
+
+  setHTML('legTbl', `<table class="dt"><thead><tr>
+      <th>${U('l_case')}</th><th style="text-align:left">${U('l_forum')}</th><th>${U('l_claim')}</th><th style="text-align:left">${U('l_status')}</th>
+    </tr></thead><tbody>` +
+    DATA.legalCases.map(c => `<tr>
+      <td>${esc(c.case)}</td>
+      <td style="text-align:left">${esc(t(c.forum))}</td>
+      <td>${c.amount ? rmMil(c.amount, 1) : '—'}</td>
+      <td style="text-align:left;white-space:normal;max-width:300px;font-size:12px">${esc(t(c.status))}</td></tr>`).join('') +
+    `</tbody></table>`);
+
+  setHTML('macList', DATA.macc.map(m =>
+    `<div style="display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start">
+      <span style="color:var(--serious);font-size:13px;line-height:1.4">◆</span>
+      <span style="font-size:12.5px;color:var(--text-secondary);line-height:1.5">${esc(t(m))}</span></div>`).join('') +
+    `<div class="card-foot">${LANG === 'ms'
+      ? 'Laporan tidak menyatakan tarikh bagi kebanyakan rujukan ini.'
+      : 'The report does not give dates for most of these referrals.'}</div>`);
+}
+
+/* ---------- 9. RECOMMENDATIONS ---------- */
+function buildRecFilters() {
+  const cats = [['all', U('all')]].concat(Object.entries(DATA.recCats).map(([k, v]) => [k, t(v.label)]));
+  const pris = [['all', U('all')], ['high', U('l_high')], ['medium', U('l_medium')], ['low', U('l_low')]];
+  setHTML('recFilters',
+    `<span class="filter-label">${LANG === 'ms' ? 'Kategori' : 'Category'}</span>` +
+    cats.map(([k, l]) => `<button class="chip" data-rc="${k}" aria-pressed="${ST.recCat === k}">${esc(l)}</button>`).join('') +
+    `<span style="width:10px"></span><span class="filter-label">${U('l_priority')}</span>` +
+    pris.map(([k, l]) => `<button class="chip" data-rp="${k}" aria-pressed="${ST.recPri === k}">${esc(l)}</button>`).join(''));
+  document.querySelectorAll('#recFilters [data-rc]').forEach(b =>
+    b.addEventListener('click', () => { ST.recCat = b.dataset.rc; renderRecs(); }));
+  document.querySelectorAll('#recFilters [data-rp]').forEach(b =>
+    b.addEventListener('click', () => { ST.recPri = b.dataset.rp; renderRecs(); }));
+}
+function renderRecs() {
+  document.querySelectorAll('#recFilters [data-rc]').forEach(b => b.setAttribute('aria-pressed', String(ST.recCat === b.dataset.rc)));
+  document.querySelectorAll('#recFilters [data-rp]').forEach(b => b.setAttribute('aria-pressed', String(ST.recPri === b.dataset.rp)));
+  const list = DATA.recommendations.filter(r =>
+    (ST.recCat === 'all' || r.cat === ST.recCat) && (ST.recPri === 'all' || r.priority === ST.recPri));
+  setHTML('recList', list.length ? list.map(r =>
+    `<div class="rec">
+      <div class="rec-n">${r.num}</div>
+      <div class="rec-body">
+        <p style="margin-top:0;color:var(--text-primary);font-size:13.5px;line-height:1.55">${esc(t(r.text))}</p>
+        <div class="rec-tags">
+          <span class="pill info">${esc(t(DATA.recCats[r.cat].label))}</span>
+          <span class="pill info">${U('l_target')}: ${esc(t(r.target))}</span>
+          ${priPill(r.priority)}
+        </div>
+      </div>
+    </div>`).join('') : `<div class="card">${U('none')}</div>`);
+}
+
+/* ---------- 10. TIMELINE ---------- */
+function buildTlFilters() {
+  const cats = [['all', U('all')]].concat(Object.entries(DATA.timelineCats).map(([k, v]) => [k, t(v.label)]));
+  setHTML('tlFilters', cats.map(([k, l]) =>
+    `<button class="chip" data-tc="${k}" aria-pressed="${ST.tlCat === k}">${esc(l)}</button>`).join(''));
+  document.querySelectorAll('#tlFilters .chip').forEach(b =>
+    b.addEventListener('click', () => { ST.tlCat = b.dataset.tc; renderTl(); }));
+}
+function renderTl() {
+  document.querySelectorAll('#tlFilters .chip').forEach(b => b.setAttribute('aria-pressed', String(ST.tlCat === b.dataset.tc)));
+  const list = DATA.timeline.filter(e => ST.tlCat === 'all' || e.cat === ST.tlCat);
+  setHTML('tlList', list.length ? list.map(e =>
+    `<div class="tl-item"><div class="tl-dot ${e.tone}"></div>
+      <div class="tl-date">${e.date} · ${esc(t(DATA.timelineCats[e.cat].label))}</div>
+      <div class="tl-title">${esc(t(e.t))}</div>
+      <div class="tl-desc">${esc(t(e.d))}</div></div>`).join('') : `<div class="dim">${U('none')}</div>`);
+}
+
+/* ---------- FOOTER ---------- */
+function buildFooter() {
+  setHTML('ftNote', U('ft_note'));
+  setHTML('ftSrc',
+    `<div style="font-size:12.5px;line-height:1.7">
+      <a href="https://github.com/SyahmiRafsan/rci-tabunghaji" target="_blank" rel="noopener noreferrer">github.com/SyahmiRafsan/rci-tabunghaji</a><br>
+      <span class="dim">${LANG === 'ms' ? 'Laporan penuh dalam format Markdown, hasil OCR daripada PDF rasmi.' : 'The full report in Markdown, OCR\'d from the official PDF.'}</span>
+     </div>
+     <div style="margin-top:14px;font-size:12.5px">
+       <div style="color:var(--text-secondary);font-weight:600;margin-bottom:4px">${LANG === 'ms' ? 'Pesuruhjaya' : 'Commissioners'}</div>
+       ${DATA.meta.commissioners.map(c => `<div class="dim" style="line-height:1.5">${esc(c.name)}</div>`).join('')}
+     </div>`);
+}
+
+/* =============================================================
+   ORCHESTRATION
+   ============================================================= */
+function resetChartsIn(id) {
+  const box = document.getElementById(id);
+  if (box) box.querySelectorAll('svg,.tip').forEach(n => n.remove());
+}
+
+function applyI18n() {
+  document.querySelectorAll('[data-i18n]').forEach(n => {
+    const v = UI[n.dataset.i18n];
+    if (v) n.innerHTML = t(v);
+  });
+  document.documentElement.lang = LANG === 'ms' ? 'ms' : 'en';
+  document.title = LANG === 'ms'
+    ? 'Laporan RCI Tabung Haji — Dashboard Interaktif'
+    : 'Tabung Haji RCI Report — Interactive Dashboard';
+}
+
+function buildAll() {
+  resetCharts();
+  document.querySelectorAll('.chartbox').forEach(b => b.querySelectorAll('svg,.tip').forEach(n => n.remove()));
+  applyI18n();
+  buildNav(); buildHero(); buildKPI();
+  buildGap(); buildHibah(); buildAccounting(); buildBailout();
+  buildInvFilters(); renderInv();
+  buildHafis(); buildGovernance(); buildAccountability();
+  buildRecFilters(); renderRecs();
+  buildTlFilters(); renderTl();
+  buildFooter();
+  wireTables();
+  observeCharts();
+}
+
+function wireTables() {
+  document.querySelectorAll('.tbl-toggle').forEach(b => {
+    const w = document.getElementById(b.dataset.tbl);
+    b.textContent = w && w.classList.contains('on') ? U('tblHide') : U('tblShow');
+    if (b.dataset.wired) return;
+    b.dataset.wired = '1';
+    b.addEventListener('click', () => {
+      const wrap = document.getElementById(b.dataset.tbl);
+      const on = wrap.classList.toggle('on');
+      b.textContent = on ? U('tblHide') : U('tblShow');
+    });
+  });
+}
+
+/* ---------- controls ---------- */
+function setLang(l) {
+  LANG = l;
+  localStorage.setItem('rci-lang', l);
+  document.getElementById('langMs').setAttribute('aria-pressed', String(l === 'ms'));
+  document.getElementById('langEn').setAttribute('aria-pressed', String(l === 'en'));
+  buildAll();
+}
+function initTheme() {
+  const saved = localStorage.getItem('rci-theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  const btn = document.getElementById('themeBtn');
+  const sync = () => {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    btn.setAttribute('aria-pressed', String(dark));
+    btn.textContent = dark ? '☾' : '☀';
+  };
+  btn.addEventListener('click', () => {
+    const dark = document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') && matchMedia('(prefers-color-scheme: dark)').matches);
+    const next = dark ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('rci-theme', next);
+    sync();
+  });
+  sync();
+}
+function initScrollSpy() {
+  const links = () => Array.from(document.querySelectorAll('#secnav a'));
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      links().forEach(a => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + e.target.id)));
+      const cur = links().find(a => a.getAttribute('href') === '#' + e.target.id);
+      if (cur) cur.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    });
+  }, { rootMargin: '-96px 0px -68% 0px', threshold: 0 });
+  SECTIONS.forEach(([id]) => { const n = document.getElementById(id); if (n) obs.observe(n); });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('langMs').addEventListener('click', () => setLang('ms'));
+  document.getElementById('langEn').addEventListener('click', () => setLang('en'));
+  document.getElementById('langMs').setAttribute('aria-pressed', String(LANG === 'ms'));
+  document.getElementById('langEn').setAttribute('aria-pressed', String(LANG === 'en'));
+  initTheme();
+  buildAll();
+  initScrollSpy();
+});
+</script>
+</body>
+</html>
