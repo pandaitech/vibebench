@@ -856,6 +856,23 @@ RD.integriti = [
       'skala projek pembangunan semula yang dimaksudkan.',
     kesan: 'Kami memaparkan angka seperti dalam laporan tetapi tidak menggunakannya dalam apa-apa agregat atau carta.',
     p: [191], berat: 'sedang' },
+  { jenis: 'Percanggahan angka', tajuk: 'Kos hibah 2017: RM2.75 bilion atau RM3.32 bilion?',
+    detail: 'Ringkasan Eksekutif (ms 22) menyatakan hibah tahunan 4.50% dan hibah haji 1.75% pada 2017 ' +
+      '"telah menelan belanja sehingga RM2.75 bilion". Tetapi jadual pembayaran hibah (ms 130) menunjukkan ' +
+      'jumlah agihan 2017 = RM3,323,741 ribu (RM3.32 bilion), dan jadual PwC (ms 147) juga menggunakan RM3,324 juta.',
+    kesan: 'Kami menggunakan RM3.32 bilion di semua tempat kerana ia berbaki dengan dua jadual berasingan ' +
+      '(hibah tahunan RM3,042j + hibah haji RM282j = RM3,324j) dan dengan kiraan aset−liabiliti. ' +
+      'Angka RM2.75 bilion hanya muncul sekali, dalam ayat naratif.',
+    p: [22, 130, 147], berat: 'sedang' },
+  { jenis: 'Tidak berbaki (kiraan)', tajuk: 'Jumlah HAFIS tahunan tidak berbaki dengan HAFIS seorang',
+    detail: 'Jadual sejarah HAFIS (ms 204) memberi HAFIS seorang dan jumlah beban tahunan. Bahagi jumlah ' +
+      'dengan kadar seorang sepatutnya memberi bilangan jemaah — tetapi hasilnya tidak konsisten: ' +
+      '2016 memberi 17,957 jemaah manakala 2017 memberi 31,140 jemaah, satu lonjakan 73% dalam setahun ' +
+      'yang tidak dijelaskan dalam laporan.',
+    kesan: 'Kami TIDAK menerbitkan bilangan jemaah bagi tahun 2014–2019. Untuk simulator HAFIS, kami hanya ' +
+      'menggunakan 30,000 jemaah kerana angka itu berbaki TEPAT dengan jadual unjuran 2022–2030 ' +
+      '(RM742,470 ribu ÷ RM24,749 = 30,000) dan sepadan dengan kuota haji sebelum pandemik.',
+    p: [204, 205], berat: 'tinggi' },
   { jenis: 'Nombor senarai tidak berurutan', tajuk: 'Senarai penerima bonus 2017 melangkau nombor 5, 6, 7',
     detail: 'Jadual penerima bonus TH Properties 2017 (p142) bernombor 1, 2, 3, 4, 8, 9, 10, 11, 12, 13, 14 — ' +
       'melangkau 5, 6 dan 7.',
