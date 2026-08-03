@@ -14,7 +14,7 @@ window.VIBEBENCH = {
     "gpt-5-6-terra-high": {"name": "GPT-5.6 terra", "accent": "#10A37F"},
     "gpt-5-6-luna-high": {"name": "GPT-5.6 luna", "accent": "#10A37F"},
     "gpt-5-6-luna-max": {"name": "GPT-5.6 luna Max", "accent": "#10A37F"},
-    "deepseek-v4-flash-high": {"name": "DeepSeek V4 Flash High", "accent": "#4D6BFE"},
+    "deepseek-v4-flash-high": {"name": "DeepSeek V4 Flash", "accent": "#4D6BFE"},
     "deepseek-v4-flash-high-2": {"name": "DeepSeek V4 Flash High 2", "accent": "#4D6BFE"}
   },
   "jobs": [
