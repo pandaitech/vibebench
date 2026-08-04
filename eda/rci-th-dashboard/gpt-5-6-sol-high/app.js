@@ -1,49 +1,390 @@
-const D=window.RCI_DATA;
-const $=(q,el=document)=>el.querySelector(q), $$=(q,el=document)=>[...el.querySelectorAll(q)];
-const fmtRM=(n,d=2)=>Math.abs(n)>=1000?`${n<0?'−':''}RM${(Math.abs(n)/1000).toFixed(d)}b`:`${n<0?'−':''}RM${Math.abs(n).toFixed(n%1?1:0)}j`;
-const money=n=>'RM'+Math.round(n).toLocaleString('ms-MY');
-const sourceUrl=p=>`${D.source}#pdf-page-${p}`;
+(() => {
+  const D = window.TH_DATA;
+  const $ = (q, el = document) => el.querySelector(q);
+  const $$ = (q, el = document) => [...el.querySelectorAll(q)];
+  const rm = n => `RM${Math.round(n).toLocaleString("ms-MY")}`;
+  const rmMillions = (n, digits = 2) => {
+    const sign = n < 0 ? "−" : "";
+    const abs = Math.abs(n);
+    return abs >= 1000 ? `${sign}RM${(abs / 1000).toFixed(digits)}b` : `${sign}RM${abs.toFixed(abs % 1 ? 1 : 0)}j`;
+  };
+  const sourceUrl = page => `${D.source}#pdf-page-${page}`;
 
-function openModal(html){$('#modalContent').innerHTML=html;$('#modal').hidden=false;document.body.style.overflow='hidden';setTimeout(()=>$('.modal-close').focus(),0)}
-function closeModal(){$('#modal').hidden=true;document.body.style.overflow='';}
-$$('[data-close-modal]').forEach(x=>x.addEventListener('click',closeModal));document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-$$('[data-open-source]').forEach(b=>b.addEventListener('click',()=>window.open(D.source,'_blank','noopener')));
-$$('[data-open-method]').forEach(b=>b.addEventListener('click',()=>openModal(`<p class="eyebrow">Tentang data</p><h2 id="modalTitle">Bagaimana dashboard ini dibina</h2><p>Semua angka fakta diambil terus daripada teks OCR laporan RCI. Data terbitan—contohnya premium sebagai peratus nilai pasaran—dikira daripada angka laporan. Simulasi HAFIS pula dilabel jelas dan tidak dianggap ramalan RCI.</p><ul><li><b>Fakta laporan:</b> angka atau kenyataan yang dinyatakan dalam laporan.</li><li><b>Data terbitan:</b> hasil tolak, bahagi atau perbandingan fakta laporan.</li><li><b>Simulasi:</b> nilai yang berubah mengikut input pengguna.</li></ul><p>Kesalahan OCR yang jelas seperti “1.259” ditafsir sebagai 1.25% hanya apabila jadual lain dalam laporan mengesahkannya.</p><a class="source-btn source-link" target="_blank" rel="noopener" href="${D.source}">Baca laporan penuh ↗</a>`)));
-$$('[data-source]').forEach(b=>b.addEventListener('click',()=>window.open(sourceUrl(b.dataset.source),'_blank','noopener')));
+  function openSource(page) {
+    window.open(sourceUrl(page), "_blank", "noopener,noreferrer");
+  }
+  $$('[data-source-page]').forEach(button => button.addEventListener("click", () => openSource(button.dataset.sourcePage)));
+  $$('[data-jump]').forEach(button => button.addEventListener("click", () => $(button.dataset.jump).scrollIntoView({ behavior: "smooth" })));
 
-const menu=$('#menuBtn'),drawer=$('#mobileDrawer');menu.addEventListener('click',()=>{const o=drawer.classList.toggle('open');menu.setAttribute('aria-expanded',o);drawer.setAttribute('aria-hidden',!o)});$$('a',drawer).forEach(a=>a.addEventListener('click',()=>{drawer.classList.remove('open');menu.setAttribute('aria-expanded','false')}));
+  const menuButton = $("#menuButton");
+  const mobileMenu = $("#mobileMenu");
+  menuButton.addEventListener("click", () => {
+    mobileMenu.hidden = !mobileMenu.hidden;
+    menuButton.setAttribute("aria-expanded", String(!mobileMenu.hidden));
+  });
+  $$("a", mobileMenu).forEach(link => link.addEventListener("click", () => {
+    mobileMenu.hidden = true;
+    menuButton.setAttribute("aria-expanded", "false");
+  }));
 
-function renderCausal(active='mandat'){
-  $('#causalMap').innerHTML=D.causal.map(x=>`<button class="causal-node ${x.id===active?'active':''}" data-id="${x.id}" role="listitem"><span>${x.n} · ${x.type==='fact'?'KONTEKS':x.type==='finding'?'PENEMUAN':'KESAN'}</span><h3>${x.title}</h3><p>${x.short}</p></button>`).join('');
-  const x=D.causal.find(x=>x.id===active),idx=D.causal.indexOf(x),next=D.causal[idx+1];
-  $('#causalDetail').innerHTML=`<span class="type">${x.n} · ${x.type==='fact'?'Konteks laporan':x.type==='finding'?'Penemuan RCI':'Kesan yang dinyatakan'}</span><h3>${x.title}</h3><p>${x.detail}</p><button class="evidence-chip inverse" data-page="${x.page}">Buka bukti halaman ${x.page} ↗</button>${next?`<div class="next"><b>Seterusnya →</b><br>${next.title}</div>`:''}`;
-  $$('[data-id]',$('#causalMap')).forEach(b=>b.onclick=()=>renderCausal(b.dataset.id));$('[data-page]',$('#causalDetail')).onclick=e=>window.open(sourceUrl(e.currentTarget.dataset.page),'_blank','noopener');
-}renderCausal();
+  const dialog = $("#evidenceDialog");
+  $(".dialog-close", dialog).addEventListener("click", () => dialog.close());
+  dialog.addEventListener("click", event => {
+    if (event.target === dialog) dialog.close();
+  });
+  $$('[data-open-method]').forEach(button => button.addEventListener("click", () => {
+    $("#dialogContent").innerHTML = `
+      <p class="kicker">Cara membaca dashboard</p>
+      <h2>Bukti dahulu, tafsiran kemudian</h2>
+      <p>Semua fakta asas diekstrak daripada laporan RCI. Angka terbitan hanya menggunakan operasi mudah yang boleh disemak—contohnya beza atau peratus. Simulasi HAFIS dilabel dan tidak dicampur dengan fakta sejarah.</p>
+      <ul>
+        <li><b>Fakta laporan</b> mengekalkan sifat kenyataan asal: “mendapati”, “berpandangan” atau “mengambil maklum”.</li>
+        <li><b>Data terbitan</b> tidak menambah input di luar laporan.</li>
+        <li><b>Anggaran laporan</b> kekal anggaran RCI, bukan fakta masa depan.</li>
+        <li><b>Had:</b> fail sumber ialah OCR. Kesilapan jelas hanya dibetulkan apabila jadual atau bahagian lain mengesahkan angka yang sama.</li>
+      </ul>
+      <button class="primary-button" id="dialogSource">Baca laporan asal ↗</button>`;
+    $("#dialogSource").addEventListener("click", () => openSource(1));
+    dialog.showModal();
+  }));
 
-let gapMode='post';function renderGap(){
-  const vals=D.gap.map(x=>x[gapMode]),max=Math.max(...vals.map(Math.abs));
-  $('#gapChart').innerHTML=D.gap.map(x=>{const v=x[gapMode],h=Math.abs(v)/max*44;return `<div class="bar-group"><div class="bar-value" style="${v>=0?`bottom:${50+h}%`:`top:${52+h}%`}">${fmtRM(v)}</div><i class="bar ${v>=0?'positive':'negative'}" style="height:${h}%;"></i>${$('#showDistribution').checked?`<i class="dist-mark" title="Hibah ${fmtRM(x.distribution)}" style="top:${Math.max(4,50-(x.distribution/max*44))}%"></i>`:''}<span class="bar-year">${x.year}</span></div>`}).join('');
-  $('#gapKicker').textContent=`Kekurangan / lebihan ${gapMode==='post'?'selepas':'sebelum'} hibah`;$('#gapHeadline').textContent=`${fmtRM(D.gap.at(-1)[gapMode])} pada 2017`;
-}renderGap();$$('#gapMode button').forEach(b=>b.onclick=()=>{$$('#gapMode button').forEach(x=>x.classList.remove('active'));b.classList.add('active');gapMode=b.dataset.mode;renderGap()});$('#showDistribution').onchange=renderGap;
+  // Story map
+  let activeStory = "mandate";
+  function renderStory() {
+    $("#storyTrack").innerHTML = D.story.map(item => `
+      <button class="story-node ${item.id === activeStory ? "active" : ""}" data-story="${item.id}" role="listitem" aria-pressed="${item.id === activeStory}">
+        <span class="story-n">${item.n}</span><span class="story-type">${item.type}</span>
+        <h3>${item.title}</h3><p>${item.short}</p>
+      </button>`).join("");
+    const item = D.story.find(row => row.id === activeStory);
+    const index = D.story.indexOf(item);
+    const next = D.story[index + 1];
+    $("#storyDetail").innerHTML = `
+      <span class="detail-type">${item.type} · langkah ${item.n}</span>
+      <h3>${item.title}</h3><p>${item.detail}</p>
+      <button class="evidence-link inverse" data-story-source="${item.page}">Buka bukti halaman ${item.page} ↗</button>
+      ${next ? `<div class="next-step">Langkah seterusnya → <b>${next.title}</b></div>` : `<div class="next-step">Hujung rantaian → risiko akhirnya kembali kepada kemampuan awam.</div>`}`;
+    $$('[data-story]').forEach(button => button.addEventListener("click", () => {
+      activeStory = button.dataset.story;
+      renderStory();
+    }));
+    $('[data-story-source]').addEventListener("click", event => openSource(event.currentTarget.dataset.storySource));
+  }
+  renderStory();
 
-function svgLine(points,color,w,h,max){return `<polyline fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${points.map((p,i)=>`${i*w/(points.length-1)},${h-(p/max*h)}`).join(' ')}"/>`}
-function renderHibah(active=2014){const w=760,h=245,max=9,pad=22,aw=w-pad*2,ah=h-pad*2,total=D.hibah.map(x=>x.annual+x.hajj),annual=D.hibah.map(x=>x.annual);
-  const coords=total.map((v,i)=>({x:pad+i*aw/(total.length-1),y:pad+ah-v/max*ah}));
-  $('#hibahChart').innerHTML=`<svg viewBox="0 0 ${w} ${h+25}" role="img" aria-label="Kadar hibah 2014 hingga 2021">${[0,3,6,9].map(v=>`<line x1="${pad}" y1="${pad+ah-v/max*ah}" x2="${w-pad}" y2="${pad+ah-v/max*ah}" stroke="#dfe3de"/><text x="0" y="${pad+ah-v/max*ah+4}" font-size="9" fill="#7b8983">${v}%</text>`).join('')}${svgLine(total,'#0e5c43',aw,ah,max).replaceAll(/([0-9.]+),([0-9.]+)/g,(m,x,y)=>`${+x+pad},${+y+pad}`)}${svgLine(annual,'#d8a93d',aw,ah,max).replaceAll(/([0-9.]+),([0-9.]+)/g,(m,x,y)=>`${+x+pad},${+y+pad}`)}${coords.map((p,i)=>`<circle class="point" data-year="${D.hibah[i].year}" cx="${p.x}" cy="${p.y}" r="${D.hibah[i].year===active?7:5}" fill="${D.hibah[i].year===active?'#d75b4b':'#fff'}" stroke="#0e5c43" stroke-width="3" tabindex="0"/><text x="${p.x}" y="${h+15}" text-anchor="middle" font-size="9" fill="#66736e">${D.hibah[i].year}</text>`).join('')}</svg>`;
-  const x=D.hibah.find(x=>x.year===active);$('#hibahHeadline').textContent=`${x.year}: ${(x.annual+x.hajj).toFixed(2)}%`;$('#hibahDetail').innerHTML=`<span class="chart-kicker">Tahun ${x.year}</span><div class="big-rate">${(x.annual+x.hajj).toFixed(2)}%</div><div class="split"><div><span>Hibah tahunan</span><b>${x.annual.toFixed(2)}%</b></div><div><span>Hibah haji</span><b>${x.hajj.toFixed(2)}%</b></div></div>${x.totalRm?`<p><b>${fmtRM(x.totalRm)}</b> jumlah diagih</p>`:''}<p>${x.note}</p>`;
-  $$('.point',$('#hibahChart')).forEach(p=>{p.onclick=()=>renderHibah(+p.dataset.year);p.onkeydown=e=>{if(e.key==='Enter'||e.key===' ')renderHibah(+p.dataset.year)}})
-}renderHibah();
+  // Financial gap explorer
+  let gapMode = "post";
+  let financialYear = 2017;
+  $("#financialYear").innerHTML = D.financial.map(row => `<option value="${row.year}" ${row.year === financialYear ? "selected" : ""}>${row.year}</option>`).join("");
+  function financialExplanation(row) {
+    if (gapMode === "pre") {
+      if (row.pre >= 0) return `Sebelum agihan, aset masih melebihi liabiliti sebanyak ${rmMillions(row.pre)}.`;
+      return `Sebelum hibah pun aset sudah kurang ${rmMillions(row.pre)} berbanding liabiliti.`;
+    }
+    if (row.post >= 0) return `Selepas hibah, masih ada lebihan ${rmMillions(row.post)}.`;
+    return `Selepas agihan ${rmMillions(row.distribution)}, kedudukan menjadi kekurangan ${rmMillions(row.post)}.`;
+  }
+  function renderFinancial() {
+    const max = Math.max(...D.financial.map(row => Math.abs(row[gapMode])));
+    $("#gapChart").innerHTML = D.financial.map(row => {
+      const value = row[gapMode];
+      const height = Math.max(2, Math.abs(value) / max * 45);
+      const style = value >= 0 ? `bottom:50%;height:${height}%` : `top:50%;height:${height}%`;
+      const valueStyle = value >= 0 ? `bottom:${52 + height}%` : `top:${52 + height}%`;
+      return `<div class="zero-column ${row.year === financialYear ? "active" : ""}">
+        <span class="value" style="${valueStyle}">${rmMillions(value, 1)}</span>
+        <button class="${value < 0 ? "negative" : ""}" data-fin-year="${row.year}" style="${style}" aria-label="${row.year}: ${rmMillions(value)}"></button>
+        <span class="year">${row.year}</span>
+      </div>`;
+    }).join("");
+    const row = D.financial.find(item => item.year === financialYear);
+    $("#gapLabel").textContent = `Kelebihan / kekurangan ${gapMode === "post" ? "selepas" : "sebelum"} hibah`;
+    $("#gapHeadline").textContent = rmMillions(row[gapMode]);
+    $("#yearCard").innerHTML = `
+      <span class="year-tag">TAHUN ${row.year}</span><h3>${rmMillions(row[gapMode])}</h3>
+      <div class="balance-list">
+        <div><span>Jumlah aset</span><strong>${rmMillions(row.assets)}</strong></div>
+        <div><span>Liabiliti & simpanan</span><strong>${rmMillions(row.liabilities)}</strong></div>
+        <div><span>Agihan hibah</span><strong>${rmMillions(row.distribution)}</strong></div>
+      </div><p class="plain">${financialExplanation(row)}</p>
+      <button class="evidence-link inverse" data-year-source="112">Bukti halaman 112 ↗</button>`;
+    $$('[data-fin-year]').forEach(button => button.addEventListener("click", () => {
+      financialYear = Number(button.dataset.finYear);
+      $("#financialYear").value = financialYear;
+      renderFinancial();
+    }));
+    $('[data-year-source]').addEventListener("click", event => openSource(event.currentTarget.dataset.yearSource));
+  }
+  $$("#gapToggle button").forEach(button => button.addEventListener("click", () => {
+    gapMode = button.dataset.gap;
+    $$("#gapToggle button").forEach(item => item.classList.toggle("active", item === button));
+    renderFinancial();
+  }));
+  $("#financialYear").addEventListener("change", event => { financialYear = Number(event.target.value); renderFinancial(); });
+  renderFinancial();
 
-function renderHafisArea(){const all=[...D.hafisActual,...D.hafisProjection],w=900,h=250,p=25,max=40000,pts=(key)=>all.map((x,i)=>`${p+i*(w-p*2)/(all.length-1)},${h-p-x[key]/max*(h-p*2)}`).join(' ');$('#hafisChart').innerHTML=`<svg viewBox="0 0 ${w} ${h+25}" role="img"><defs><linearGradient id="area" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0e5c43" stop-opacity=".28"/><stop offset="1" stop-color="#0e5c43" stop-opacity="0"/></linearGradient></defs><polygon points="${p},${h-p} ${pts('cost')} ${w-p},${h-p}" fill="url(#area)"/><polyline points="${pts('cost')}" fill="none" stroke="#0e5c43" stroke-width="3"/><polyline points="${pts('payment')}" fill="none" stroke="#d8a93d" stroke-width="3" stroke-dasharray="6 5"/>${all.map((x,i)=>i%2===0?`<text x="${p+i*(w-p*2)/(all.length-1)}" y="${h+12}" text-anchor="middle" font-size="9" fill="#66736e">${x.year}</text>`:'').join('')}<text x="${w-80}" y="38" font-size="10" fill="#0e5c43">Kos sebenar</text><text x="${w-85}" y="${h-80}" font-size="10" fill="#a17412">Bayaran jemaah</text></svg>`}renderHafisArea();
-function updateSim(){const year=+$('#yearSlider').value,item=D.hafisProjection.find(x=>x.year===year),pay=Math.min(+$('#paymentSlider').value,item.cost),pilgrims=+$('#pilgrimSlider').value,gap=Math.max(0,item.cost-pay),pct=gap/item.cost*100,total=gap*pilgrims/1e6;$('#yearOutput').textContent=year;$('#paymentOutput').textContent=money(pay);$('#pilgrimOutput').textContent=pilgrims.toLocaleString('ms-MY');$('#costResult').textContent=money(item.cost);$('#perPersonResult').textContent=money(gap);$('#totalResult').textContent=`RM${total.toFixed(2)} juta`;$('#hafisPct').textContent=pct.toFixed(1)+'%';$('#hafisDonut').style.setProperty('--pct',pct);const diff=total-item.total;$('#deltaResult').textContent=Math.abs(diff)<.1?`Sama seperti unjuran laporan ${year}`:`${diff>0?'+':'−'}RM${Math.abs(diff).toFixed(1)}j berbanding unjuran laporan ${year}`;$('#fullCostBtn').dataset.pay=item.cost;}
-['yearSlider','paymentSlider','pilgrimSlider'].forEach(id=>$('#'+id).oninput=updateSim);$$('[data-pay]').forEach(b=>b.onclick=()=>{$$('#paymentSlider').value=+b.dataset.pay;$$('[data-pay]').forEach(x=>x.classList.remove('active'));b.classList.add('active');updateSim()});updateSim();
+  // Impairment policy
+  let activePolicy = 0;
+  function renderPolicy() {
+    $("#policySwitch").innerHTML = D.impairmentPolicies.map((item, index) => `
+      <button class="${index === activePolicy ? "active" : ""}" data-policy="${index}">
+        <span>POLISI ${index + 1}</span><strong>${item.threshold}</strong>
+      </button>`).join("");
+    const item = D.impairmentPolicies[activePolicy];
+    $("#policyImpact").textContent = rmMillions(item.impact, 3);
+    $("#policyNote").textContent = item.note;
+    $$('[data-policy]').forEach(button => button.addEventListener("click", () => { activePolicy = Number(button.dataset.policy); renderPolicy(); }));
+  }
+  renderPolicy();
 
-$('#assetBreakdown').innerHTML=D.assetTypes.map(x=>`<div class="asset-row"><span>${x.name}</span><div class="asset-track"><i style="width:${x.transfer/16851*100}%;background:${x.color}"></i></div><b>${fmtRM(x.transfer)}</b></div>`).join('');$('#assetToggle').onclick=()=>{const o=$('#assetBreakdown').classList.toggle('open');$('#assetToggle').textContent=o?'Sembunyi pecahan':'Lihat ikut jenis'};
+  // Hibah
+  let activeHibahYear = 2017;
+  function renderHibah() {
+    const maxRate = 8.25;
+    $("#hibahChart").innerHTML = D.hibah.map(row => {
+      const totalRate = row.annual + row.hajj;
+      const annualHeight = row.annual / maxRate * 225;
+      const totalHeight = totalRate / maxRate * 225;
+      const hajjHeight = Math.max(0, totalHeight - annualHeight);
+      return `<div class="hibah-year ${row.year === activeHibahYear ? "active" : ""}">
+        <strong>${totalRate.toFixed(2)}%</strong>
+        <button data-hibah-year="${row.year}" style="height:${totalHeight}px" aria-label="${row.year}: ${totalRate.toFixed(2)} peratus">
+          <i style="height:${hajjHeight}px" title="Hibah haji ${row.hajj}%"></i>
+        </button><span>${row.year}</span>
+      </div>`;
+    }).join("");
+    const row = D.hibah.find(item => item.year === activeHibahYear);
+    $("#hibahDetail").innerHTML = `
+      <span class="kicker">Tahun ${row.year}</span>
+      <div class="rate">${(row.annual + row.hajj).toFixed(2)}% <small>jumlah kadar</small></div>
+      <div class="hibah-detail-grid"><div><span>Hibah tahunan</span><strong>${row.annual.toFixed(2)}%</strong></div><div><span>Hibah haji</span><strong>${row.hajj.toFixed(2)}%</strong></div><div><span>Jumlah diagih</span><strong>${row.payout === null ? "Tiada dalam jadual" : rmMillions(row.payout, 2)}</strong></div><div><span>Jenis data</span><strong>Fakta laporan</strong></div></div>
+      <p>${row.note}</p><button class="evidence-link" data-hibah-source="120">Bukti halaman 120 & 130 ↗</button>`;
+    $$('[data-hibah-year]').forEach(button => button.addEventListener("click", () => { activeHibahYear = Number(button.dataset.hibahYear); renderHibah(); }));
+    $('[data-hibah-source]').addEventListener("click", event => openSource(event.currentTarget.dataset.hibahSource));
+  }
+  renderHibah();
 
-let invFilter='all',invSearch='',activeInv='fgv';function renderInvestments(){let rows=D.investments.filter(x=>(invFilter==='all'||x.place===invFilter||x.status===invFilter)&&(x.name+' '+x.issue+' '+x.category).toLowerCase().includes(invSearch));$('#investmentList').innerHTML=rows.map(x=>`<button class="investment-item ${x.id===activeInv?'active':''}" data-id="${x.id}"><span class="meta">${x.country} · ${x.category}</span><b>${x.name}</b><strong>${x.headline}</strong><span class="severity">${[1,2,3,4,5].map(i=>`<i class="${i<=x.severity?'on':''}"></i>`).join('')}</span></button>`).join('')||'<p>Tiada kes sepadan.</p>';if(!rows.find(x=>x.id===activeInv)&&rows[0])activeInv=rows[0].id;const x=D.investments.find(x=>x.id===activeInv);if(x)$('#investmentDetail').innerHTML=`<span class="detail-meta">${x.country} · ${x.category} · ${x.status}</span><h3>${x.name}</h3><div class="headline">${x.headline}</div><div class="metric-list">${x.metrics.map(m=>`<div><span>${m[0]}</span><b>${m[1]}</b></div>`).join('')}</div><div class="detail-block"><span>Apa masalahnya</span><p>${x.issue}</p></div><div class="detail-block"><span>Tindakan ketika laporan</span><p>${x.action}</p></div><button class="source-btn dark" data-inv-source="${x.page}">Bukti halaman ${x.page} ↗</button>`;$$('.investment-item').forEach(b=>b.onclick=()=>{activeInv=b.dataset.id;renderInvestments()});const sb=$('[data-inv-source]');if(sb)sb.onclick=()=>window.open(sourceUrl(sb.dataset.invSource),'_blank','noopener')}
-renderInvestments();$$('#investmentFilters button').forEach(b=>b.onclick=()=>{$$('#investmentFilters button').forEach(x=>x.classList.remove('active'));b.classList.add('active');invFilter=b.dataset.filter;renderInvestments()});$('#investmentSearch').oninput=e=>{invSearch=e.target.value.toLowerCase();renderInvestments()};
+  // HAFIS simulation
+  const hajjYear = $("#hajjYear");
+  const paymentInput = $("#paymentInput");
+  const pilgrimsInput = $("#pilgrimsInput");
+  function projectionForYear() { return D.hafisProjection.find(row => row.year === Number(hajjYear.value)); }
+  function setScenario(kind) {
+    const row = projectionForYear();
+    if (kind === "report") paymentInput.value = row.payment;
+    if (kind === "b40") paymentInput.value = 10980;
+    if (kind === "full") paymentInput.value = row.cost;
+    $$("[data-scenario]").forEach(button => button.classList.toggle("active", button.dataset.scenario === kind));
+    updateHajj();
+  }
+  function updateHajj() {
+    const row = projectionForYear();
+    paymentInput.max = row.cost;
+    const payment = Math.min(Number(paymentInput.value), row.cost);
+    if (Number(paymentInput.value) !== payment) paymentInput.value = payment;
+    const pilgrims = Number(pilgrimsInput.value);
+    const gap = Math.max(0, row.cost - payment);
+    const share = gap / row.cost * 100;
+    const total = gap * pilgrims / 1e6;
+    $("#hajjYearOut").textContent = row.year;
+    $("#paymentOut").textContent = rm(payment);
+    $("#pilgrimsOut").textContent = pilgrims.toLocaleString("ms-MY");
+    $("#costOut").textContent = rm(row.cost);
+    $("#gapOut").textContent = rm(gap);
+    $("#shareOut").textContent = `${share.toFixed(1)}%`;
+    $("#shareRing").style.setProperty("--share", share.toFixed(1));
+    $("#totalOut").textContent = `RM${total.toFixed(2)}j`;
+    const delta = total - row.total;
+    $("#compareOut").textContent = Math.abs(delta) < .05 ? `Sama seperti unjuran laporan ${row.year}` : `${delta > 0 ? "+" : "−"}RM${Math.abs(delta).toFixed(1)}j berbanding unjuran laporan ${row.year}`;
+  }
+  hajjYear.addEventListener("input", () => {
+    const activeScenario = $("[data-scenario].active")?.dataset.scenario;
+    if (activeScenario === "report" || activeScenario === "full") setScenario(activeScenario);
+    else updateHajj();
+  });
+  [paymentInput, pilgrimsInput].forEach(input => input.addEventListener("input", () => {
+    $$("[data-scenario]").forEach(button => button.classList.remove("active"));
+    updateHajj();
+  }));
+  $$("[data-scenario]").forEach(button => button.addEventListener("click", () => setScenario(button.dataset.scenario)));
+  updateHajj();
 
-$('#bonusChart').innerHTML=D.bonus.map(x=>`<div class="bonus-bar"><b>${x.value}</b><i style="height:${x.value/74*80}%"></i><span>${String(x.year).slice(2)}</span></div>`).join('');function renderRecipients(y){const max=Math.max(...D.recipients[y].map(x=>x[1]));$('#recipientList').innerHTML=D.recipients[y].map(x=>`<div class="recipient"><span>${x[0]}</span><b>RM${x[1].toLocaleString('ms-MY')}</b></div>`).join('')}renderRecipients(2017);$$('#recipientYear button').forEach(b=>b.onclick=()=>{$$('#recipientYear button').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderRecipients(b.dataset.year)});
+  const allHajj = [...D.hafisActual, ...D.hafisProjection];
+  function renderHajjTable() {
+    $("#hajjTableWrap").innerHTML = `<table class="data-table"><thead><tr><th>Tahun</th><th>Jenis</th><th>Kos</th><th>Bayaran</th><th>HAFIS seorang</th><th>Jumlah RMj</th></tr></thead><tbody>${allHajj.map(row => `<tr><td>${row.year}</td><td>${row.kind}</td><td>${rm(row.cost)}</td><td>${rm(row.payment)}</td><td>${rm(row.hafis)} (${row.share}%)</td><td>${row.total.toFixed(2)}</td></tr>`).join("")}</tbody></table>`;
+  }
+  renderHajjTable();
+  $("#hajjTableToggle").addEventListener("click", event => {
+    const wrap = $("#hajjTableWrap");
+    wrap.hidden = !wrap.hidden;
+    event.currentTarget.setAttribute("aria-expanded", String(!wrap.hidden));
+    event.currentTarget.textContent = wrap.hidden ? "Lihat jadual angka" : "Sembunyikan jadual";
+  });
 
-$('#recommendations').innerHTML=D.recommendations.map(x=>`<article class="rec-card"><span class="rec-area">${x.area}</span><h3>${x.title}</h3><p>${x.plain}</p><button class="evidence-chip" data-rec="${x.page}">Bukti hlm. ${x.page} ↗</button></article>`).join('');$$('[data-rec]').forEach(b=>b.onclick=()=>window.open(sourceUrl(b.dataset.rec),'_blank','noopener'));
-let timelineType='all';function renderTimeline(){const rows=D.timeline.filter(x=>timelineType==='all'||x.type===timelineType);$('#timeline').innerHTML=rows.map(x=>`<article class="timeline-item" data-type="${x.type}"><time>${x.date} · ${x.type}</time><h3>${x.title}</h3><p>${x.text}</p></article>`).join('')}renderTimeline();$$('#timelineFilter button').forEach(b=>b.onclick=()=>{$$('#timelineFilter button').forEach(x=>x.classList.remove('active'));b.classList.add('active');timelineType=b.dataset.type;renderTimeline()});
+  function drawHajjChart() {
+    const canvas = $("#hajjCanvas");
+    const rect = canvas.getBoundingClientRect();
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(320, rect.width) * ratio;
+    canvas.height = 280 * ratio;
+    const ctx = canvas.getContext("2d");
+    ctx.scale(ratio, ratio);
+    const width = canvas.width / ratio;
+    const height = 280;
+    const pad = { l: 45, r: 14, t: 18, b: 34 };
+    const innerW = width - pad.l - pad.r;
+    const innerH = height - pad.t - pad.b;
+    const max = 40000;
+    const x = index => pad.l + index * innerW / (allHajj.length - 1);
+    const y = value => pad.t + innerH - value / max * innerH;
+    ctx.font = "9px system-ui";
+    ctx.fillStyle = "#6b747a";
+    ctx.strokeStyle = "#ded8ce";
+    ctx.lineWidth = 1;
+    [0, 10000, 20000, 30000, 40000].forEach(value => {
+      ctx.beginPath(); ctx.moveTo(pad.l, y(value)); ctx.lineTo(width - pad.r, y(value)); ctx.stroke();
+      ctx.fillText(value === 0 ? "RM0" : `${value / 1000}k`, 8, y(value) + 3);
+    });
+    const drawSegment = (from, to, key, color, dashed = false) => {
+      ctx.beginPath(); ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.setLineDash(dashed ? [6, 5] : []);
+      for (let i = from; i <= to; i++) {
+        const px = x(i), py = y(allHajj[i][key]);
+        if (i === from) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke(); ctx.setLineDash([]);
+    };
+    drawSegment(0, D.hafisActual.length - 1, "cost", "#2b5f75");
+    drawSegment(0, D.hafisActual.length - 1, "payment", "#ef7b45");
+    drawSegment(D.hafisActual.length, allHajj.length - 1, "cost", "#2b5f75", true);
+    drawSegment(D.hafisActual.length, allHajj.length - 1, "payment", "#ef7b45", true);
+    ctx.strokeStyle = "#a9a198"; ctx.lineWidth = 1; ctx.setLineDash([3, 4]);
+    const divideX = (x(D.hafisActual.length - 1) + x(D.hafisActual.length)) / 2;
+    ctx.beginPath(); ctx.moveTo(divideX, pad.t); ctx.lineTo(divideX, height - pad.b); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = "#6b747a";
+    allHajj.forEach((row, index) => {
+      if (index % 2 === 0 || index === allHajj.length - 1) ctx.fillText(String(row.year), x(index) - 10, height - 13);
+    });
+    ctx.fillText("UNJURAN LAPORAN", Math.min(divideX + 10, width - 105), 12);
+  }
+  new ResizeObserver(drawHajjChart).observe($("#hajjCanvas"));
+
+  // Asset transfer explorer
+  let activeTransfer = "all";
+  function renderTransfer() {
+    $("#transferTabs").innerHTML = D.transfers.map(row => `<button class="${row.id === activeTransfer ? "active" : ""}" data-transfer="${row.id}">${row.name}</button>`).join("");
+    const row = D.transfers.find(item => item.id === activeTransfer);
+    const max = Math.max(row.book, row.transfer, row.market);
+    const bars = [
+      ["Nilai buku LTH", row.book], ["Nilai pindahan", row.transfer], ["Nilai pasaran", row.market]
+    ];
+    $("#valuationBars").innerHTML = bars.map(([label, value]) => `<div class="valuation-bar"><strong>${rmMillions(value)}</strong><i style="height:${value / max * 185}px"></i><span>${label}</span></div>`).join("");
+    const premium = row.transfer - row.market;
+    const pct = premium / row.market * 100;
+    $("#premiumValue").textContent = `+${rmMillions(premium)}`;
+    $("#premiumPct").textContent = `+${pct.toFixed(1)}%`;
+    $$('[data-transfer]').forEach(button => button.addEventListener("click", () => { activeTransfer = button.dataset.transfer; renderTransfer(); }));
+  }
+  renderTransfer();
+
+  function renderBluechips() {
+    const maxPrice = Math.max(...D.bluechips.flatMap(row => [row.transferUnit, row.market2018, row.market2022]));
+    $("#bluechipGrid").innerHTML = D.bluechips.map(row => `
+      <div class="bluechip-item"><strong>${row.name}</strong>
+        <div class="price-track" title="Oren: pindahan, biru: Dis 2018, hijau: Jun 2022">
+          <i style="left:${row.transferUnit / maxPrice * 100}%"></i><b style="left:${row.market2018 / maxPrice * 100}%"></b><em style="left:${row.market2022 / maxPrice * 100}%"></em>
+        </div><span>−${row.drop2018}%</span>
+      </div>`).join("");
+  }
+  renderBluechips();
+
+  // Investigative case explorer
+  let caseRegion = "Semua";
+  let caseSector = "Semua sektor";
+  let caseSort = "severity";
+  let caseSearch = "";
+  let activeCase = "fgv";
+  const sectors = [...new Set(D.investments.map(row => row.sector))].sort((a, b) => a.localeCompare(b, "ms"));
+  $("#sectorFilter").innerHTML += sectors.map(sector => `<option>${sector}</option>`).join("");
+  function filteredCases() {
+    const term = caseSearch.toLocaleLowerCase("ms");
+    const rows = D.investments.filter(row =>
+      (caseRegion === "Semua" || row.region === caseRegion) &&
+      (caseSector === "Semua sektor" || row.sector === caseSector) &&
+      `${row.name} ${row.issue} ${row.sector} ${row.status}`.toLocaleLowerCase("ms").includes(term)
+    );
+    return rows.sort((a, b) => {
+      if (caseSort === "name") return a.name.localeCompare(b.name, "ms");
+      if (caseSort === "value") return b.sortValue - a.sortValue;
+      return b.severity - a.severity || b.sortValue - a.sortValue;
+    });
+  }
+  function renderCases() {
+    const rows = filteredCases();
+    if (!rows.some(row => row.id === activeCase) && rows[0]) activeCase = rows[0].id;
+    $("#caseList").innerHTML = `<p class="case-count">${rows.length} daripada 14 kes</p>` + (rows.length ? rows.map(row => `
+      <button class="case-item ${row.id === activeCase ? "active" : ""}" data-case="${row.id}">
+        <span class="case-meta">${row.place} · ${row.sector}</span><strong>${row.name}</strong><span class="case-signal">${row.signal}</span>
+        <span class="severity" aria-label="Tahap isu ${row.severity} daripada 5">${[1,2,3,4,5].map(n => `<i class="${n <= row.severity ? "on" : ""}"></i>`).join("")}</span>
+      </button>`).join("") : `<div class="empty-state">Tiada kes sepadan dengan tapisan ini.</div>`);
+    const row = D.investments.find(item => item.id === activeCase);
+    if (row && rows.length) {
+      $("#caseDetail").innerHTML = `
+        <span class="detail-meta">${row.place} · ${row.sector} · ${row.status}</span><h3>${row.name}</h3>
+        <div class="signal">${row.signal}</div>
+        <div class="case-metric"><span>Angka konteks</span><strong>${row.metric}</strong></div>
+        <div class="case-block"><span>APA MASALAHNYA</span><p>${row.issue}</p></div>
+        <div class="case-block"><span>TINDAKAN KETIKA LAPORAN</span><p>${row.action}</p></div>
+        <button class="primary-button" data-case-source="${row.page}">Buka bukti halaman ${row.page} ↗</button>`;
+      $('[data-case-source]').addEventListener("click", event => openSource(event.currentTarget.dataset.caseSource));
+    } else {
+      $("#caseDetail").innerHTML = `<div class="empty-state">Longgarkan carian atau tapisan untuk membuka rekod.</div>`;
+    }
+    $$('[data-case]').forEach(button => button.addEventListener("click", () => { activeCase = button.dataset.case; renderCases(); }));
+  }
+  $("#caseSearch").addEventListener("input", event => { caseSearch = event.target.value; renderCases(); });
+  $$("#regionFilters button").forEach(button => button.addEventListener("click", () => {
+    caseRegion = button.dataset.region;
+    $$("#regionFilters button").forEach(item => item.classList.toggle("active", item === button));
+    renderCases();
+  }));
+  $("#sectorFilter").addEventListener("change", event => { caseSector = event.target.value; renderCases(); });
+  $("#caseSort").addEventListener("change", event => {
+    caseSort = event.target.value;
+    $("#sortWarning").hidden = caseSort !== "value";
+    renderCases();
+  });
+  renderCases();
+
+  // Recommendations and timeline
+  let recArea = "Semua";
+  const recAreas = ["Semua", ...new Set(D.recommendations.map(row => row.area))];
+  function renderRecommendations() {
+    $("#recommendationFilters").innerHTML = recAreas.map(area => `<button class="${area === recArea ? "active" : ""}" data-rec-area="${area}">${area}</button>`).join("");
+    const rows = D.recommendations.filter(row => recArea === "Semua" || row.area === recArea);
+    $("#recommendationGrid").innerHTML = rows.map(row => `<article class="recommendation-card"><span>${row.area.toUpperCase()}</span><h3>${row.title}</h3><p>${row.plain}</p><button class="evidence-link" data-rec-source="${row.page}">Bukti hlm. ${row.page} ↗</button></article>`).join("");
+    $$('[data-rec-area]').forEach(button => button.addEventListener("click", () => { recArea = button.dataset.recArea; renderRecommendations(); }));
+    $$('[data-rec-source]').forEach(button => button.addEventListener("click", () => openSource(button.dataset.recSource)));
+  }
+  renderRecommendations();
+
+  const timelineTypes = ["Semua", ...new Set(D.timeline.map(row => row.type))];
+  $("#timelineFilter").innerHTML = timelineTypes.map(type => `<option value="${type}">${type}</option>`).join("");
+  function renderTimeline() {
+    const filter = $("#timelineFilter").value;
+    const rows = D.timeline.filter(row => filter === "Semua" || row.type === filter);
+    $("#timeline").innerHTML = rows.map(row => `<article class="timeline-item"><time>${row.date}</time><span>${row.type}</span><h3>${row.title}</h3><p>${row.text}</p><button class="evidence-link" data-time-source="${row.page}">hlm. ${row.page} ↗</button></article>`).join("");
+    $$('[data-time-source]').forEach(button => button.addEventListener("click", () => openSource(button.dataset.timeSource)));
+  }
+  $("#timelineFilter").addEventListener("change", renderTimeline);
+  renderTimeline();
+
+  // Lightweight scroll spy for desktop navigation.
+  const navLinks = $$(".topnav a");
+  const observed = navLinks.map(link => $(link.getAttribute("href"))).filter(Boolean);
+  const observer = new IntersectionObserver(entries => {
+    const current = entries.filter(entry => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (!current) return;
+    navLinks.forEach(link => link.classList.toggle("active", link.getAttribute("href") === `#${current.target.id}`));
+  }, { rootMargin: "-25% 0px -65%", threshold: [0, .15, .5] });
+  observed.forEach(section => observer.observe(section));
+})();
