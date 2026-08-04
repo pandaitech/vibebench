@@ -41,7 +41,7 @@ window.VIBEBENCH = {
       "id": "kedai-saya-3d",
       "title": "Kedai Saya — pengurusan kedai 3D",
       "entries": [
-        {"contender": "deepseek-v4-flash-max", "url": "/game/kedai-saya/deepseek-v4-flash-max/"}
+        {"contender": "deepseek-v4-flash-high", "url": "/game/kedai-saya/deepseek-v4-flash-high/"}
       ]
     }
   ]
