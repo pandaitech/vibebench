@@ -1,0 +1,2857 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1f765d">
+  <title>Kedai Kita: Dari Kebun ke Kaunter</title>
+  <style>
+    :root {
+      --ink: #193c35;
+      --muted: #6d8175;
+      --cream: #fff8e9;
+      --paper: #fffdf7;
+      --green: #1f765d;
+      --green-dark: #155442;
+      --mint: #d8f2df;
+      --yellow: #f6bd3f;
+      --orange: #e97943;
+      --coral: #e06158;
+      --blue: #4d9eb3;
+      --shadow: 0 18px 50px rgba(23, 67, 52, .18);
+      --soft-shadow: 0 8px 22px rgba(23, 67, 52, .12);
+      --radius: 22px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      background: #b7dfc7;
+      color: var(--ink);
+      font-family: ui-rounded, "SF Pro Rounded", "Nunito", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button {
+      border: 0;
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #f1a92c;
+      outline-offset: 3px;
+    }
+
+    .hidden { display: none !important; }
+
+    .screen {
+      min-height: 100%;
+      display: grid;
+      place-items: center;
+      overflow: auto;
+      padding: 24px;
+    }
+
+    #title-screen {
+      position: relative;
+      background:
+        radial-gradient(circle at 80% 8%, rgba(248, 196, 69, .6) 0 7%, transparent 7.3%),
+        linear-gradient(145deg, #e6f5db 0%, #9ed5bd 45%, #57a993 100%);
+    }
+
+    #title-screen::before,
+    #title-screen::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -12% -10%;
+      height: 40%;
+      background: #26765e;
+      border-radius: 50% 50% 0 0;
+      opacity: .3;
+      transform: rotate(-3deg);
+    }
+
+    #title-screen::after {
+      inset: auto -10% -20% 30%;
+      height: 34%;
+      opacity: .2;
+      transform: rotate(5deg);
+    }
+
+    .title-card {
+      position: relative;
+      z-index: 1;
+      width: min(100%, 470px);
+      padding: 28px 28px 24px;
+      border: 2px solid rgba(255,255,255,.72);
+      border-radius: 32px;
+      background: rgba(255, 253, 247, .92);
+      box-shadow: var(--shadow);
+      text-align: center;
+      backdrop-filter: blur(12px);
+    }
+
+    .title-art {
+      width: min(100%, 390px);
+      margin: -10px auto 5px;
+    }
+
+    .title-card h1 {
+      margin: 0;
+      color: var(--green-dark);
+      font-size: clamp(2.35rem, 10vw, 4rem);
+      line-height: .92;
+      letter-spacing: -.065em;
+    }
+
+    .title-card h1 span {
+      display: block;
+      color: var(--orange);
+      font-size: .34em;
+      line-height: 1.5;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+
+    .title-card .tagline {
+      max-width: 330px;
+      margin: 13px auto 22px;
+      color: var(--muted);
+      font-size: .98rem;
+      line-height: 1.45;
+    }
+
+    .title-actions {
+      display: grid;
+      gap: 10px;
+      max-width: 300px;
+      margin: 0 auto;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .danger-btn {
+      min-height: 48px;
+      padding: 12px 18px;
+      border-radius: 15px;
+      font-weight: 800;
+      transition: transform .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .primary-btn {
+      background: var(--green);
+      color: white;
+      box-shadow: 0 7px 0 var(--green-dark), 0 12px 20px rgba(31,118,93,.22);
+    }
+
+    .primary-btn:hover,
+    .secondary-btn:hover,
+    .danger-btn:hover { transform: translateY(-2px); }
+
+    .primary-btn:active { transform: translateY(3px); box-shadow: 0 3px 0 var(--green-dark); }
+
+    .secondary-btn {
+      background: #eef6e9;
+      color: var(--green-dark);
+    }
+
+    .secondary-btn:disabled {
+      opacity: .42;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .danger-btn {
+      background: #ffe3dc;
+      color: #a9473f;
+    }
+
+    .title-footnote {
+      margin: 18px 0 0;
+      color: #8a9d91;
+      font-size: .76rem;
+      letter-spacing: .02em;
+    }
+
+    .app {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: #d9eed9;
+    }
+
+    .topbar {
+      position: relative;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 68px;
+      padding: 10px max(14px, env(safe-area-inset-left)) 10px max(14px, env(safe-area-inset-right));
+      background: rgba(255, 253, 247, .96);
+      border-bottom: 1px solid rgba(31,118,93,.12);
+      box-shadow: 0 5px 18px rgba(23,67,52,.08);
+    }
+
+    .brand-lockup {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 148px;
+      margin-right: auto;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: #f8c448;
+      color: var(--green-dark);
+      font-size: 1.2rem;
+      box-shadow: inset 0 -3px rgba(149, 93, 34, .13);
+    }
+
+    .brand-lockup strong {
+      display: block;
+      color: var(--green-dark);
+      font-size: .95rem;
+      line-height: 1;
+    }
+
+    .brand-lockup small {
+      display: block;
+      margin-top: 3px;
+      color: var(--muted);
+      font-size: .66rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+
+    .hud-chip {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      min-height: 38px;
+      padding: 6px 10px;
+      border: 1px solid rgba(31,118,93,.12);
+      border-radius: 13px;
+      background: #f7fbef;
+      color: var(--green-dark);
+      font-size: .78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .hud-chip .chip-icon { font-size: 1rem; }
+    .hud-chip.money { background: #fff2c8; color: #915e12; }
+    .hud-chip.weather { background: #e5f3f3; color: #387e8b; }
+
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 13px;
+      background: #eef6e9;
+      color: var(--green-dark);
+      font-size: 1.04rem;
+    }
+
+    .icon-btn:hover { background: #dceede; }
+
+    .game-main {
+      display: flex;
+      flex: 1;
+      min-height: 0;
+      gap: 12px;
+      padding: 12px;
+    }
+
+    .world-column {
+      display: flex;
+      flex: 1;
+      min-width: 0;
+      min-height: 0;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    #world-wrap {
+      position: relative;
+      flex: 1;
+      min-height: 280px;
+      overflow: hidden;
+      border: 3px solid rgba(25,60,53,.16);
+      border-radius: 25px;
+      background: #abd3aa;
+      box-shadow: var(--soft-shadow);
+      touch-action: none;
+    }
+
+    #world {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .world-corner {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      max-width: calc(100% - 24px);
+      padding: 7px 10px;
+      border: 1px solid rgba(255,255,255,.65);
+      border-radius: 12px;
+      background: rgba(255,253,247,.86);
+      color: var(--green-dark);
+      font-size: .7rem;
+      font-weight: 800;
+      box-shadow: 0 4px 14px rgba(23,67,52,.1);
+      pointer-events: none;
+    }
+
+    .world-corner b { color: var(--orange); }
+
+    #toast-stack {
+      position: absolute;
+      top: 54px;
+      left: 50%;
+      display: grid;
+      gap: 7px;
+      width: min(90%, 340px);
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .toast {
+      padding: 9px 12px;
+      border: 1px solid rgba(255,255,255,.7);
+      border-radius: 13px;
+      background: rgba(25,60,53,.91);
+      color: white;
+      font-size: .78rem;
+      font-weight: 750;
+      text-align: center;
+      box-shadow: 0 7px 18px rgba(23,67,52,.18);
+      animation: toast-in .25s ease both;
+    }
+
+    @keyframes toast-in {
+      from { opacity: 0; transform: translateY(-8px) scale(.96); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .touch-layer {
+      position: absolute;
+      right: 14px;
+      bottom: 14px;
+      left: 14px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    #joystick {
+      position: relative;
+      width: 88px;
+      height: 88px;
+      border: 2px solid rgba(255,255,255,.68);
+      border-radius: 50%;
+      background: rgba(255,253,247,.46);
+      box-shadow: 0 5px 18px rgba(23,67,52,.15);
+      pointer-events: auto;
+      touch-action: none;
+    }
+
+    #joystick::before {
+      content: "";
+      position: absolute;
+      inset: 19px;
+      border: 1px dashed rgba(31,118,93,.3);
+      border-radius: 50%;
+    }
+
+    #joystick-knob {
+      position: absolute;
+      top: 25px;
+      left: 25px;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 4px 0 var(--green-dark), 0 5px 12px rgba(23,67,52,.25);
+      transition: transform .08s ease;
+      pointer-events: none;
+    }
+
+    #action-btn {
+      display: grid;
+      place-items: center;
+      min-width: 92px;
+      min-height: 56px;
+      padding: 7px 13px;
+      border-radius: 18px;
+      background: var(--orange);
+      color: white;
+      box-shadow: 0 5px 0 #b94f31, 0 8px 16px rgba(185,79,49,.25);
+      font-size: .78rem;
+      font-weight: 900;
+      text-align: center;
+      pointer-events: auto;
+      touch-action: manipulation;
+    }
+
+    #action-btn:disabled {
+      background: #95b6a4;
+      box-shadow: 0 4px 0 #638c77;
+      opacity: .86;
+    }
+
+    #action-btn:not(:disabled):active { transform: translateY(3px); box-shadow: 0 2px 0 #b94f31; }
+
+    .seed-strip {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      overflow-x: auto;
+      min-height: 44px;
+      padding: 2px;
+      scrollbar-width: none;
+    }
+
+    .seed-strip::-webkit-scrollbar { display: none; }
+
+    .seed-label {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: .7rem;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+    }
+
+    .seed-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-height: 36px;
+      padding: 6px 9px;
+      border: 1px solid rgba(31,118,93,.16);
+      border-radius: 11px;
+      background: rgba(255,253,247,.78);
+      color: var(--green-dark);
+      font-size: .7rem;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .seed-btn.selected {
+      border-color: var(--orange);
+      background: #fff1dc;
+      color: #a35131;
+    }
+
+    .seed-btn:disabled {
+      opacity: .4;
+      filter: grayscale(.5);
+      cursor: not-allowed;
+    }
+
+    .side-panel {
+      display: flex;
+      flex: 0 0 316px;
+      min-width: 280px;
+      min-height: 0;
+      flex-direction: column;
+      gap: 10px;
+      padding: 4px;
+      overflow: auto;
+      scrollbar-width: thin;
+    }
+
+    .panel-card {
+      padding: 15px;
+      border: 1px solid rgba(31,118,93,.13);
+      border-radius: 19px;
+      background: rgba(255,253,247,.9);
+      box-shadow: 0 5px 16px rgba(23,67,52,.07);
+    }
+
+    .panel-card h2,
+    .panel-card h3 {
+      margin: 0;
+      color: var(--green-dark);
+      letter-spacing: -.03em;
+    }
+
+    .panel-card h2 { font-size: 1.02rem; }
+    .panel-card h3 { font-size: .84rem; }
+
+    .panel-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 9px;
+    }
+
+    .panel-kicker small {
+      color: var(--muted);
+      font-size: .68rem;
+      font-weight: 750;
+    }
+
+    .objective-list {
+      display: grid;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .objective {
+      display: grid;
+      grid-template-columns: 20px 1fr;
+      gap: 7px;
+      align-items: start;
+      color: #527267;
+      font-size: .75rem;
+      line-height: 1.28;
+    }
+
+    .objective.done { color: #91a69a; text-decoration: line-through; }
+
+    .objective-icon {
+      display: grid;
+      place-items: center;
+      width: 19px;
+      height: 19px;
+      border: 2px solid #bcd8bd;
+      border-radius: 50%;
+      color: transparent;
+      font-size: .66rem;
+      font-weight: 900;
+    }
+
+    .objective.done .objective-icon {
+      border-color: var(--green);
+      background: var(--green);
+      color: white;
+    }
+
+    .context-card {
+      display: grid;
+      gap: 6px;
+      background: #f3faec;
+    }
+
+    .context-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--green-dark);
+      font-size: .88rem;
+      font-weight: 900;
+    }
+
+    .context-copy {
+      min-height: 30px;
+      color: var(--muted);
+      font-size: .74rem;
+      line-height: 1.35;
+    }
+
+    .context-button {
+      min-height: 40px;
+      border-radius: 12px;
+      background: var(--green);
+      color: white;
+      font-size: .78rem;
+      font-weight: 900;
+    }
+
+    .context-button:disabled {
+      background: #c2d8c9;
+      color: #759183;
+      cursor: default;
+    }
+
+    .inventory-card { padding-bottom: 11px; }
+
+    .basket-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .basket-count {
+      color: var(--green-dark);
+      font-size: 1.12rem;
+      font-weight: 950;
+    }
+
+    .basket-count small {
+      color: var(--muted);
+      font-size: .67rem;
+      font-weight: 750;
+    }
+
+    .basket-items {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 4px;
+      max-width: 175px;
+    }
+
+    .mini-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      background: #f1e9cf;
+      color: #7b613b;
+      font-size: .66rem;
+      font-weight: 850;
+    }
+
+    .panel-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .panel-actions button {
+      min-height: 42px;
+      border-radius: 12px;
+      background: #eef6e9;
+      color: var(--green-dark);
+      font-size: .75rem;
+      font-weight: 900;
+    }
+
+    .panel-actions button:hover { background: #dceede; }
+
+    .save-note {
+      color: #88a093;
+      font-size: .66rem;
+      text-align: center;
+    }
+
+    .modal-layer {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+      background: rgba(21, 58, 45, .52);
+      backdrop-filter: blur(5px);
+    }
+
+    .modal {
+      width: min(100%, 650px);
+      max-height: min(760px, 92vh);
+      overflow: auto;
+      border: 2px solid rgba(255,255,255,.7);
+      border-radius: 25px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      animation: modal-in .22s ease both;
+    }
+
+    @keyframes modal-in {
+      from { opacity: 0; transform: translateY(15px) scale(.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 19px 20px 14px;
+      border-bottom: 1px solid #e7eedf;
+    }
+
+    .modal-head h2 {
+      margin: 0;
+      color: var(--green-dark);
+      font-size: 1.35rem;
+      letter-spacing: -.045em;
+    }
+
+    .modal-head p {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: .75rem;
+      line-height: 1.35;
+    }
+
+    .modal-close {
+      display: grid;
+      flex: 0 0 auto;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: #edf4e9;
+      color: var(--green-dark);
+      font-size: 1.1rem;
+      font-weight: 900;
+    }
+
+    .modal-body { padding: 17px 20px 20px; }
+
+    .modal-tabs {
+      display: flex;
+      gap: 7px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+    }
+
+    .modal-tab {
+      flex: 0 0 auto;
+      min-height: 36px;
+      padding: 7px 12px;
+      border-radius: 10px;
+      background: #eef6e9;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 900;
+    }
+
+    .modal-tab.active {
+      background: var(--green);
+      color: white;
+    }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .manage-card {
+      display: flex;
+      min-height: 156px;
+      flex-direction: column;
+      padding: 13px;
+      border: 1px solid #deebdb;
+      border-radius: 16px;
+      background: #fbfdf7;
+    }
+
+    .manage-card.locked { background: #f7f7ef; opacity: .8; }
+
+    .manage-card .manage-icon { font-size: 1.5rem; }
+    .manage-card h3 { margin: 5px 0 3px; color: var(--green-dark); font-size: .82rem; }
+    .manage-card p { flex: 1; margin: 0 0 9px; color: var(--muted); font-size: .68rem; line-height: 1.35; }
+    .manage-card .price { color: #a1681c; font-size: .74rem; font-weight: 950; }
+
+    .buy-btn {
+      width: 100%;
+      min-height: 34px;
+      margin-top: 8px;
+      border-radius: 9px;
+      background: var(--green);
+      color: white;
+      font-size: .69rem;
+      font-weight: 900;
+    }
+
+    .buy-btn:disabled {
+      background: #ccdacf;
+      color: #748d7c;
+      cursor: not-allowed;
+    }
+
+    .guide-card {
+      width: min(100%, 410px);
+      padding: 24px;
+      border-radius: 25px;
+      background: #fffdf7;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .guide-illustration { font-size: 2.35rem; }
+    .guide-card h2 { margin: 8px 0 5px; color: var(--green-dark); font-size: 1.35rem; }
+    .guide-card p { margin: 0 auto 17px; color: var(--muted); font-size: .82rem; line-height: 1.45; }
+    .guide-step { margin-bottom: 14px; color: #94a79b; font-size: .68rem; font-weight: 800; }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid #e8efdf;
+    }
+
+    .setting-row:last-child { border-bottom: 0; }
+    .setting-row strong { display: block; color: var(--green-dark); font-size: .8rem; }
+    .setting-row small { display: block; margin-top: 3px; color: var(--muted); font-size: .68rem; }
+
+    .toggle {
+      position: relative;
+      flex: 0 0 auto;
+      width: 46px;
+      height: 27px;
+      border-radius: 20px;
+      background: #c6d9cb;
+    }
+
+    .toggle::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 2px 5px rgba(23,67,52,.2);
+      transition: transform .2s ease;
+    }
+
+    .toggle.on { background: var(--green); }
+    .toggle.on::after { transform: translateX(19px); }
+
+    .confirm-copy {
+      padding: 20px;
+      color: var(--muted);
+      font-size: .83rem;
+      line-height: 1.5;
+    }
+
+    .confirm-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 0 20px 20px;
+    }
+
+    .confirm-actions button { min-width: 100px; }
+
+    #debug-panel {
+      position: fixed;
+      z-index: 25;
+      right: 12px;
+      bottom: 12px;
+      width: min(260px, calc(100% - 24px));
+      padding: 12px;
+      border: 2px solid #cf5c49;
+      border-radius: 15px;
+      background: rgba(255,247,234,.97);
+      box-shadow: var(--shadow);
+    }
+
+    #debug-panel h3 { margin: 0 0 8px; color: #a5463d; font-size: .8rem; }
+    .debug-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .debug-grid button {
+      min-height: 34px;
+      border-radius: 9px;
+      background: #ffe2d7;
+      color: #984539;
+      font-size: .67rem;
+      font-weight: 900;
+    }
+
+    #debug-status { margin-top: 8px; color: #aa7d68; font-size: .65rem; }
+
+    .celebrate {
+      width: min(100%, 460px);
+      overflow: hidden;
+      border-radius: 28px;
+      background: #fffdf7;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .celebrate-top {
+      padding: 25px 24px 22px;
+      background:
+        radial-gradient(circle at 14% 15%, rgba(255,255,255,.75) 0 5%, transparent 5.5%),
+        radial-gradient(circle at 86% 26%, rgba(255,255,255,.5) 0 4%, transparent 4.5%),
+        linear-gradient(135deg, #f6c449, #ef9052);
+    }
+
+    .celebrate-top .big { font-size: 3rem; }
+    .celebrate h2 { margin: 6px 0 5px; color: #784c1d; font-size: 1.6rem; letter-spacing: -.05em; }
+    .celebrate p { margin: 0; color: #875f38; font-size: .8rem; line-height: 1.4; }
+    .celebrate-bottom { padding: 18px 22px 22px; }
+
+    @media (max-width: 880px) {
+      .brand-lockup { min-width: 118px; }
+      .brand-lockup strong { font-size: .8rem; }
+      .brand-lockup small { font-size: .57rem; }
+      .hud-chip { padding: 6px 8px; font-size: .7rem; }
+      .side-panel { flex-basis: 285px; }
+    }
+
+    @media (max-width: 720px) {
+      .screen { padding: 14px; }
+      .title-card { padding: 20px 18px 18px; }
+      .title-art { margin-top: -4px; }
+      .topbar { gap: 5px; padding: 8px 9px; min-height: 58px; }
+      .brand-mark { width: 33px; height: 33px; border-radius: 10px; font-size: 1rem; }
+      .brand-lockup { min-width: 0; gap: 5px; }
+      .brand-lockup strong { font-size: .76rem; }
+      .brand-lockup small { display: none; }
+      .hud-chip { min-height: 34px; padding: 5px 6px; border-radius: 10px; font-size: .64rem; }
+      .hud-chip .chip-icon { font-size: .84rem; }
+      .icon-btn { width: 34px; height: 34px; border-radius: 10px; font-size: .9rem; }
+      .game-main { display: block; padding: 7px; overflow: auto; }
+      .world-column { min-height: 0; }
+      #world-wrap { flex: 0 0 auto; height: min(55vh, 480px); min-height: 290px; border-radius: 19px; }
+      .seed-strip { min-height: 40px; }
+      .side-panel {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 7px;
+        min-width: 0;
+        padding: 0;
+        overflow: visible;
+      }
+      .panel-card { padding: 12px; border-radius: 16px; }
+      .objective-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .objective { font-size: .68rem; }
+      .inventory-card { display: none; }
+      .panel-actions { grid-template-columns: 1fr 1fr 1fr; }
+      .panel-actions button { min-height: 38px; font-size: .68rem; }
+      .save-note { padding-bottom: 8px; }
+      .card-grid { grid-template-columns: 1fr; }
+      .manage-card { min-height: 122px; }
+    }
+
+    @media (max-width: 420px) {
+      .hud-chip.weather { display: none; }
+      .world-corner { font-size: .62rem; }
+      #joystick { width: 76px; height: 76px; }
+      #joystick-knob { top: 20px; left: 20px; }
+      #action-btn { min-width: 78px; min-height: 51px; padding-inline: 9px; font-size: .69rem; }
+      .objective-list { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <section id="title-screen" class="screen">
+    <div class="title-card">
+      <div class="title-art" aria-hidden="true">
+        <svg viewBox="0 0 420 190" role="img">
+          <defs>
+            <linearGradient id="sky" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0" stop-color="#dff4d8"/>
+              <stop offset="1" stop-color="#98cfad"/>
+            </linearGradient>
+            <linearGradient id="roof" x1="0" x2="1">
+              <stop offset="0" stop-color="#e8744b"/>
+              <stop offset="1" stop-color="#c64d3f"/>
+            </linearGradient>
+          </defs>
+          <rect x="14" y="13" width="392" height="160" rx="28" fill="url(#sky)"/>
+          <circle cx="341" cy="48" r="23" fill="#f7c653"/>
+          <path d="M18 139 C72 100 108 126 150 113 C193 100 228 123 272 109 C321 93 347 121 405 99 L405 173 L14 173Z" fill="#4f9f73" opacity=".8"/>
+          <path d="M85 75 L205 34 L336 74 L324 89 L95 89Z" fill="url(#roof)" stroke="#a84539" stroke-width="4"/>
+          <path d="M98 87 L322 87 L322 155 L98 155Z" fill="#fff1c7" stroke="#215d4d" stroke-width="4"/>
+          <path d="M93 86 H326 V101 H93Z" fill="#f6c448" stroke="#a84d37" stroke-width="3"/>
+          <path d="M105 87 L128 101 L151 87 L174 101 L197 87 L220 101 L243 87 L266 101 L289 87 L312 101 L326 87" fill="none" stroke="#e36b49" stroke-width="9"/>
+          <rect x="112" y="110" width="63" height="45" rx="5" fill="#a8d5c7" stroke="#215d4d" stroke-width="4"/>
+          <path d="M143 110 V155" stroke="#215d4d" stroke-width="3"/>
+          <rect x="189" y="110" width="58" height="45" rx="4" fill="#8fc4b6" stroke="#215d4d" stroke-width="4"/>
+          <path d="M218 110 V155" stroke="#215d4d" stroke-width="3"/>
+          <rect x="260" y="116" width="43" height="39" rx="4" fill="#ecb64a" stroke="#215d4d" stroke-width="4"/>
+          <circle cx="292" cy="137" r="3" fill="#865730"/>
+          <path d="M116 76 H300" stroke="#fff8e9" stroke-width="4" stroke-linecap="round"/>
+          <text x="208" y="77" text-anchor="middle" font-size="17" font-weight="900" font-family="system-ui" fill="#fff8e9" letter-spacing="2">KEDAI KITA</text>
+          <path d="M56 159 C58 129 74 118 84 132 C91 143 84 155 82 168" fill="#347b59"/>
+          <path d="M49 133 C57 113 68 113 75 128 C59 127 52 135 49 133Z" fill="#217357"/>
+          <path d="M338 166 C338 136 351 119 363 133 C370 143 365 156 362 171" fill="#347b59"/>
+          <path d="M359 136 C370 116 384 121 388 139 C375 132 367 138 359 136Z" fill="#217357"/>
+          <ellipse cx="212" cy="166" rx="156" ry="10" fill="#205f4d" opacity=".18"/>
+        </svg>
+      </div>
+      <h1><span>Dari Kebun ke Kaunter</span>Kedai Kita</h1>
+      <p class="tagline">Grow a tiny neighbourhood shop into the warmest mini-mart on the street.</p>
+      <div class="title-actions">
+        <button id="new-game-btn" class="primary-btn">Open the kedai</button>
+        <button id="continue-btn" class="secondary-btn">Continue save</button>
+      </div>
+      <p class="title-footnote">No ads · Works offline · Progress saves on this device</p>
+    </div>
+  </section>
+
+  <div id="game" class="app hidden">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="brand-mark">🌿</div>
+        <div><strong>Kedai Kita</strong><small>Neighbourhood mini-mart</small></div>
+      </div>
+      <div class="hud-chip money"><span class="chip-icon">🪙</span><span id="money-value">RM 68</span></div>
+      <div class="hud-chip"><span class="chip-icon">☀️</span><span id="day-value">Day 1</span></div>
+      <div class="hud-chip weather"><span class="chip-icon" id="weather-icon">☀️</span><span id="weather-value">Sunny</span></div>
+      <div class="hud-chip"><span class="chip-icon">🧺</span><span id="carry-value">0 / 3</span></div>
+      <button id="pause-btn" class="icon-btn" aria-label="Pause game" title="Pause">Ⅱ</button>
+      <button id="settings-btn" class="icon-btn" aria-label="Settings" title="Settings">⚙</button>
+    </header>
+
+    <main class="game-main">
+      <section class="world-column">
+        <div id="world-wrap">
+          <canvas id="world" width="1000" height="640" aria-label="Kedai Kita game world"></canvas>
+          <div class="world-corner">Walk with <b>WASD</b> or the joystick · <b>E</b> / Use to interact</div>
+          <div id="toast-stack"></div>
+          <div class="touch-layer">
+            <div id="joystick" aria-label="Movement joystick"><div id="joystick-knob"></div></div>
+            <button id="action-btn" disabled>Walk to an action</button>
+          </div>
+        </div>
+        <div class="seed-strip" aria-label="Crop selection">
+          <span class="seed-label">Plant:</span>
+          <button class="seed-btn selected" data-seed="kangkung">🥬 Kangkung</button>
+          <button class="seed-btn" data-seed="chili">🌶️ Cili</button>
+          <button class="seed-btn" data-seed="pandan" disabled>🌿 Pandan · locked</button>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="panel-card">
+          <div class="panel-kicker"><h2>Today at the kedai</h2><small><span id="reputation-value">★ 1.0</span> · <span id="objective-count">0 / 9 milestones</span></small></div>
+          <div id="objective-list" class="objective-list"></div>
+        </section>
+        <section class="panel-card context-card">
+          <div class="context-title"><span id="context-icon">🧭</span><span id="context-title">Ready when you are</span></div>
+          <div id="context-copy" class="context-copy">Move your character around the map. When you are close to a useful spot, this button will light up.</div>
+          <button id="context-btn" class="context-button" disabled>Use</button>
+        </section>
+        <section class="panel-card inventory-card">
+          <div class="panel-kicker"><h3>Your basket</h3><small>Tap a station to unload</small></div>
+          <div class="basket-row"><div id="basket-count" class="basket-count">Empty <small>/ 3 slots</small></div><div id="basket-items" class="basket-items"></div></div>
+        </section>
+        <div class="panel-actions">
+          <button id="manage-btn">🏪 Manage</button>
+          <button id="help-btn">💡 How to play</button>
+          <button id="save-btn">💾 Save</button>
+        </div>
+        <div id="save-note" class="save-note">Saved locally on this device</div>
+      </aside>
+    </main>
+  </div>
+
+  <div id="modal-layer" class="modal-layer hidden"></div>
+  <div id="debug-panel" class="hidden">
+    <h3>Evaluator tools · debug=1</h3>
+    <div class="debug-grid">
+      <button data-debug="money">+ RM 500</button>
+      <button data-debug="speed">Fast production</button>
+      <button data-debug="rain">Start rain</button>
+      <button data-debug="unlock">Unlock all</button>
+      <button data-debug="customers">Add customers</button>
+      <button data-debug="reset">Reset save</button>
+    </div>
+    <div id="debug-status">Debug panel is evaluator-only.</div>
+  </div>
+
+  <script>
+    (function () {
+      "use strict";
+
+      var SAVE_KEY = "kedaiKitaSave_v1";
+      var world = document.getElementById("world");
+      var ctx = world.getContext("2d");
+      var titleScreen = document.getElementById("title-screen");
+      var game = document.getElementById("game");
+      var modalLayer = document.getElementById("modal-layer");
+      var debugPanel = document.getElementById("debug-panel");
+      var isDebug = new URLSearchParams(window.location.search).get("debug") === "1";
+      var active = false;
+      var state = null;
+      var elapsed = 0;
+      var lastFrame = performance.now();
+      var uiClock = 0;
+      var saveClock = 0;
+      var spawnClock = 6;
+      var customerId = 0;
+      var toastId = 0;
+      var currentAction = null;
+      var currentModal = "";
+      var modalTab = "upgrades";
+      var keys = {};
+      var joystick = { active: false, x: 0, y: 0, pointerId: null };
+      var lastAutoKey = "";
+      var autoClock = 0;
+      var audioContext = null;
+      var musicTimer = null;
+      var particles = [];
+      var customers = [];
+
+      var PRODUCT = {
+        kangkung: { label: "Kangkung", icon: "🥬", color: "#49a96c", price: 8, grow: 10, short: "greens" },
+        chili: { label: "Cili", icon: "🌶️", color: "#ed644c", price: 14, grow: 16, short: "chili" },
+        pandan: { label: "Pandan", icon: "🌿", color: "#338d5d", price: 18, grow: 21, short: "pandan" },
+        eggs: { label: "Egg", icon: "🥚", color: "#e5b854", price: 0, grow: 0, short: "eggs" },
+        nasi: { label: "Nasi lemak", icon: "🍱", color: "#d85b43", price: 25, grow: 0, short: "bungkus" }
+      };
+
+      var ZONE = {
+        rack: { x: 654, y: 304, r: 66 },
+        chiller: { x: 789, y: 304, r: 64 },
+        warung: { x: 670, y: 445, r: 68 },
+        checkout: { x: 832, y: 443, r: 70 },
+        coop: { x: 191, y: 474, r: 68 }
+      };
+
+      var OBJECTIVES = [
+        { id: "harvest", text: "Harvest your first crop", check: function () { return state.totalHarvests >= 1; }, reward: 18 },
+        { id: "stock", text: "Stock the produce rack", check: function () { return state.totalStocked >= 1; }, reward: 18 },
+        { id: "sale", text: "Complete your first sale", check: function () { return state.totalSales >= 1; }, reward: 28 },
+        { id: "coop", text: "Open the Reban Ayam", check: function () { return state.unlocked.coop; }, reward: 45 },
+        { id: "egg", text: "Collect and chill an egg", check: function () { return state.totalEggs >= 1; }, reward: 30 },
+        { id: "warung", text: "Open the Warung Corner", check: function () { return state.unlocked.warung; }, reward: 60 },
+        { id: "meal", text: "Prepare a nasi lemak bungkus", check: function () { return state.totalMeals >= 1; }, reward: 45 },
+        { id: "team", text: "Hire all three helpers", check: function () { return state.workers.gardener && state.workers.stocker && state.workers.cashier; }, reward: 90 },
+        { id: "expand", text: "Reach the full mini-mart", check: function () { return state.mainComplete; }, reward: 150 }
+      ];
+
+      function $(selector) { return document.querySelector(selector); }
+      function $all(selector) { return Array.prototype.slice.call(document.querySelectorAll(selector)); }
+      function clamp(value, min, max) { return Math.max(min, Math.min(max, value)); }
+      function distance(a, b) { return Math.hypot(a.x - b.x, a.y - b.y); }
+      function fmtMoney(value) { return "RM " + Math.max(0, Math.round(value)); }
+      function freshState() {
+        return {
+          money: 68,
+          day: 1,
+          dayClock: 0,
+          totalSales: 0,
+          totalHarvests: 0,
+          totalStocked: 0,
+          totalEggs: 0,
+          totalMeals: 0,
+          totalCustomers: 0,
+          happyCustomers: 0,
+          unhappyCustomers: 0,
+          reputation: 1,
+          weather: "sunny",
+          weatherLeft: 0,
+          rainTimer: 0,
+          debugFast: false,
+          mainComplete: false,
+          celebrated: false,
+          selectedSeed: "kangkung",
+          unlocked: { coop: false, warung: false, miniMart: false },
+          upgrades: { growth: 0, capacity: 0, movement: 0, shelf: 0, checkout: 0, arrival: 0, appearance: 0 },
+          workers: { gardener: false, stocker: false, cashier: false },
+          shelf: { kangkung: 0, chili: 0, pandan: 0, eggs: 0, nasi: 0 },
+          coop: { fedUntil: 0, eggReady: 0, eggTimer: 0 },
+          plots: [
+            { id: 1, x: 108, y: 254, crop: "kangkung", progress: .58 },
+            { id: 2, x: 188, y: 253, crop: "kangkung", progress: .33 },
+            { id: 3, x: 269, y: 253, crop: "chili", progress: .14 },
+            { id: 4, x: 349, y: 254, crop: null, progress: 0 }
+          ],
+          player: { x: 402, y: 501, dir: 0, carrying: [] },
+          tutorial: { step: 0, dismissed: false },
+          settings: { sound: true, music: false, reducedMotion: false },
+          objectiveRewards: {},
+          gameStarted: false
+        };
+      }
+
+      function mergeState(saved) {
+        var base = freshState();
+        if (!saved || typeof saved !== "object") return base;
+        Object.keys(base).forEach(function (key) {
+          if (saved[key] !== undefined) base[key] = saved[key];
+        });
+        ["unlocked", "upgrades", "workers", "shelf", "coop", "player", "tutorial", "settings"].forEach(function (key) {
+          if (!saved[key] || typeof saved[key] !== "object") return;
+          Object.keys(base[key]).forEach(function (subkey) {
+            if (saved[key][subkey] !== undefined) base[key][subkey] = saved[key][subkey];
+          });
+        });
+        base.player.carrying = Array.isArray(base.player.carrying) ? base.player.carrying.slice(0, 8) : [];
+        if (base.mainComplete && !saved.celebrated) base.celebrated = true;
+        base.plots = Array.isArray(saved.plots) && saved.plots.length ? saved.plots : base.plots;
+        base.plots.forEach(function (plot, index) {
+          plot.id = plot.id || index + 1;
+          plot.x = Number(plot.x) || 108 + index * 80;
+          plot.y = Number(plot.y) || 254;
+          plot.progress = Number(plot.progress) || 0;
+        });
+        base.gameStarted = false;
+        return base;
+      }
+
+      function hasSave() {
+        try { return !!localStorage.getItem(SAVE_KEY); } catch (error) { return false; }
+      }
+
+      function saveGame() {
+        if (!state) return;
+        try {
+          var snapshot = JSON.parse(JSON.stringify(state));
+          snapshot.gameStarted = false;
+          localStorage.setItem(SAVE_KEY, JSON.stringify(snapshot));
+          $("#save-note").textContent = "Saved just now · local to this device";
+          if (isDebug) $("#debug-status").textContent = "Save written · " + new Date().toLocaleTimeString();
+        } catch (error) {
+          $("#save-note").textContent = "Could not save in this browser";
+        }
+      }
+
+      function loadGame() {
+        try {
+          var raw = localStorage.getItem(SAVE_KEY);
+          return raw ? mergeState(JSON.parse(raw)) : freshState();
+        } catch (error) {
+          return freshState();
+        }
+      }
+
+      function resetState() {
+        state = freshState();
+        customers = [];
+        particles = [];
+        elapsed = 0;
+        spawnClock = 6;
+        lastAutoKey = "";
+        autoClock = 0;
+      }
+
+      function startGame(continueSave) {
+        state = continueSave ? loadGame() : freshState();
+        state.gameStarted = true;
+        active = true;
+        titleScreen.classList.add("hidden");
+        game.classList.remove("hidden");
+        customers = [];
+        particles = [];
+        elapsed = 0;
+        spawnClock = 5;
+        lastAutoKey = "";
+        autoClock = 0;
+        initWorkerEntities();
+        if (isDebug) debugPanel.classList.remove("hidden");
+        playTone(440, .08, "sine");
+        updateAllUI();
+        if (!state.tutorial.dismissed) showGuide();
+        saveGame();
+      }
+
+      function showTitle() {
+        active = false;
+        titleScreen.classList.remove("hidden");
+        game.classList.add("hidden");
+        modalLayer.classList.add("hidden");
+        $("#continue-btn").disabled = !hasSave();
+        if (isDebug) debugPanel.classList.add("hidden");
+      }
+
+      function playTone(frequency, duration, type) {
+        if (!state || !state.settings.sound) return;
+        try {
+          if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioContext.state === "suspended") audioContext.resume();
+          var oscillator = audioContext.createOscillator();
+          var gain = audioContext.createGain();
+          oscillator.type = type || "sine";
+          oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+          gain.gain.setValueAtTime(.0001, audioContext.currentTime);
+          gain.gain.exponentialRampToValueAtTime(.09, audioContext.currentTime + .015);
+          gain.gain.exponentialRampToValueAtTime(.0001, audioContext.currentTime + duration);
+          oscillator.connect(gain);
+          gain.connect(audioContext.destination);
+          oscillator.start();
+          oscillator.stop(audioContext.currentTime + duration + .03);
+        } catch (error) {}
+      }
+
+      function updateMusic() {
+        if (musicTimer) {
+          clearInterval(musicTimer);
+          musicTimer = null;
+        }
+        if (!state || !state.settings.music) return;
+        musicTimer = setInterval(function () {
+          if (active && !state.paused) playTone(196, .12, "triangle");
+        }, 1900);
+      }
+
+      function addToast(message, tone) {
+        var stack = $("#toast-stack");
+        var toast = document.createElement("div");
+        toast.className = "toast";
+        toast.textContent = message;
+        toast.dataset.toastId = String(++toastId);
+        stack.appendChild(toast);
+        if (tone) playTone(tone, .1, "sine");
+        window.setTimeout(function () {
+          if (toast.parentNode) toast.remove();
+        }, 2800);
+      }
+
+      function addParticles(x, y, text, color) {
+        if (state && state.settings.reducedMotion) return;
+        particles.push({ x: x, y: y, text: text, color: color || "#1f765d", life: 1, vy: -20 });
+        for (var i = 0; i < 5; i++) {
+          particles.push({ x: x, y: y, text: "•", color: color || "#f2b940", life: .75, vy: -8 - Math.random() * 18, vx: (Math.random() - .5) * 25 });
+        }
+      }
+
+      function updateParticles(dt) {
+        particles = particles.filter(function (particle) {
+          particle.life -= dt * .8;
+          particle.y += particle.vy * dt;
+          particle.x += (particle.vx || 0) * dt;
+          return particle.life > 0;
+        });
+      }
+
+      function getCapacity() {
+        return 3 + state.upgrades.capacity * 2;
+      }
+
+      function getShelfCapacity() {
+        return 4 + state.upgrades.shelf * 2 + (state.mainComplete ? 2 : 0);
+      }
+
+      function getGrowthMultiplier() {
+        return (state.debugFast ? 4 : 1) * (1 + state.upgrades.growth * .22) * (state.weather === "rain" ? 1.8 : 1);
+      }
+
+      function getMoveSpeed() {
+        return 128 + state.upgrades.movement * 18;
+      }
+
+      function getCheckoutDelay() {
+        return Math.max(1.1, 3.2 - state.upgrades.checkout * .42);
+      }
+
+      function cropStatus(plot) {
+        if (!plot.crop) return "empty";
+        if (plot.progress >= 1) return "ready";
+        return "growing";
+      }
+
+      function updateWeather(dt) {
+        if (state.weather === "rain") {
+          state.weatherLeft -= dt;
+          state.rainTimer += dt;
+          if (state.weatherLeft <= 0) {
+            state.weather = "sunny";
+            state.weatherLeft = 0;
+            addToast("The sun is back · crops keep their boost", 390);
+          }
+        } else {
+          state.rainTimer += dt;
+          if (state.rainTimer > 42 && Math.random() < dt * .035) {
+            startRain();
+          }
+        }
+      }
+
+      function startRain() {
+        state.weather = "rain";
+        state.weatherLeft = 17;
+        state.rainTimer = 0;
+        addToast("🌧️ Gentle rain! Crops grow faster for a while", 330);
+      }
+
+      function updatePlots(dt) {
+        state.plots.forEach(function (plot) {
+          if (plot.crop && plot.progress < 1) {
+            plot.progress += dt * getGrowthMultiplier() / PRODUCT[plot.crop].grow;
+            if (plot.progress >= 1) {
+              plot.progress = 1;
+              addParticles(plot.x, plot.y - 22, PRODUCT[plot.crop].icon + " ready", PRODUCT[plot.crop].color);
+              playTone(610, .08, "sine");
+            }
+          }
+        });
+      }
+
+      function updateDay(dt) {
+        state.dayClock += dt;
+        if (state.dayClock >= 60) {
+          state.dayClock -= 60;
+          state.day += 1;
+          addToast("Day " + state.day + " at Kedai Kita", 480);
+        }
+      }
+
+      function updatePlayer(dt) {
+        var dx = 0;
+        var dy = 0;
+        if (keys.w || keys.arrowup) dy -= 1;
+        if (keys.s || keys.arrowdown) dy += 1;
+        if (keys.a || keys.arrowleft) dx -= 1;
+        if (keys.d || keys.arrowright) dx += 1;
+        if (joystick.active) {
+          dx += joystick.x;
+          dy += joystick.y;
+        }
+        var magnitude = Math.hypot(dx, dy);
+        if (magnitude > 1) { dx /= magnitude; dy /= magnitude; }
+        if (magnitude > .08) {
+          state.player.x = clamp(state.player.x + dx * getMoveSpeed() * dt, 35, 965);
+          state.player.y = clamp(state.player.y + dy * getMoveSpeed() * dt, 90, 605);
+          state.player.dir = Math.atan2(dy, dx);
+        }
+      }
+
+      function moveEntity(entity, target, speed, dt) {
+        var dx = target.x - entity.x;
+        var dy = target.y - entity.y;
+        var dist = Math.hypot(dx, dy);
+        if (dist < 3) {
+          entity.x = target.x;
+          entity.y = target.y;
+          return true;
+        }
+        entity.x += dx / dist * Math.min(dist, speed * dt);
+        entity.y += dy / dist * Math.min(dist, speed * dt);
+        entity.dir = Math.atan2(dy, dx);
+        return dist < 4;
+      }
+
+      function stockFor(product) {
+        return Number(state.shelf[product] || 0);
+      }
+
+      function nearestReadyPlot() {
+        var nearest = null;
+        var best = Infinity;
+        state.plots.forEach(function (plot) {
+          if (cropStatus(plot) !== "ready") return;
+          var d = distance(state.player, plot);
+          if (d < best) { best = d; nearest = plot; }
+        });
+        return nearest;
+      }
+
+      function queueCustomers() {
+        return customers.filter(function (customer) {
+          return customer.state === "queue" || customer.state === "checkout";
+        }).sort(function (a, b) { return a.queueOrder - b.queueOrder; });
+      }
+
+      function chooseCustomerWant() {
+        var options = ["kangkung", "kangkung", "chili"];
+        if (state.unlocked.warung) options.push("nasi", "nasi");
+        if (state.shelf.chili > 0) options.push("chili");
+        if (state.mainComplete) options.push("nasi", "chili");
+        return options[Math.floor(Math.random() * options.length)];
+      }
+
+      function spawnCustomer() {
+        if (!active || customers.length >= 9) return;
+        var customer = {
+          id: ++customerId,
+          x: 958,
+          y: 574,
+          dir: Math.PI,
+          want: chooseCustomerWant(),
+          state: "arriving",
+          wait: 0,
+          queueOrder: Date.now() + customerId,
+          color: ["#e97853", "#578cac", "#7e6ca8", "#d39a43"][customerId % 4],
+          skin: ["#b96d48", "#d49361", "#8b543f", "#e1a170"][customerId % 4],
+          item: null,
+          mood: "🙂"
+        };
+        customers.push(customer);
+        state.totalCustomers += 1;
+      }
+
+      function displayPoint(product) {
+        if (product === "nasi") return { x: 682, y: 425 };
+        if (product === "eggs") return { x: 789, y: 290 };
+        if (product === "pandan") return { x: 629, y: 290 };
+        return { x: 674, y: product === "chili" ? 330 : 282 };
+      }
+
+      function updateCustomers(dt) {
+        customers.forEach(function (customer) {
+          customer.wait += dt;
+          if (customer.state === "arriving") {
+            var target = displayPoint(customer.want);
+            if (moveEntity(customer, { x: target.x + 42, y: target.y + 20 }, 58, dt)) {
+              if (state.shelf[customer.want] > 0) {
+                state.shelf[customer.want] -= 1;
+                customer.item = customer.want;
+                customer.state = "queue";
+                customer.wait = 0;
+                customer.mood = "🙂";
+                customer.queueOrder = Date.now() + customer.id;
+                addParticles(customer.x, customer.y - 26, PRODUCT[customer.want].icon, PRODUCT[customer.want].color);
+                playTone(520, .08, "sine");
+              } else {
+                customer.state = "waitingStock";
+                customer.mood = "…";
+                customer.wait = 0;
+              }
+            }
+          } else if (customer.state === "waitingStock") {
+            if (state.shelf[customer.want] > 0) {
+              state.shelf[customer.want] -= 1;
+              customer.item = customer.want;
+              customer.state = "queue";
+              customer.wait = 0;
+              customer.mood = "🙂";
+              customer.queueOrder = Date.now() + customer.id;
+              addToast("A customer found " + PRODUCT[customer.want].label + "!", 500);
+            } else if (customer.wait > 5) {
+              customer.state = "leaving";
+              customer.mood = "😕";
+              customer.wait = 0;
+              state.unhappyCustomers += 1;
+              addToast("A customer left: " + PRODUCT[customer.want].label + " was out of stock", 260);
+            }
+          } else if (customer.state === "queue") {
+            var queued = queueCustomers();
+            var index = Math.max(0, queued.indexOf(customer));
+            var qTarget = { x: 824 - Math.min(index, 2) * 18, y: 465 + index * 30 };
+            moveEntity(customer, qTarget, 60, dt);
+            if (customer.wait > 18) {
+              customer.state = "leaving";
+              customer.mood = "😣";
+              customer.wait = 0;
+              state.unhappyCustomers += 1;
+              addToast("The queue is getting impatient", 260);
+            }
+          } else if (customer.state === "leaving") {
+            if (!moveEntity(customer, { x: 970, y: 585 }, 66, dt)) {}
+          }
+        });
+        customers = customers.filter(function (customer) {
+          return customer.x < 1005 && customer.state !== "paid";
+        });
+      }
+
+      function updateCustomersSpawner(dt) {
+        var interval = Math.max(4, 11 - state.upgrades.arrival * 1.45);
+        if (state.debugFast) interval = 2.2;
+        spawnClock -= dt;
+        if (spawnClock <= 0) {
+          spawnCustomer();
+          spawnClock = interval + Math.random() * 3;
+        }
+      }
+
+      function initWorkerEntities() {
+        state.workerEntities = [
+          { id: "gardener", x: 365, y: 474, dir: 0, carry: null, task: null, bob: 0 },
+          { id: "stocker", x: 480, y: 508, dir: 0, carry: null, task: null, bob: 1 },
+          { id: "cashier", x: 824, y: 430, dir: Math.PI, carry: null, task: null, bob: 2 }
+        ];
+      }
+
+      function workerList() {
+        if (!state.workerEntities) initWorkerEntities();
+        return state.workerEntities;
+      }
+
+      function findReadyPlot() {
+        return state.plots.find(function (plot) { return cropStatus(plot) === "ready"; }) || null;
+      }
+
+      function findEmptyPlantablePlot() {
+        return state.plots.find(function (plot) { return !plot.crop; }) || null;
+      }
+
+      function performWorkerTask(worker) {
+        if (worker.id === "gardener") {
+          if (worker.task === "harvest" && worker.targetId) {
+            var plot = state.plots.find(function (item) { return item.id === worker.targetId; });
+            if (plot && cropStatus(plot) === "ready") {
+              worker.carry = plot.crop;
+              plot.crop = null;
+              plot.progress = 0;
+              addParticles(plot.x, plot.y - 20, "Harvested", "#4b9f6c");
+              worker.task = "deliver";
+            } else worker.task = null;
+          } else if (worker.task === "plant" && worker.targetId) {
+            var empty = state.plots.find(function (item) { return item.id === worker.targetId; });
+            if (empty && !empty.crop) {
+              empty.crop = state.unlocked.warung ? (Math.random() < .25 ? "pandan" : "kangkung") : "kangkung";
+              empty.progress = 0;
+              worker.task = null;
+            } else worker.task = null;
+          } else if (worker.task === "deliver" && worker.carry) {
+            var crop = worker.carry;
+            if (state.shelf[crop] < getShelfCapacity()) {
+              state.shelf[crop] += 1;
+              state.totalStocked += 1;
+              worker.carry = null;
+            }
+            worker.task = null;
+          }
+        }
+        if (worker.id === "stocker") {
+          if (worker.task === "collect") {
+            if (state.coop.eggReady > 0) {
+              state.coop.eggReady -= 1;
+              worker.carry = "eggs";
+              state.totalEggs += 1;
+              worker.task = "deliver";
+            } else worker.task = null;
+          } else if (worker.task === "deliver" && worker.carry === "eggs") {
+            if (state.shelf.eggs < getShelfCapacity()) {
+              state.shelf.eggs += 1;
+              state.totalStocked += 1;
+              worker.carry = null;
+            }
+            worker.task = null;
+          }
+        }
+      }
+
+      function updateWorkers(dt) {
+        workerList().forEach(function (worker) {
+          worker.bob += dt * 4;
+          if (!state.workers[worker.id]) return;
+          if (worker.id === "cashier") {
+            worker.x = 823;
+            worker.y = 424 + Math.sin(worker.bob) * 2;
+            var queue = queueCustomers();
+            if (queue.length && state.unlocked.warung) {}
+            worker.cashTimer = (worker.cashTimer || 0) + dt;
+            if (queue.length && worker.cashTimer > getCheckoutDelay()) {
+              payCustomer(queue[0], true);
+              worker.cashTimer = 0;
+            }
+            return;
+          }
+          if (!worker.task) {
+            if (worker.carry) {
+              worker.task = "deliver";
+            } else if (worker.id === "gardener") {
+              var ready = findReadyPlot();
+              if (ready) {
+                worker.task = "harvest";
+                worker.targetId = ready.id;
+              } else {
+                var empty = findEmptyPlantablePlot();
+                if (empty) { worker.task = "plant"; worker.targetId = empty.id; }
+              }
+            } else if (worker.id === "stocker" && state.coop.eggReady > 0 && state.shelf.eggs < getShelfCapacity()) {
+              worker.task = "collect";
+            }
+          }
+          var target = null;
+          if (worker.task === "harvest" || worker.task === "plant") {
+            var targetPlot = state.plots.find(function (plot) { return plot.id === worker.targetId; });
+            target = targetPlot ? { x: targetPlot.x + 5, y: targetPlot.y + 28 } : null;
+          } else if (worker.task === "deliver") {
+            target = worker.id === "stocker" ? { x: ZONE.chiller.x, y: ZONE.chiller.y } : { x: ZONE.rack.x, y: ZONE.rack.y };
+          } else if (worker.task === "collect") {
+            target = { x: ZONE.coop.x, y: ZONE.coop.y };
+          }
+          if (target && moveEntity(worker, target, 60, dt)) performWorkerTask(worker);
+          if (!target) {
+            var home = worker.id === "gardener" ? { x: 355, y: 478 } : { x: 485, y: 505 };
+            moveEntity(worker, home, 35, dt);
+          }
+        });
+      }
+
+      function payCustomer(customer, automatic) {
+        if (!customer || (customer.state !== "queue" && customer.state !== "checkout")) return false;
+        var queue = queueCustomers();
+        if (!automatic && queue[0] !== customer) {
+          addToast("Serve the front customer first", 300);
+          return false;
+        }
+        var price = PRODUCT[customer.item || customer.want].price;
+        state.money += price;
+        state.totalSales += 1;
+        state.happyCustomers += 1;
+        state.reputation = Math.min(5, state.reputation + .05);
+        customer.state = "leaving";
+        customer.mood = "😊";
+        customer.wait = 0;
+        addParticles(customer.x, customer.y - 28, "+" + fmtMoney(price), "#bf771d");
+        addToast((automatic ? "Cashier handled it" : "Sale complete") + " · +" + fmtMoney(price), 720);
+        playTone(760, .13, "triangle");
+        checkObjectives();
+        saveGame();
+        return true;
+      }
+
+      function getContext() {
+        var player = state.player;
+        var plot = null;
+        var plotDistance = Infinity;
+        state.plots.forEach(function (item) {
+          var d = distance(player, item);
+          if (d < plotDistance) { plot = item; plotDistance = d; }
+        });
+        if (plot && plotDistance < 62) {
+          var status = cropStatus(plot);
+          if (status === "ready" && player.carrying.length < getCapacity()) {
+            return { key: "plot-" + plot.id, type: "harvest", icon: PRODUCT[plot.crop].icon, title: "Ready to harvest", copy: PRODUCT[plot.crop].label + " is looking fresh. Pick it up for your basket.", label: "Harvest " + PRODUCT[plot.crop].label, auto: true, fn: function () { harvestPlot(plot); } };
+          }
+          if (status === "empty") {
+            var selected = PRODUCT[state.selectedSeed];
+            return { key: "plot-" + plot.id + "-empty", type: "plant", icon: selected.icon, title: "Plant a crop", copy: "Choose a seed below, then plant this plot for a new harvest.", label: "Plant " + selected.label, fn: function () { plantPlot(plot); } };
+          }
+          if (status === "growing") {
+            var percent = Math.round(plot.progress * 100);
+            return { key: "plot-" + plot.id + "-growing", type: "growing", icon: "🌱", title: "Growing nicely", copy: PRODUCT[plot.crop].label + " is at " + percent + "%. " + (state.weather === "rain" ? "The rain is helping." : "A little patience.") , label: "Growing…" };
+          }
+        }
+        if (distance(player, ZONE.coop) < ZONE.coop.r && state.unlocked.coop) {
+          if (state.coop.eggReady > 0 && player.carrying.length < getCapacity()) {
+            return { key: "coop-collect", type: "collectEgg", icon: "🥚", title: "Eggs are ready", copy: state.coop.eggReady + " egg" + (state.coop.eggReady > 1 ? "s" : "") + " can go to the chiller.", label: "Collect eggs", auto: true, fn: collectEggs };
+          }
+          if (state.coop.fedUntil < elapsed + 5) {
+            return { key: "coop-feed", type: "feed", icon: "🐔", title: "Feed the chickens", copy: "A small RM 2 feed keeps the Reban Ayam producing eggs.", label: "Feed · RM 2", fn: feedChickens };
+          }
+          return { key: "coop-wait", type: "coop", icon: "🐔", title: "Reban Ayam", copy: "Happy chickens are pecking around. Eggs will appear after feeding.", label: "Chickens are busy" };
+        }
+        if (distance(player, ZONE.rack) < ZONE.rack.r) {
+          var rawCarry = player.carrying.filter(function (item) { return item !== "eggs" && item !== "nasi"; });
+          if (rawCarry.length) {
+            return { key: "rack-stock", type: "stockRack", icon: "🧺", title: "Produce rack", copy: "Unload your fresh harvest here. Shelf capacity: " + getShelfCapacity() + " each.", label: "Stock produce", auto: true, fn: stockRack };
+          }
+          var rackSummary = ["kangkung", "chili", "pandan"].filter(function (item) { return state.shelf[item] > 0; }).map(function (item) { return PRODUCT[item].icon + " " + state.shelf[item]; }).join("  ");
+          return { key: "rack-view", type: "rack", icon: "🛒", title: "Produce rack", copy: rackSummary || "Empty shelves invite a quick harvest.", label: "Rack " + (rackSummary || "empty") };
+        }
+        if (distance(player, ZONE.chiller) < ZONE.chiller.r) {
+          if (player.carrying.indexOf("eggs") !== -1) {
+            return { key: "chiller-stock", type: "stockEggs", icon: "🥚", title: "Egg chiller", copy: "Keep the eggs cool for the Warung Corner.", label: "Stock eggs", auto: true, fn: stockEggs };
+          }
+          return { key: "chiller-view", type: "chiller", icon: "🧊", title: "Egg chiller", copy: state.shelf.eggs + " egg" + (state.shelf.eggs === 1 ? "" : "s") + " chilled and ready for nasi lemak.", label: "Chiller · " + state.shelf.eggs + " eggs" };
+        }
+        if (distance(player, ZONE.warung) < ZONE.warung.r && state.unlocked.warung) {
+          if (player.carrying.indexOf("nasi") !== -1) {
+            return { key: "warung-stock", type: "stockMeal", icon: "🍱", title: "Warung Corner", copy: "Put your bungkus on the serving shelf for customers.", label: "Stock nasi lemak", auto: true, fn: stockMeals };
+          }
+          if (state.shelf.eggs > 0 && state.shelf.pandan > 0 && player.carrying.length < getCapacity()) {
+            return { key: "warung-cook", type: "cook", icon: "🍚", title: "Warung Corner", copy: "Egg + pandan + supplied rice, sambal and packaging = one nasi lemak bungkus · prep RM 5.", label: "Prepare nasi lemak", auto: true, fn: cookMeal };
+          }
+          return { key: "warung-view", type: "warung", icon: "🍚", title: "Warung Corner", copy: "Needs 1 chilled egg and 1 pandan on the produce rack. Meals on shelf: " + state.shelf.nasi + ".", label: "Warung · " + state.shelf.nasi + " meals" };
+        }
+        if (distance(player, ZONE.checkout) < ZONE.checkout.r) {
+          var queue = queueCustomers();
+          if (queue.length) {
+            var first = queue[0];
+            return { key: "checkout-" + first.id, type: "checkout", icon: "🧾", title: "Kaunter · " + queue.length + " waiting", copy: "The front customer wants " + PRODUCT[first.item || first.want].label + ".", label: "Take payment", fn: function () { payCustomer(first, false); } };
+          }
+          return { key: "checkout-empty", type: "checkout", icon: "🧾", title: "Checkout counter", copy: "Customers will queue here after picking something from the displays.", label: "Waiting for customers" };
+        }
+        return { key: "walk", type: "walk", icon: "🧭", title: "Ready when you are", copy: "Walk toward a glowing plot, station or counter. Your next goal is shown above.", label: "Explore the kedai" };
+      }
+
+      function harvestPlot(plot) {
+        if (!plot || cropStatus(plot) !== "ready") return;
+        if (state.player.carrying.length >= getCapacity()) {
+          addToast("Basket full · stock it at the produce rack", 300);
+          return;
+        }
+        var crop = plot.crop;
+        state.player.carrying.push(crop);
+        plot.crop = null;
+        plot.progress = 0;
+        state.totalHarvests += 1;
+        addParticles(plot.x, plot.y - 25, "+" + PRODUCT[crop].label, PRODUCT[crop].color);
+        addToast(PRODUCT[crop].icon + " Fresh " + PRODUCT[crop].label + " in your basket", 560);
+        playTone(610, .1, "triangle");
+        checkObjectives();
+        saveGame();
+      }
+
+      function plantPlot(plot) {
+        if (!plot || cropStatus(plot) !== "empty") return;
+        var crop = state.selectedSeed;
+        if (crop === "pandan" && !state.unlocked.warung) {
+          addToast("Pandan unlocks with the Warung Corner", 300);
+          return;
+        }
+        plot.crop = crop;
+        plot.progress = 0;
+        addToast(PRODUCT[crop].icon + " Planted " + PRODUCT[crop].label, 440);
+        playTone(380, .08, "sine");
+        saveGame();
+      }
+
+      function stockRack() {
+        var before = state.player.carrying.length;
+        var remaining = [];
+        state.player.carrying.forEach(function (item) {
+          if (item === "eggs" || item === "nasi") { remaining.push(item); return; }
+          if (state.shelf[item] < getShelfCapacity()) {
+            state.shelf[item] += 1;
+            state.totalStocked += 1;
+          } else remaining.push(item);
+        });
+        state.player.carrying = remaining;
+        var moved = before - remaining.length;
+        if (moved) {
+          addToast("Rack stocked · " + moved + " fresh item" + (moved > 1 ? "s" : ""), 650);
+          playTone(520, .1, "triangle");
+          checkObjectives();
+          saveGame();
+        } else addToast("That shelf is full or this basket belongs at another station", 300);
+      }
+
+      function collectEggs() {
+        while (state.coop.eggReady > 0 && state.player.carrying.length < getCapacity()) {
+          state.coop.eggReady -= 1;
+          state.player.carrying.push("eggs");
+          state.totalEggs += 1;
+        }
+        addToast("🥚 Eggs collected · chill them before cooking", 560);
+        playTone(640, .1, "sine");
+        checkObjectives();
+        saveGame();
+      }
+
+      function feedChickens() {
+        if (state.money < 2) {
+          addToast("You need RM 2 for chicken feed", 280);
+          return;
+        }
+        state.money -= 2;
+        state.coop.fedUntil = elapsed + (state.debugFast ? 70 : 38);
+        addToast("🐔 Chickens fed · eggs on the way", 450);
+        playTone(350, .09, "sine");
+        saveGame();
+      }
+
+      function stockEggs() {
+        var moved = 0;
+        var remaining = [];
+        state.player.carrying.forEach(function (item) {
+          if (item === "eggs" && state.shelf.eggs < getShelfCapacity()) {
+            state.shelf.eggs += 1;
+            state.totalStocked += 1;
+            moved += 1;
+          } else remaining.push(item);
+        });
+        state.player.carrying = remaining;
+        if (moved) {
+          addToast("🥚 " + moved + " egg" + (moved > 1 ? "s" : "") + " chilled", 650);
+          playTone(680, .1, "triangle");
+          checkObjectives();
+          saveGame();
+        } else addToast("The chiller is full", 300);
+      }
+
+      function cookMeal() {
+        if (state.shelf.eggs < 1 || state.shelf.pandan < 1) {
+          addToast("Need 1 chilled egg and 1 pandan", 300);
+          return;
+        }
+        if (state.money < 5) {
+          addToast("The supplied rice, sambal and packaging cost RM 5", 300);
+          return;
+        }
+        if (state.player.carrying.length >= getCapacity()) {
+          addToast("Basket full · make room for the bungkus", 300);
+          return;
+        }
+        state.money -= 5;
+        state.shelf.eggs -= 1;
+        state.shelf.pandan -= 1;
+        state.player.carrying.push("nasi");
+        state.totalMeals += 1;
+        addParticles(ZONE.warung.x, ZONE.warung.y - 25, "Nasi lemak!", "#d85b43");
+        addToast("🍱 Nasi lemak bungkus ready for the shelf", 690);
+        playTone(520, .12, "triangle");
+        checkObjectives();
+        saveGame();
+      }
+
+      function stockMeals() {
+        var moved = 0;
+        var remaining = [];
+        state.player.carrying.forEach(function (item) {
+          if (item === "nasi" && state.shelf.nasi < getShelfCapacity()) {
+            state.shelf.nasi += 1;
+            state.totalStocked += 1;
+            moved += 1;
+          } else remaining.push(item);
+        });
+        state.player.carrying = remaining;
+        if (moved) {
+          addToast("🍱 Warung shelf stocked · " + moved + " bungkus", 650);
+          playTone(610, .1, "triangle");
+          checkObjectives();
+          saveGame();
+        } else addToast("The Warung shelf is full", 300);
+      }
+
+      function interact() {
+        if (!active || state.paused) return;
+        var action = getContext();
+        if (action && action.fn) {
+          action.fn();
+          updateAllUI();
+        } else playTone(240, .04, "sine");
+      }
+
+      function updateAutoInteraction(dt) {
+        var action = getContext();
+        var auto = action && action.auto && action.fn;
+        if (!auto) {
+          lastAutoKey = "";
+          autoClock = 0;
+          return;
+        }
+        if (lastAutoKey !== action.key) {
+          lastAutoKey = action.key;
+          autoClock = 0;
+        }
+        autoClock += dt;
+        if (autoClock > .72) {
+          action.fn();
+          autoClock = 0;
+          lastAutoKey = "";
+        }
+      }
+
+      function checkObjectives() {
+        OBJECTIVES.forEach(function (objective) {
+          if (objective.check() && !state.objectiveRewards[objective.id]) {
+            state.objectiveRewards[objective.id] = true;
+            state.money += objective.reward;
+            addToast("Goal complete · " + objective.text + " · +" + fmtMoney(objective.reward), 820);
+            addParticles(490, 100, "+" + fmtMoney(objective.reward), "#b7791f");
+          }
+        });
+        if (!state.celebrated && state.mainComplete) {
+          state.celebrated = true;
+          showCelebration();
+          saveGame();
+        }
+      }
+
+      function updateGame(dt) {
+        if (!state || state.paused) return;
+        elapsed += dt;
+        updateDay(dt);
+        updateWeather(dt);
+        updatePlots(dt);
+        updatePlayer(dt);
+        updateAutoInteraction(dt);
+        if (state.unlocked.coop) {
+          if (state.coop.fedUntil > elapsed) {
+            state.coop.eggTimer += dt * (state.debugFast ? 2.4 : 1);
+            if (state.coop.eggTimer > (state.debugFast ? 4 : 13) && state.coop.eggReady < 4) {
+              state.coop.eggTimer = 0;
+              state.coop.eggReady += 1;
+              addParticles(ZONE.coop.x, ZONE.coop.y - 32, "🥚", "#e6bd54");
+              playTone(550, .07, "sine");
+            }
+          }
+        }
+        updateCustomersSpawner(dt);
+        updateCustomers(dt);
+        updateWorkers(dt);
+        updateParticles(dt);
+        uiClock += dt;
+        saveClock += dt;
+        if (uiClock > .16) {
+          updateAllUI();
+          uiClock = 0;
+        }
+        if (saveClock > 10) {
+          saveGame();
+          saveClock = 0;
+        }
+        checkObjectives();
+      }
+
+      function updateAllUI() {
+        if (!state) return;
+        $("#money-value").textContent = fmtMoney(state.money);
+        $("#day-value").textContent = "Day " + state.day;
+        $("#weather-icon").textContent = state.weather === "rain" ? "🌧️" : "☀️";
+        $("#weather-value").textContent = state.weather === "rain" ? "Rain " + Math.ceil(state.weatherLeft) + "s" : "Sunny";
+        $("#carry-value").textContent = state.player.carrying.length + " / " + getCapacity();
+        $("#reputation-value").textContent = "★ " + state.reputation.toFixed(1);
+        renderObjectives();
+        renderContext();
+        renderBasket();
+        $all(".seed-btn").forEach(function (button) {
+          var seed = button.dataset.seed;
+          button.classList.toggle("selected", seed === state.selectedSeed);
+          if (seed === "pandan") {
+            button.disabled = !state.unlocked.warung;
+            button.textContent = state.unlocked.warung ? "🌿 Pandan" : "🌿 Pandan · locked";
+          }
+        });
+      }
+
+      function renderObjectives() {
+        var list = $("#objective-list");
+        list.innerHTML = "";
+        var doneCount = 0;
+        OBJECTIVES.forEach(function (objective) {
+          var done = objective.check();
+          if (done) doneCount += 1;
+          var row = document.createElement("div");
+          row.className = "objective" + (done ? " done" : "");
+          row.innerHTML = "<span class='objective-icon'>" + (done ? "✓" : "") + "</span><span>" + objective.text + "</span>";
+          list.appendChild(row);
+        });
+        var counter = $("#objective-count");
+        if (counter) counter.textContent = doneCount + " / " + OBJECTIVES.length + " milestones";
+      }
+
+      function renderContext() {
+        var action = getContext();
+        currentAction = action;
+        $("#context-icon").textContent = action.icon || "🧭";
+        $("#context-title").textContent = action.title;
+        $("#context-copy").textContent = action.copy;
+        var button = $("#context-btn");
+        button.textContent = action.label;
+        button.disabled = !action.fn;
+        $("#action-btn").textContent = action.fn ? action.label : "Walk to an action";
+        $("#action-btn").disabled = !action.fn;
+      }
+
+      function renderBasket() {
+        var items = state.player.carrying;
+        var count = $("#basket-count");
+        count.innerHTML = items.length ? items.length + " item" + (items.length > 1 ? "s" : "") + " <small>/ " + getCapacity() + " slots</small>" : "Empty <small>/ " + getCapacity() + " slots</small>";
+        var bucket = $("#basket-items");
+        bucket.innerHTML = "";
+        var counts = {};
+        items.forEach(function (item) { counts[item] = (counts[item] || 0) + 1; });
+        Object.keys(counts).forEach(function (item) {
+          var badge = document.createElement("span");
+          badge.className = "mini-item";
+          badge.textContent = PRODUCT[item].icon + " " + counts[item];
+          bucket.appendChild(badge);
+        });
+      }
+
+      function showGuide() {
+        var steps = [
+          { icon: "🥬", title: "Welcome to your kedai", copy: "Your first kangkung is almost ready. Move the little shopkeeper to a leafy plot, then tap Use or press E to harvest.", button: "Let’s harvest" },
+          { icon: "🧺", title: "From kebun to rack", copy: "Carry the harvest to the produce rack inside the shop. The rack is where customers can see and buy your produce.", button: "Stock the shelf" },
+          { icon: "🧾", title: "Keep the counter moving", copy: "Customers walk to a display, then queue at the Kaunter. Stand near the checkout and take payment. Your first upgrade is only a sale away.", button: "Open the kedai" }
+        ];
+        var step = Math.min(state.tutorial.step, steps.length - 1);
+        var item = steps[step];
+        var buttonLabel = step < steps.length - 1 ? steps[step].button : "Start the kedai";
+        modalLayer.innerHTML = "<div class='guide-card'><div class='guide-illustration'>" + item.icon + "</div><div class='guide-step'>WELCOME · " + (step + 1) + " / " + steps.length + "</div><h2>" + item.title + "</h2><p>" + item.copy + "</p><button id='guide-next' class='primary-btn'>" + buttonLabel + "</button></div>";
+        modalLayer.classList.remove("hidden");
+        $("#guide-next").addEventListener("click", function () {
+          state.tutorial.step += 1;
+          if (state.tutorial.step >= steps.length) {
+            state.tutorial.dismissed = true;
+            modalLayer.classList.add("hidden");
+          } else {
+            showGuide();
+          }
+          saveGame();
+        });
+      }
+
+      function showHelp() {
+        modalLayer.innerHTML = "<div class='modal'><div class='modal-head'><div><h2>How to play</h2><p>A tiny loop with a big neighbourhood heart.</p></div><button class='modal-close' data-close>×</button></div><div class='modal-body'><div class='setting-row'><div><strong>Move</strong><small>WASD / arrow keys, or drag the green joystick.</small></div><span>🕹️</span></div><div class='setting-row'><div><strong>Interact</strong><small>Stand near a ready plot or station, then press E / Use. Some unloading actions happen automatically when you approach.</small></div><span>👋</span></div><div class='setting-row'><div><strong>Production loop</strong><small>Grow produce → harvest → stock displays → let customers shop → take payment at the Kaunter.</small></div><span>🔁</span></div><div class='setting-row'><div><strong>Next milestones</strong><small>Manage opens upgrades, workers and expansions. Reban Ayam unlocks eggs; Warung Corner turns eggs + pandan into nasi lemak.</small></div><span>⭐</span></div><button class='primary-btn' style='width:100%;margin-top:15px' data-close>Back to the kedai</button></div></div>";
+        modalLayer.classList.remove("hidden");
+        bindModalClose();
+      }
+
+      function openManage(tab) {
+        modalTab = tab || "upgrades";
+        currentModal = "manage";
+        renderManageModal();
+      }
+
+      function priceFor(id) {
+        var level = state.upgrades[id] || 0;
+        var base = { growth: 78, capacity: 64, movement: 72, shelf: 98, checkout: 115, arrival: 128, appearance: 135 }[id] || 100;
+        return Math.round(base * (1 + level * .62));
+      }
+
+      function upgradeCard(id, icon, title, copy, max) {
+        var level = state.upgrades[id];
+        var maxed = level >= max;
+        var cost = priceFor(id);
+        var buttonText = maxed ? "Maxed · " + level + "/" + max : "Upgrade · " + fmtMoney(cost);
+        return "<article class='manage-card'><div class='manage-icon'>" + icon + "</div><h3>" + title + " <span style='color:#a1681c'>Lv " + level + "</span></h3><p>" + copy + "</p><button class='buy-btn' data-buy-upgrade='" + id + "' " + (maxed || state.money < cost ? "disabled" : "") + ">" + buttonText + "</button></article>";
+      }
+
+      function workerCard(id, icon, title, copy, cost, requirement) {
+        var hired = state.workers[id];
+        var allowed = !requirement || state.unlocked[requirement];
+        return "<article class='manage-card " + (!allowed ? "locked" : "") + "'><div class='manage-icon'>" + icon + "</div><h3>" + title + "</h3><p>" + copy + (requirement && !allowed ? "<br><br>Unlock " + (requirement === "coop" ? "Reban Ayam" : "Warung Corner") + " first." : "") + "</p><button class='buy-btn' data-hire='" + id + "' " + (hired || !allowed || state.money < cost ? "disabled" : "") + ">" + (hired ? "On duty ✓" : allowed ? "Hire · " + fmtMoney(cost) : "Locked") + "</button></article>";
+      }
+
+      function expansionCard(id, icon, title, copy, cost, requirement) {
+        var unlocked = state.unlocked[id];
+        var teamReady = state.workers.gardener && state.workers.stocker && state.workers.cashier;
+        var allowed = (!requirement || state.unlocked[requirement]) && (id !== "miniMart" || teamReady);
+        var complete = id === "miniMart" && state.mainComplete;
+        var label = complete ? "Open and thriving ✓" : unlocked ? "Open ✓" : allowed ? "Open · " + fmtMoney(cost) : "Locked";
+        var lockedCopy = id === "miniMart" ? "Requires Warung Corner and all three helpers." : "Requires " + (requirement === "coop" ? "Reban Ayam" : "Warung Corner") + ".";
+        return "<article class='manage-card " + (!allowed ? "locked" : "") + "'><div class='manage-icon'>" + icon + "</div><h3>" + title + "</h3><p>" + copy + (!allowed ? "<br><br>" + lockedCopy : "") + "</p><button class='buy-btn' data-expansion='" + id + "' " + (unlocked || !allowed || state.money < cost ? "disabled" : "") + ">" + label + "</button></article>";
+      }
+
+      function renderManageModal() {
+        var heading = modalTab === "staff" ? "Your team" : modalTab === "expansions" ? "Grow the place" : "Kedai upgrades";
+        var sub = modalTab === "staff" ? "Helpers visibly work around the map." : modalTab === "expansions" ? "Unlock new ways to serve your neighbours." : "Spend Ringgit on changes you can feel.";
+        var body = "";
+        if (modalTab === "upgrades") {
+          body = "<div class='card-grid'>" +
+            upgradeCard("growth", "🌱", "Quicker crops", "Rain, good soil and a little care make every plot grow faster.", 3) +
+            upgradeCard("capacity", "🧺", "Bigger basket", "Carry more before making a trip back to the shop.", 3) +
+            upgradeCard("movement", "👟", "Lighter steps", "Move more quickly between kebun, shelves and kaunter.", 3) +
+            upgradeCard("shelf", "🛒", "Shelf space", "Fit more of each product on every display.", 3) +
+            upgradeCard("checkout", "🧾", "Snappy checkout", "Shorten the queue and give the cashier more rhythm.", 3) +
+            upgradeCard("arrival", "🚶", "Street buzz", "Invite customers more often as your reputation grows.", 2) +
+            upgradeCard("appearance", "🎨", "Fresh paint", "Add awnings, plants and a brighter kedai look.", 3) +
+            "</div>";
+        } else if (modalTab === "staff") {
+          body = "<div class='card-grid'>" +
+            workerCard("gardener", "🧑‍🌾", "Gardener", "Tends ready plots and moves harvested produce to the rack.", 180, null) +
+            workerCard("stocker", "🧑‍🔧", "Stocker", "Collects eggs from the Reban Ayam and keeps the chiller cool.", 220, "coop") +
+            workerCard("cashier", "🧑‍💼", "Cashier", "Stands at the Kaunter and automatically processes waiting customers.", 260, "warung") +
+            "</div>";
+        } else {
+          body = "<div class='card-grid'>" +
+            expansionCard("coop", "🐔", "Reban Ayam", "A cosy coop that produces eggs after the chickens are fed. Includes the egg chiller.", 180, null) +
+            expansionCard("warung", "🍱", "Warung Corner", "Turn a chilled egg and pandan into nasi lemak bungkus with supplied base ingredients.", 300, "coop") +
+            expansionCard("miniMart", "🏪", "Full mini-mart", "A bigger, fully staffed shop with endless neighbourhood trade.", 600, "warung") +
+            "</div><p style='margin:14px 0 0;color:#80978a;font-size:.7rem;line-height:1.4'>The mini-mart celebration appears when the Warung is open, all three helpers are on duty and you have RM 600 ready for the expansion.</p>";
+        }
+        modalLayer.innerHTML = "<div class='modal'><div class='modal-head'><div><h2>" + heading + "</h2><p>" + sub + "</p></div><button class='modal-close' data-close>×</button></div><div class='modal-body'><div class='modal-tabs'><button class='modal-tab " + (modalTab === "upgrades" ? "active" : "") + "' data-tab='upgrades'>Upgrades</button><button class='modal-tab " + (modalTab === "staff" ? "active" : "") + "' data-tab='staff'>Staff</button><button class='modal-tab " + (modalTab === "expansions" ? "active" : "") + "' data-tab='expansions'>Expansions</button></div>" + body + "</div></div>";
+        modalLayer.classList.remove("hidden");
+        bindModalClose();
+        $all("[data-tab]").forEach(function (button) { button.addEventListener("click", function () { openManage(button.dataset.tab); }); });
+        $all("[data-buy-upgrade]").forEach(function (button) { button.addEventListener("click", function () { buyUpgrade(button.dataset.buyUpgrade); }); });
+        $all("[data-hire]").forEach(function (button) { button.addEventListener("click", function () { hireWorker(button.dataset.hire); }); });
+        $all("[data-expansion]").forEach(function (button) { button.addEventListener("click", function () { buyExpansion(button.dataset.expansion); }); });
+      }
+
+      function buyUpgrade(id) {
+        var cost = priceFor(id);
+        if (state.money < cost || state.upgrades[id] >= (id === "arrival" ? 2 : 3)) return;
+        state.money -= cost;
+        state.upgrades[id] += 1;
+        addToast("Upgrade installed · " + id, 620);
+        playTone(700, .12, "triangle");
+        renderManageModal();
+        updateAllUI();
+        saveGame();
+      }
+
+      function hireWorker(id) {
+        var prices = { gardener: 180, stocker: 220, cashier: 260 };
+        var requirement = { gardener: null, stocker: "coop", cashier: "warung" };
+        if (state.workers[id] || (requirement[id] && !state.unlocked[requirement[id]]) || state.money < prices[id]) return;
+        state.money -= prices[id];
+        state.workers[id] = true;
+        initWorkerEntities();
+        addToast("Welcome aboard · " + ({ gardener: "Gardener", stocker: "Stocker", cashier: "Cashier" }[id]), 690);
+        playTone(560, .15, "triangle");
+        checkObjectives();
+        renderManageModal();
+        updateAllUI();
+        saveGame();
+      }
+
+      function buyExpansion(id) {
+        var cost = { coop: 180, warung: 300, miniMart: 600 }[id];
+        var requirement = { coop: null, warung: "coop", miniMart: "warung" }[id];
+        if (id === "miniMart" && !(state.workers.gardener && state.workers.stocker && state.workers.cashier)) {
+          addToast("Hire the Gardener, Stocker and Cashier first", 300);
+          return;
+        }
+        if (state.unlocked[id] || (requirement && !state.unlocked[requirement]) || state.money < cost) return;
+        state.money -= cost;
+        state.unlocked[id] = true;
+        if (id === "warung" && !state.plots.some(function (plot) { return plot.crop === "pandan" || plot.id === 5; })) {
+          state.plots.push({ id: 5, x: 349, y: 335, crop: "pandan", progress: .16 });
+        }
+        if (id === "miniMart") {
+          state.mainComplete = true;
+          state.unlocked.miniMart = true;
+        }
+        addToast((id === "coop" ? "🐔 Reban Ayam is open!" : id === "warung" ? "🍱 Warung Corner is open!" : "🏪 The mini-mart is ready!"), 820);
+        playTone(820, .18, "triangle");
+        renderManageModal();
+        updateAllUI();
+        checkObjectives();
+        saveGame();
+      }
+
+      function showCelebration() {
+        modalLayer.innerHTML = "<div class='celebrate'><div class='celebrate-top'><div class='big'>🎉 🏪 🌿</div><h2>Kedai Kita is now a mini-mart!</h2><p>Your little roadside shop is a real community stop. The main milestones are complete.</p></div><div class='celebrate-bottom'><p style='margin:0 0 14px;color:#6d8175;font-size:.78rem;line-height:1.4'>Keep planting, keep serving, and see how long you can keep the neighbourhood smiling. Endless mode is now open.</p><button class='primary-btn' style='width:100%' data-close>Keep playing</button></div></div>";
+        modalLayer.classList.remove("hidden");
+        bindModalClose();
+        addParticles(500, 120, "⭐ Endless mode", "#d78d24");
+      }
+
+      function showPause() {
+        state.paused = true;
+        modalLayer.innerHTML = "<div class='modal'><div class='modal-head'><div><h2>Paused</h2><p>Your kedai is taking a little breath.</p></div><button class='modal-close' data-close>×</button></div><div class='modal-body'><button id='resume-btn' class='primary-btn' style='width:100%;margin-bottom:9px'>Resume the day</button><button id='pause-settings' class='secondary-btn' style='width:100%;margin-bottom:9px'>Sound & settings</button><button id='erase-btn' class='danger-btn' style='width:100%'>Restart / erase save</button></div></div>";
+        modalLayer.classList.remove("hidden");
+        bindModalClose(function () { state.paused = false; });
+        $("#resume-btn").addEventListener("click", closeModal);
+        $("#pause-settings").addEventListener("click", showSettings);
+        $("#erase-btn").addEventListener("click", confirmErase);
+      }
+
+      function showSettings() {
+        modalLayer.innerHTML = "<div class='modal'><div class='modal-head'><div><h2>Settings</h2><p>Make the kedai comfortable for your play style.</p></div><button class='modal-close' data-close>×</button></div><div class='modal-body'><div class='setting-row'><div><strong>Sound effects</strong><small>Harvests, sales and little shop sounds.</small></div><button class='toggle " + (state.settings.sound ? "on" : "") + "' data-setting='sound' aria-label='Toggle sound'></button></div><div class='setting-row'><div><strong>Music</strong><small>A soft offline loop in the background.</small></div><button class='toggle " + (state.settings.music ? "on" : "") + "' data-setting='music' aria-label='Toggle music'></button></div><div class='setting-row'><div><strong>Reduced motion</strong><small>Calmer rain, particles and character movement.</small></div><button class='toggle " + (state.settings.reducedMotion ? "on" : "") + "' data-setting='reducedMotion' aria-label='Toggle reduced motion'></button></div><button class='primary-btn' style='width:100%;margin-top:15px' data-close>Done</button></div></div>";
+        modalLayer.classList.remove("hidden");
+        bindModalClose();
+        $all("[data-setting]").forEach(function (button) {
+          button.addEventListener("click", function () {
+            var key = button.dataset.setting;
+            state.settings[key] = !state.settings[key];
+            if (key === "music") updateMusic();
+            playTone(430, .06, "sine");
+            showSettings();
+            saveGame();
+          });
+        });
+      }
+
+      function confirmErase() {
+        modalLayer.innerHTML = "<div class='modal'><div class='modal-head'><div><h2>Start over?</h2><p>This clears the saved kedai on this device.</p></div><button class='modal-close' data-close>×</button></div><div class='confirm-copy'>Your Ringgit, upgrades, workers and expansions will be erased. A fresh shop starts with the original onboarding.</div><div class='confirm-actions'><button class='secondary-btn' data-close>Keep save</button><button id='confirm-erase' class='danger-btn'>Erase and restart</button></div></div>";
+        modalLayer.classList.remove("hidden");
+        bindModalClose();
+        $("#confirm-erase").addEventListener("click", function () {
+          try { localStorage.removeItem(SAVE_KEY); } catch (error) {}
+          resetState();
+          modalLayer.classList.add("hidden");
+          showTitle();
+          addToast("Fresh start ready");
+        });
+      }
+
+      function closeModal() {
+        modalLayer.classList.add("hidden");
+        modalLayer.innerHTML = "";
+        currentModal = "";
+        if (state) state.paused = false;
+      }
+
+      function bindModalClose(after) {
+        $all("[data-close], .modal-close").forEach(function (button) {
+          button.addEventListener("click", function () {
+            closeModal();
+            if (after) after();
+          });
+        });
+      }
+
+      function updateDebugStatus(text) {
+        if (isDebug) $("#debug-status").textContent = text;
+      }
+
+      function debugAction(action) {
+        if (!state || !isDebug) return;
+        if (action === "money") {
+          state.money += 500;
+          addToast("Debug: +RM 500", 820);
+          updateDebugStatus("Money added");
+        } else if (action === "speed") {
+          state.debugFast = !state.debugFast;
+          addToast(state.debugFast ? "Debug: production speed x4" : "Debug: production speed normal", 500);
+          updateDebugStatus("Fast production: " + (state.debugFast ? "ON" : "OFF"));
+        } else if (action === "rain") {
+          startRain();
+          updateDebugStatus("Rain started");
+        } else if (action === "unlock") {
+          state.unlocked.coop = true;
+          state.unlocked.warung = true;
+          state.unlocked.miniMart = true;
+          state.mainComplete = true;
+          state.workers.gardener = true;
+          state.workers.stocker = true;
+          state.workers.cashier = true;
+          if (!state.plots.some(function (plot) { return plot.id === 5; })) state.plots.push({ id: 5, x: 349, y: 335, crop: "pandan", progress: 1 });
+          addToast("Debug: all expansions and workers unlocked", 900);
+          updateDebugStatus("Everything unlocked");
+          initWorkerEntities();
+        } else if (action === "customers") {
+          for (var i = 0; i < 3; i++) spawnCustomer();
+          updateDebugStatus("Three customers added");
+        } else if (action === "reset") {
+          confirmErase();
+          return;
+        }
+        saveGame();
+        updateAllUI();
+      }
+
+      function drawRoundedRect(context, x, y, width, height, radius, fill, stroke, lineWidth) {
+        context.beginPath();
+        context.roundRect ? context.roundRect(x, y, width, height, radius) : roundedPath(context, x, y, width, height, radius);
+        if (fill) { context.fillStyle = fill; context.fill(); }
+        if (stroke) { context.lineWidth = lineWidth || 1; context.strokeStyle = stroke; context.stroke(); }
+      }
+
+      function roundedPath(context, x, y, width, height, radius) {
+        var r = Math.min(radius, width / 2, height / 2);
+        context.moveTo(x + r, y);
+        context.arcTo(x + width, y, x + width, y + height, r);
+        context.arcTo(x + width, y + height, x, y + height, r);
+        context.arcTo(x, y + height, x, y, r);
+        context.arcTo(x, y, x + width, y, r);
+        context.closePath();
+      }
+
+      function drawTileBackground() {
+        var gradient = ctx.createLinearGradient(0, 0, 1000, 640);
+        gradient.addColorStop(0, "#c9e6bc");
+        gradient.addColorStop(.6, "#a7d3aa");
+        gradient.addColorStop(1, "#82bd9d");
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, 1000, 640);
+        ctx.fillStyle = "rgba(255,255,255,.12)";
+        for (var x = -20; x < 1020; x += 46) {
+          for (var y = 80; y < 640; y += 46) {
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + 23, y - 8);
+            ctx.lineTo(x + 46, y);
+            ctx.lineTo(x + 23, y + 8);
+            ctx.closePath();
+            ctx.fill();
+          }
+        }
+        ctx.fillStyle = "#dcb978";
+        ctx.beginPath();
+        ctx.moveTo(0, 525);
+        ctx.lineTo(1000, 470);
+        ctx.lineTo(1000, 640);
+        ctx.lineTo(0, 640);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,248,224,.44)";
+        ctx.fillRect(0, 525, 1000, 7);
+        ctx.fillStyle = "#b4d498";
+        ctx.fillRect(0, 84, 1000, 12);
+      }
+
+      function drawPath(x, y, width, height, color) {
+        ctx.fillStyle = color || "#ead6a2";
+        ctx.beginPath();
+        ctx.moveTo(x, y + 15);
+        ctx.lineTo(x + width - 22, y);
+        ctx.lineTo(x + width, y + 13);
+        ctx.lineTo(x + 22, y + height);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "rgba(117,91,45,.16)";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+
+      function drawTree(x, y, scale) {
+        scale = scale || 1;
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.fillStyle = "rgba(29,82,62,.18)";
+        ctx.beginPath();
+        ctx.ellipse(0, 22 * scale, 25 * scale, 8 * scale, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#8b633f";
+        ctx.fillRect(-4 * scale, 2 * scale, 8 * scale, 24 * scale);
+        ctx.fillStyle = "#317d58";
+        [[-13, 0, 14], [10, -4, 16], [0, -16, 19], [0, 2, 18]].forEach(function (item) {
+          ctx.beginPath();
+          ctx.arc(item[0] * scale, item[1] * scale, item[2] * scale, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.fillStyle = "#55a866";
+        ctx.beginPath();
+        ctx.arc(-7 * scale, -15 * scale, 7 * scale, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawFlower(x, y, color) {
+        ctx.strokeStyle = "#43825b";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(x, y + 9);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        ctx.fillStyle = color;
+        [[-3, 0], [3, 0], [0, -3], [0, 3]].forEach(function (petal) {
+          ctx.beginPath();
+          ctx.arc(x + petal[0], y + petal[1], 3, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.fillStyle = "#f4c349";
+        ctx.beginPath();
+        ctx.arc(x, y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawShop() {
+        ctx.fillStyle = "rgba(28,82,60,.18)";
+        ctx.beginPath();
+        ctx.ellipse(768, 463, 225, 26, 0, 0, Math.PI * 2);
+        ctx.fill();
+        drawRoundedRect(ctx, 564, 158, 353, 292, 16, state.mainComplete ? "#fff1bf" : "#fff4cb", "#205c4b", 4);
+        ctx.fillStyle = state.mainComplete ? "#d95a45" : "#c94f42";
+        ctx.beginPath();
+        ctx.moveTo(548, 167);
+        ctx.lineTo(744, 110);
+        ctx.lineTo(936, 167);
+        ctx.lineTo(915, 194);
+        ctx.lineTo(574, 194);
+        ctx.closePath();
+        ctx.fill();
+        ctx.strokeStyle = "#a4423a";
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        for (var i = 0; i < 7; i++) {
+          ctx.fillStyle = i % 2 === 0 ? "#f6c449" : "#fff4d0";
+          ctx.beginPath();
+          ctx.moveTo(572 + i * 51, 164 - i % 2 * 7);
+          ctx.lineTo(600 + i * 51, 155 - i % 2 * 7);
+          ctx.lineTo(613 + i * 51, 193);
+          ctx.lineTo(584 + i * 51, 193);
+          ctx.closePath();
+          ctx.fill();
+        }
+        ctx.fillStyle = "#fff8e9";
+        ctx.font = "900 22px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(state.mainComplete ? "KEDAI KITA · MINI-MART" : "KEDAI KITA", 744, 148);
+        ctx.fillStyle = "#8ec9bb";
+        drawRoundedRect(ctx, 592, 208, 120, 97, 8, "#8fc8ba", "#205c4b", 3);
+        drawRoundedRect(ctx, 726, 208, 120, 97, 8, "#a8d7c5", "#205c4b", 3);
+        ctx.strokeStyle = "#317664";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(652, 208); ctx.lineTo(652, 305); ctx.moveTo(592, 255); ctx.lineTo(712, 255);
+        ctx.moveTo(786, 208); ctx.lineTo(786, 305); ctx.moveTo(726, 255); ctx.lineTo(846, 255);
+        ctx.stroke();
+        ctx.fillStyle = "#f4be42";
+        drawRoundedRect(ctx, 592, 322, 120, 98, 8, "#f4c14e", "#8e6033", 3);
+        drawRoundedRect(ctx, 726, 322, 120, 98, 8, "#d5edf0", "#4a818b", 3);
+        ctx.fillStyle = "#205c4b";
+        ctx.font = "900 12px system-ui";
+        ctx.fillText("RACK", 652, 218);
+        ctx.fillText("CHILLER", 786, 218);
+        ctx.fillText("WARUNG", 652, 333);
+        ctx.fillText("KAUNTER", 786, 333);
+        ctx.fillStyle = "#7a4e25";
+        for (var r = 0; r < 3; r++) {
+          ctx.fillRect(606, 342 + r * 23, 93, 4);
+          ctx.fillRect(740, 342 + r * 23, 93, 4);
+        }
+        drawShelfItems();
+        ctx.fillStyle = "#d5a056";
+        ctx.fillRect(770, 373, 33, 48);
+        ctx.fillStyle = "#fff5dc";
+        ctx.font = "900 10px system-ui";
+        ctx.fillText("PAY", 786, 400);
+        ctx.fillStyle = "rgba(255,255,255,.7)";
+        ctx.font = "700 10px system-ui";
+        ctx.fillText("Fresh goods · warm neighbours", 744, 438);
+        if (state.upgrades.appearance > 0) {
+          drawFlower(573, 224, "#e96b52");
+          drawFlower(891, 224, "#e96b52");
+          drawFlower(575, 425, "#f3c44b");
+        }
+      }
+
+      function drawShelfItems() {
+        var slots = [
+          { key: "kangkung", x: 612, y: 283 },
+          { key: "chili", x: 659, y: 283 },
+          { key: "pandan", x: 611, y: 365 },
+          { key: "eggs", x: 747, y: 365 },
+          { key: "nasi", x: 794, y: 365 }
+        ];
+        slots.forEach(function (slot) {
+          var count = state.shelf[slot.key] || 0;
+          if (!count) {
+            ctx.fillStyle = "rgba(255,255,255,.4)";
+            ctx.beginPath();
+            ctx.arc(slot.x, slot.y, 11, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            ctx.font = "18px system-ui";
+            ctx.textAlign = "center";
+            ctx.fillText(PRODUCT[slot.key].icon, slot.x, slot.y + 6);
+            ctx.fillStyle = "#205c4b";
+            ctx.font = "900 9px system-ui";
+            ctx.fillText(String(count), slot.x + 13, slot.y - 6);
+          }
+        });
+      }
+
+      function drawCoop() {
+        var locked = !state.unlocked.coop;
+        ctx.fillStyle = "rgba(28,82,60,.15)";
+        ctx.beginPath();
+        ctx.ellipse(169, 518, 78, 17, 0, 0, Math.PI * 2);
+        ctx.fill();
+        drawRoundedRect(ctx, 105, 405, 172, 104, 13, locked ? "#d3d8ba" : "#e7c77b", "#5c623d", 4);
+        ctx.fillStyle = locked ? "#9cae8e" : "#bb6f46";
+        ctx.beginPath();
+        ctx.moveTo(96, 412); ctx.lineTo(191, 366); ctx.lineTo(288, 412); ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = "#75553a"; ctx.lineWidth = 4; ctx.stroke();
+        ctx.fillStyle = "#fff4cd";
+        ctx.font = "900 14px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(locked ? "REBAN AYAM · LOCKED" : "REBAN AYAM", 191, 435);
+        if (locked) {
+          ctx.font = "25px system-ui"; ctx.fillText("🔒", 191, 477);
+        } else {
+          ctx.fillStyle = "#b76743";
+          ctx.fillRect(132, 453, 49, 43);
+          ctx.fillRect(200, 453, 49, 43);
+          ctx.fillStyle = "#f7ebbd";
+          ctx.font = "22px system-ui";
+          ctx.fillText("🐔", 156, 483);
+          ctx.fillText("🐔", 224, 483);
+          if (state.coop.eggReady) {
+            ctx.font = "15px system-ui";
+            ctx.fillText("🥚 ×" + state.coop.eggReady, 191, 520);
+          }
+        }
+      }
+
+      function drawPlots() {
+        state.plots.forEach(function (plot) {
+          ctx.fillStyle = "rgba(39,88,54,.14)";
+          ctx.beginPath();
+          ctx.ellipse(plot.x, plot.y + 29, 39, 9, 0, 0, Math.PI * 2);
+          ctx.fill();
+          drawRoundedRect(ctx, plot.x - 34, plot.y - 15, 68, 49, 10, "#996b43", "#725035", 3);
+          ctx.fillStyle = "#b98b58";
+          ctx.fillRect(plot.x - 26, plot.y + 4, 52, 4);
+          var status = cropStatus(plot);
+          if (status === "empty") {
+            ctx.fillStyle = "#e5d19a";
+            ctx.font = "900 10px system-ui";
+            ctx.textAlign = "center";
+            ctx.fillText("tap to plant", plot.x, plot.y + 22);
+          } else if (status === "growing") {
+            var meta = PRODUCT[plot.crop];
+            var h = 8 + Math.min(22, plot.progress * 26);
+            ctx.strokeStyle = meta.color;
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(plot.x, plot.y + 9);
+            ctx.lineTo(plot.x, plot.y + 9 - h);
+            ctx.stroke();
+            ctx.fillStyle = meta.color;
+            ctx.beginPath();
+            ctx.ellipse(plot.x - 7, plot.y + 5 - h * .6, 8, 4, -.35, 0, Math.PI * 2);
+            ctx.ellipse(plot.x + 7, plot.y + 3 - h * .78, 8, 4, .35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#fff3cf";
+            ctx.font = "800 9px system-ui";
+            ctx.textAlign = "center";
+            ctx.fillText(Math.round(plot.progress * 100) + "%", plot.x, plot.y - 21);
+          } else {
+            var readyMeta = PRODUCT[plot.crop];
+            ctx.strokeStyle = readyMeta.color;
+            ctx.lineWidth = 5;
+            ctx.beginPath();
+            ctx.moveTo(plot.x, plot.y + 12);
+            ctx.lineTo(plot.x - 6, plot.y - 17);
+            ctx.moveTo(plot.x, plot.y + 12);
+            ctx.lineTo(plot.x + 7, plot.y - 19);
+            ctx.stroke();
+            ctx.fillStyle = readyMeta.color;
+            ctx.beginPath();
+            ctx.ellipse(plot.x - 11, plot.y - 9, 12, 5, -.5, 0, Math.PI * 2);
+            ctx.ellipse(plot.x + 10, plot.y - 12, 12, 5, .5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#fff4cf";
+            ctx.font = "900 10px system-ui";
+            ctx.textAlign = "center";
+            ctx.fillText("READY!", plot.x, plot.y - 28);
+          }
+          ctx.fillStyle = "#f6e9bb";
+          ctx.font = "900 9px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(plot.crop ? PRODUCT[plot.crop].label : "plot " + plot.id, plot.x, plot.y + 46);
+        });
+        ctx.fillStyle = "#477953";
+        ctx.font = "900 12px system-ui";
+        ctx.textAlign = "left";
+        ctx.fillText("KEBUN", 93, 205);
+      }
+
+      function drawStationHints() {
+        var action = getContext();
+        var target = null;
+        if (action.type === "harvest" || action.type === "plant" || action.type === "growing") {
+          var plot = state.plots.find(function (item) { return action.key.indexOf("plot-" + item.id) === 0; });
+          if (plot) target = plot;
+        } else if (action.type === "checkout") target = ZONE.checkout;
+        else if (action.type === "stockRack" || action.type === "rack") target = ZONE.rack;
+        else if (action.type === "chiller" || action.type === "stockEggs") target = ZONE.chiller;
+        else if (action.type === "warung" || action.type === "cook" || action.type === "stockMeal") target = ZONE.warung;
+        else if (action.type === "coop" || action.type === "collectEgg" || action.type === "feed") target = ZONE.coop;
+        if (target && action.fn && !state.settings.reducedMotion) {
+          ctx.strokeStyle = "rgba(246,189,63,.85)";
+          ctx.lineWidth = 3;
+          ctx.setLineDash([5, 6]);
+          ctx.beginPath();
+          ctx.arc(target.x, target.y, 39 + Math.sin(elapsed * 4) * 4, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+      }
+
+      function drawPerson(person, isPlayer) {
+        var bob = state.settings.reducedMotion ? 0 : Math.sin(elapsed * 8 + (person.bob || 0)) * 2;
+        ctx.save();
+        ctx.translate(person.x, person.y + bob);
+        ctx.fillStyle = "rgba(25,60,53,.18)";
+        ctx.beginPath();
+        ctx.ellipse(0, 16, isPlayer ? 14 : 11, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = person.color || "#e8774f";
+        ctx.beginPath();
+        ctx.arc(0, -4, isPlayer ? 10 : 8, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = person.skin || "#bd7852";
+        ctx.beginPath();
+        ctx.arc(0, -13, isPlayer ? 8 : 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = isPlayer ? "#f4c248" : "#f3dfbc";
+        ctx.beginPath();
+        ctx.arc(0, -18, isPlayer ? 10 : 8, Math.PI, Math.PI * 2);
+        ctx.fill();
+        if (isPlayer) {
+          ctx.fillStyle = "#205c4b";
+          ctx.fillRect(-7, -17, 14, 3);
+        }
+        ctx.fillStyle = "#193c35";
+        ctx.beginPath();
+        ctx.arc(-3, -13, 1.2, 0, Math.PI * 2);
+        ctx.arc(3, -13, 1.2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      function drawCustomer(customer) {
+        drawPerson(customer, false);
+        if (customer.state === "waitingStock" || customer.state === "queue") {
+          ctx.font = "14px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(customer.mood || "🙂", customer.x, customer.y - 28);
+        }
+        if (customer.state === "arriving") {
+          ctx.font = "12px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(PRODUCT[customer.want].icon, customer.x, customer.y - 28);
+        }
+      }
+
+      function drawWorker(worker) {
+        var colors = { gardener: "#4c9e68", stocker: "#d7794c", cashier: "#6f74b2" };
+        drawPerson({ x: worker.x, y: worker.y, color: colors[worker.id], skin: "#bf7a57", bob: worker.bob }, false);
+        ctx.fillStyle = "rgba(255,253,247,.9)";
+        ctx.font = "800 9px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText(worker.id === "gardener" ? "GARDENER" : worker.id === "stocker" ? "STOCKER" : "CASHIER", worker.x, worker.y + 30);
+        if (worker.carry) {
+          ctx.font = "14px system-ui";
+          ctx.fillText(PRODUCT[worker.carry].icon, worker.x + 15, worker.y - 4);
+        }
+      }
+
+      function drawParticles() {
+        particles.forEach(function (particle) {
+          ctx.save();
+          ctx.globalAlpha = clamp(particle.life, 0, 1);
+          ctx.fillStyle = particle.color;
+          ctx.font = particle.text === "•" ? "16px system-ui" : "900 13px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText(particle.text, particle.x, particle.y);
+          ctx.restore();
+        });
+      }
+
+      function drawRain() {
+        if (state.weather !== "rain") return;
+        ctx.save();
+        ctx.strokeStyle = "rgba(72,135,157,.35)";
+        ctx.lineWidth = 2;
+        var count = state.settings.reducedMotion ? 26 : 70;
+        for (var i = 0; i < count; i++) {
+          var x = (i * 149 + elapsed * 37) % 1020;
+          var y = (i * 71 + elapsed * 91) % 620;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.lineTo(x - 5, y + 13);
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+
+      function render() {
+        ctx.clearRect(0, 0, 1000, 640);
+        drawTileBackground();
+        drawPath(0, 490, 1000, 115, "#e7cf98");
+        drawPath(420, 280, 178, 250, "#e9d6a4");
+        drawTree(46, 152, 1.05);
+        drawTree(955, 150, .95);
+        drawTree(468, 159, .65);
+        drawFlower(45, 323, "#ed8060");
+        drawFlower(466, 344, "#f1c44f");
+        drawFlower(495, 371, "#e86e68");
+        drawShop();
+        drawCoop();
+        drawPlots();
+        drawStationHints();
+        var entities = [];
+        customers.forEach(function (customer) { entities.push({ y: customer.y, fn: function () { drawCustomer(customer); } }); });
+        workerList().forEach(function (worker) { if (state.workers[worker.id]) entities.push({ y: worker.y, fn: function () { drawWorker(worker); } }); });
+        entities.push({ y: state.player.y, fn: function () { drawPerson({ x: state.player.x, y: state.player.y, dir: state.player.dir, color: "#e4794d", skin: "#bd7651" }, true); } });
+        entities.sort(function (a, b) { return a.y - b.y; }).forEach(function (entity) { entity.fn(); });
+        if (state.player.carrying.length) {
+          ctx.font = "15px system-ui";
+          ctx.textAlign = "center";
+          ctx.fillText("🧺", state.player.x + 15, state.player.y - 5);
+        }
+        drawParticles();
+        drawRain();
+        if (state.paused) {
+          ctx.fillStyle = "rgba(25,60,53,.12)";
+          ctx.fillRect(0, 0, 1000, 640);
+        }
+      }
+
+      function canvasPoint(event) {
+        var rect = world.getBoundingClientRect();
+        return { x: (event.clientX - rect.left) * 1000 / rect.width, y: (event.clientY - rect.top) * 640 / rect.height };
+      }
+
+      function handleWorldTap(event) {
+        if (!active || state.paused) return;
+        var point = canvasPoint(event);
+        var target = { x: point.x, y: point.y };
+        var nearest = null;
+        var best = 52;
+        state.plots.forEach(function (plot) {
+          var d = distance(target, plot);
+          if (d < best) { best = d; nearest = plot; }
+        });
+        if (nearest) {
+          state.player.x = clamp(nearest.x + (nearest.x > state.player.x ? -35 : 35), 35, 965);
+          state.player.y = clamp(nearest.y + 25, 90, 605);
+        } else {
+          state.player.x = clamp(point.x, 35, 965);
+          state.player.y = clamp(point.y, 90, 605);
+        }
+      }
+
+      function setupJoystick() {
+        var base = $("#joystick");
+        var knob = $("#joystick-knob");
+        function update(event) {
+          var rect = base.getBoundingClientRect();
+          var cx = rect.left + rect.width / 2;
+          var cy = rect.top + rect.height / 2;
+          var dx = event.clientX - cx;
+          var dy = event.clientY - cy;
+          var radius = rect.width * .32;
+          var length = Math.hypot(dx, dy);
+          if (length > radius) { dx = dx / length * radius; dy = dy / length * radius; }
+          joystick.x = dx / radius;
+          joystick.y = dy / radius;
+          knob.style.transform = "translate(" + dx + "px," + dy + "px)";
+        }
+        function end() {
+          joystick.active = false;
+          joystick.x = 0;
+          joystick.y = 0;
+          knob.style.transform = "translate(0,0)";
+        }
+        base.addEventListener("pointerdown", function (event) {
+          joystick.active = true;
+          joystick.pointerId = event.pointerId;
+          base.setPointerCapture(event.pointerId);
+          update(event);
+        });
+        base.addEventListener("pointermove", function (event) { if (joystick.active) update(event); });
+        base.addEventListener("pointerup", end);
+        base.addEventListener("pointercancel", end);
+      }
+
+      function setupEvents() {
+        $("#new-game-btn").addEventListener("click", function () { startGame(false); });
+        $("#continue-btn").addEventListener("click", function () { if (hasSave()) startGame(true); });
+        $("#pause-btn").addEventListener("click", function () { if (active && !state.paused) showPause(); else if (state && state.paused) closeModal(); });
+        $("#settings-btn").addEventListener("click", function () { if (active) showSettings(); });
+        $("#manage-btn").addEventListener("click", function () { if (active) openManage("upgrades"); });
+        $("#help-btn").addEventListener("click", function () { if (active) showHelp(); });
+        $("#save-btn").addEventListener("click", function () { saveGame(); addToast("Progress saved", 500); });
+        $("#context-btn").addEventListener("click", interact);
+        $("#action-btn").addEventListener("click", interact);
+        world.addEventListener("pointerup", handleWorldTap);
+        setupJoystick();
+        $all(".seed-btn").forEach(function (button) {
+          button.addEventListener("click", function () {
+            if (button.disabled) return;
+            state.selectedSeed = button.dataset.seed;
+            playTone(380, .06, "sine");
+            updateAllUI();
+          });
+        });
+        $all("[data-debug]").forEach(function (button) { button.addEventListener("click", function () { debugAction(button.dataset.debug); }); });
+        window.addEventListener("keydown", function (event) {
+          var key = event.key.toLowerCase();
+          keys[key] = true;
+          if (["arrowup", "arrowdown", "arrowleft", "arrowright", " ", "e", "p", "m"].indexOf(key) !== -1) event.preventDefault();
+          if (!active) return;
+          if (key === "e" || key === " ") interact();
+          if (key === "p") { if (state.paused) closeModal(); else showPause(); }
+          if (key === "m") openManage("upgrades");
+        });
+        window.addEventListener("keyup", function (event) { keys[event.key.toLowerCase()] = false; });
+        document.addEventListener("visibilitychange", function () { if (document.hidden && state) saveGame(); });
+      }
+
+      function frame(now) {
+        var dt = Math.min(.05, Math.max(0, (now - lastFrame) / 1000));
+        lastFrame = now;
+        if (active) updateGame(dt);
+        if (active) render();
+        requestAnimationFrame(frame);
+      }
+
+      if (isDebug) debugPanel.classList.remove("hidden");
+      $("#continue-btn").disabled = !hasSave();
+      setupEvents();
+      requestAnimationFrame(frame);
+    })();
+  </script>
+</body>
+</html>
