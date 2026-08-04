@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#FBFAF4" />
+<title>Dashboard RCI Tabung Haji — Bagaimana RM10 Bilion Hilang</title>
+<meta name="description" content="Dashboard analitik interaktif Laporan Suruhanjaya Siasatan Diraja Tabung Haji — teroka kronologi, angka dan bukti krisis kewangan LTH 2014-2022 dalam Bahasa Melayu mudah." />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23091717'/%3E%3Ctext x='50' y='68' font-size='58' text-anchor='middle' fill='%23FBFAF4' font-family='sans-serif'%3ETH%3C/text%3E%3C/svg%3E" />
+<link rel="stylesheet" href="app.css" />
+</head>
+<body>
+<script src="/data.js"></script>
+<script src="/vb-bar.js"></script>
+
+<nav class="subnav" id="subnav">
+  <div class="wrap">
+    <a href="#krisis">Krisis</a>
+    <a href="#kronologi">Kronologi</a>
+    <a href="#hibah">Hibah</a>
+    <a href="#akaun">Akaun kreatif</a>
+    <a href="#ujsb">UJSB</a>
+    <a href="#pelaburan">Pelaburan rugi</a>
+    <a href="#tadbir">Tadbir urus</a>
+    <a href="#haji">Kos haji</a>
+    <a href="#cadangan">Cadangan</a>
+    <a href="#istilah">Istilah</a>
+  </div>
+</nav>
+
+<main class="wrap">
+
+  <section class="hero" id="krisis">
+    <span class="hero-tag">Analisis data · Laporan RCI Tabung Haji 2022</span>
+    <h1>Bagaimana Tabung Haji hilang RM10 bilion — dan apa yang laporan siasatan diraja sebenarnya dedahkan</h1>
+    <p class="sub">Laporan Suruhanjaya Siasatan Diraja (RCI) mengenai Tabung Haji setebal 250+ muka surat penuh dengan angka, kronologi dan nama. Dashboard ini menyusun semula data tersebut supaya anda boleh teroka sendiri — bukan sekadar baca rumusan orang lain. Setiap angka ditandakan sumbernya: <span class="badge tag-fakta">fakta laporan</span>, <span class="badge tag-terbitan">dikira daripada fakta</span>, atau <span class="badge tag-anggaran">unjuran/anggaran</span>.</p>
+    <div class="hero-meta">
+      <span><b>Ditandatangani:</b> 19 Julai 2022</span>
+      <span><b>Pengerusi:</b> Tun Md Raus Sharif</span>
+      <span><b>Sumber teks penuh:</b> <a href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noopener">rci-tabunghaji.md ↗</a></span>
+    </div>
+
+    <div class="kpis" id="kpi-strip"></div>
+  </section>
+
+  <section class="section" id="ringkasan-krisis">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">01</span> Gambaran besar</div>
+      <h2>Dari untung RM3.4 bilion kepada rugi sebenar RM1.4 bilion — dalam tahun yang sama</h2>
+      <p class="lede">Ini bukan dua tahun berbeza. Ini kedudukan kewangan Tabung Haji bagi <b>tahun 2017 yang sama</b> — bergantung sama ada anda guna kaedah perakaunan LTH sendiri, atau piawaian perakaunan sebenar (MFRS) yang disemak oleh PwC dan disahkan Suruhanjaya.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="chart-wrap"><div id="chart-balance"></div></div>
+        <div class="chart-legend" id="legend-balance"></div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:10px">Jumlah aset vs liabiliti, 2013–2017 (RM juta). Selepas ditolak agihan hibah, baki LTH sudah <b>negatif</b> sejak 2014 — bukan sejak 2017 seperti dilaporkan awam ketika itu. <span class="badge tag-fakta">fakta</span> · m/s 145</p>
+      </div>
+      <div class="callout warn">
+        <h4>Punca sebenar: dua set buku</h4>
+        <div class="split-figures">
+          <div class="figure-block"><div class="num good">RM3.4b</div><div class="lab">Untung dilaporkan (2017), guna RAV & dasar penjejasan yang dilonggarkan</div></div>
+          <div class="figure-block"><div class="num bad">–RM1.4b</div><div class="lab">Rugi bersih sebenar jika MFRS dipatuhi penuh — disahkan PwC & Suruhanjaya</div></div>
+        </div>
+        <p>Bezanya datang daripada <b>RM227.81 juta</b> penjejasan nilai (impairment) yang tidak direkodkan, ditambah kaedah "Realisable Asset Value" (RAV) yang menganggarkan nilai aset sendiri tanpa penilaian bebas. <a href="#akaun">Lihat bagaimana ia berlaku ↓</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="kronologi">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">02</span> Kronologi penuh</div>
+      <h2>35 peristiwa penting, 1951–2022</h2>
+      <p class="lede">Tapis ikut kategori untuk lihat bagaimana keputusan politik, kelemahan kewangan dan penyelamatan UJSB saling berkait sepanjang tiga dekad.</p>
+    </div>
+    <div class="pillbar" id="tl-filters"></div>
+    <div class="card"><div class="tl-scroller" id="tl-list"></div></div>
+  </section>
+
+  <section class="section" id="hibah">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">03</span> Hibah & larian deposit</div>
+      <h2>Bila hibah "sebenar" diumumkan, RM4 bilion deposit terus lari</h2>
+      <p class="lede">Sepanjang 2014–2017, LTH bayar hibah lebih tinggi daripada keupayaan sebenarnya. Bila kadar direalistikkan kepada 1.25% pada 2018/2019, sebahagian pendeposit besar menarik keluar wang — tanda awal "bank run".</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="chart-wrap"><div id="chart-hibah"></div></div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Kadar hibah tahunan & hibah haji, 2014–2021 (%). <span class="badge tag-fakta">fakta</span> · m/s 172</p>
+      </div>
+      <div class="card">
+        <div class="chart-wrap"><div id="chart-deposit"></div></div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Anggaran jumlah deposit LTH, sebelum & selepas kejutan hibah 2018/2019 (RM bilion). <span class="badge tag-fakta">fakta</span> · m/s 20</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="akaun">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">04</span> "Akaun kreatif"</div>
+      <h2>Bagaimana LTH kelihatan untung walaupun sudah rugi</h2>
+      <p class="lede">Suruhanjaya guna istilah ini sendiri. Tiga taktik utama — digunakan serentak — membolehkan hibah terus diisytiharkan walaupun asetnya tidak mencukupi.</p>
+    </div>
+    <div class="rec-grid">
+      <div class="rec-card">
+        <h4>1. Ambang penjejasan digerakkan</h4>
+        <p style="font-size:13.5px;color:var(--ink-soft)">Dasar biasa: aset dianggap "rosot nilai" bila jatuh <b>≥20%</b> selama &gt;12 bulan (piawaian FRSIC 14). LTH tukar ambangnya sendiri — <b>dua kali dalam tahun yang sama (2017)</b>:</p>
+        <div id="chart-threshold" class="chart-wrap"></div>
+        <p style="font-size:12px;color:var(--muted)">Makin tinggi ambang, makin sedikit kerugian yang perlu diiktiraf dalam buku. <span class="badge tag-fakta">fakta</span> · m/s 115</p>
+      </div>
+      <div class="rec-card">
+        <h4>2. RAV ganti nilai pasaran</h4>
+        <p style="font-size:13.5px;color:var(--ink-soft)">Contoh: penilaian RM4.6 bilion untuk hartanah TH Plantations digunakan bagi kelayakan hibah 2017 — tetapi hanya <b>RM556 juta (12%)</b> yang dinilai oleh penilai profesional bebas. Selebihnya, <b>RM4.04 bilion (88%)</b>, adalah anggaran pengurusan sendiri.</p>
+        <div id="chart-rav" class="chart-wrap"></div>
+        <p style="font-size:12px;color:var(--muted)"><span class="badge tag-fakta">fakta</span> · m/s 113</p>
+      </div>
+      <div class="rec-card">
+        <h4>3. Kaedah pengiraan ditukar</h4>
+        <p style="font-size:13.5px;color:var(--ink-soft)">Pada Februari 2018, kaedah pengiraan hibah ditukar daripada <b>purata baki bulanan</b> kepada <b>purata baki tahunan</b> — membenarkan agihan RM600 juta lebih tinggi walaupun keupayaan sebenar tidak berubah.</p>
+        <div class="callout info" style="margin-top:10px"><p style="margin:0;font-size:13px">Ketua Pegawai Kewangan sendiri mengesahkan dalam akuan bersumpah bahawa perubahan ini adalah pilihan kejuruteraan kewangan, bukan bertujuan menilai aset dengan tepat.</p></div>
+      </div>
+      <div class="rec-card">
+        <h4>4. "Sijil Audit Bersih" walaupun ada isu serius</h4>
+        <p style="font-size:13.5px;color:var(--ink-soft)">Ketua Audit Negara (KAN) keluarkan pendapat <b>tanpa teguran</b> untuk penyata kewangan 2017 — cuma dengan nota "Penekanan Perkara". Akuan bersumpah bekas Ketua Audit Negara sendiri mendedahkan sebab pendapat tidak ditegur: bimbang menjejaskan <b>keyakinan pendeposit</b>.</p>
+        <div class="callout warn" style="margin-top:10px"><p style="margin:0;font-size:13px">Suruhanjaya mendapati ini sepatutnya menjadi teguran rasmi (qualified opinion) — bukan sekadar nota.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="ujsb">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">05</span> Penyelamatan UJSB</div>
+      <h2>RM19.9 bilion aset "dijual" — pada RM10.2 bilion lebih mahal daripada nilai pasaran</h2>
+      <p class="lede">Untuk selamatkan LTH daripada kebankrapan teknikal hujung 2018, aset bermasalahnya dipindah ke sebuah syarikat baharu, Urusharta Jamaah Sdn Bhd (UJSB) — tetapi pada nilai jauh lebih tinggi daripada harga pasaran sebenar, dibiayai oleh Sukuk yang LTH sendiri melanggan.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="chart-wrap"><div id="chart-ujsb"></div></div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Nilai buku vs nilai pindahan vs nilai pasaran sebenar aset yang dipindah ke UJSB (RM juta). <span class="badge tag-fakta">fakta</span> · m/s 160</p>
+      </div>
+      <div class="callout warn">
+        <h4>Kenapa ini penting</h4>
+        <p>Premium RM10.2 bilion ini bukan hilang — ia jadi <b>hutang tersembunyi</b> yang perlu dibayar semula oleh Kerajaan melalui Sukuk. Pendapatan terakru daripada Sukuk UJSB kini menyumbang <b>~26%</b> pendapatan tahunan LTH dan <b>lebih 1/3</b> agihan untung kepada pendeposit — Suruhanjaya sendiri menyebut kegagalan melunaskan Sukuk ini sebagai <b>"risiko terbesar"</b> kepada LTH.</p>
+        <div class="split-figures">
+          <div class="figure-block"><div class="num">RM27.5b</div><div class="lab">Jumlah obligasi Sukuk UJSB (Siri 1 + 2)</div></div>
+          <div class="figure-block"><div class="num">RM500j</div><div class="lab">Tunai sebenar diterima LTH setakat laporan — drpd aset bernilai pasaran RM9.7 bilion</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h4 style="font-size:14px;margin-bottom:6px">Saham "blue-chip" yang turut dipindah — rugi belum terealisasi RM946 juta (Dis 2018)</h4>
+      <p style="font-size:13px;color:var(--ink-soft)">Axiata, Maxis, MISC, Digi & TM dipindah ke UJSB pada harga kos asal LTH — bukan harga pasaran semasa, yang sudah jatuh mendadak.</p>
+      <div class="chart-wrap"><div id="chart-shares"></div></div>
+      <div class="chart-legend" id="legend-shares"></div>
+    </div>
+  </section>
+
+  <section class="section" id="pelaburan">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">06</span> Pelaburan bermasalah</div>
+      <h2>14 pelaburan disyorkan untuk audit forensik</h2>
+      <p class="lede">Cari, tapis dan bandingkan sendiri setiap pelaburan bermasalah yang dikenal pasti Suruhanjaya — daripada ladang di Kalimantan sehingga hotel di Makkah.</p>
+    </div>
+    <div class="toolbar-row">
+      <input type="search" id="inv-search" class="search-input" placeholder="Cari nama syarikat atau sektor…" />
+      <div class="viewtoggle" id="inv-toggle">
+        <button data-view="table" class="on">Jadual</button>
+        <button data-view="cards">Kad</button>
+      </div>
+    </div>
+    <div class="card">
+      <div id="inv-table-wrap" class="table-scroll"></div>
+      <div id="inv-cards-wrap" class="inv-list" style="display:none"></div>
+    </div>
+  </section>
+
+  <section class="section" id="tadbir">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">07</span> Tadbir urus & konflik kepentingan</div>
+      <h2>Bila penyelia adalah juga pemain</h2>
+      <p class="lede">Ketua Pegawai Eksekutif dan Ahli Lembaga LTH turut memegang jawatan Pengerusi/Pengarah di puluhan anak syarikat yang menerima pelaburan LTH — struktur yang Suruhanjaya kata mencetuskan konflik kepentingan berterusan.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h4 style="font-size:14px;margin-bottom:10px">Bilangan jawatan rangkap dalam anak syarikat</h4>
+        <div id="xd-list"></div>
+        <p style="font-size:12px;color:var(--muted);margin-top:10px">Suruhanjaya mengesyorkan had maksimum 5 jawatan rangkap. <span class="badge tag-fakta">fakta</span> · m/s 84</p>
+      </div>
+      <div class="card">
+        <h4 style="font-size:14px;margin-bottom:6px">Barisan Pengerusi & CEO</h4>
+        <div class="role-track" id="chairman-track"></div>
+        <h4 style="font-size:14px;margin:14px 0 6px">CEO</h4>
+        <div class="role-track" id="ceo-track"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h4 style="font-size:14px;margin-bottom:6px">5 pegawai kanan disiasat, 4 kluster tatatertib — semua kekal berkhidmat</h4>
+      <p style="font-size:13px;color:var(--ink-soft)">Keputusan awal buang kerja dilonggarkan menjadi turun pangkat selepas rayuan — dalam tempoh 10 hingga 19 bulan.</p>
+      <div class="table-scroll"><table class="dtable" id="discipline-table"></table></div>
+    </div>
+  </section>
+
+  <section class="section" id="haji">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">08</span> Beban subsidi haji</div>
+      <h2>Jurang antara kos sebenar dan bayaran jemaah semakin melebar</h2>
+      <p class="lede">Bayaran haji Muassasah kekal RM9,980 selama 13 tahun (2009–2021) walaupun kos sebenar terus meningkat — jurangnya (HAFIS) ditanggung LTH, memakan sumber yang sepatutnya diagih sebagai hibah.</p>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="chart-wrap"><div id="chart-hafis"></div></div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Kos sebenar vs bayaran jemaah, 2014–2022 (RM). <span class="badge tag-fakta">fakta</span> · m/s 210</p>
+      </div>
+      <div class="card">
+        <div class="chart-wrap"><div id="chart-hafis-proj"></div></div>
+        <p style="font-size:12.5px;color:var(--muted);margin-top:8px">Unjuran % subsidi jika bayaran kekal RM12,980, 2022–2030. <span class="badge tag-anggaran">anggaran rasmi laporan</span> · m/s 211</p>
+      </div>
+    </div>
+    <div class="callout info" style="margin-top:16px">
+      <h4>Simulasi dasar: naikkan deposit minimum</h4>
+      <div class="split-figures">
+        <div class="figure-block"><div class="num">130 tahun</div><div class="lab">Anggaran tempoh menunggu giliran haji, deposit minimum RM1,300 (semasa)</div></div>
+        <div class="figure-block"><div class="num good">33 tahun</div><div class="lab">Jika deposit minimum dinaikkan ke RM12,980 (kadar Muassasah semasa)</div></div>
+      </div>
+      <p style="font-size:12.5px">Ini unjuran model EY yang dipetik Suruhanjaya — <b>bukan jaminan</b>, bergantung kuota haji & tiada perubahan dasar lain. <span class="badge tag-anggaran">anggaran</span></p>
+    </div>
+  </section>
+
+  <section class="section" id="cadangan">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">09</span> Cadangan Suruhanjaya</div>
+      <h2>Apa yang disyorkan supaya ia tidak berulang</h2>
+    </div>
+    <div class="rec-grid" id="rec-grid"></div>
+  </section>
+
+  <section class="section" id="istilah">
+    <div class="section-head">
+      <div class="eyebrow"><span class="n">10</span> Istilah mudah</div>
+      <h2>Faham istilah, faham cerita</h2>
+    </div>
+    <dl class="gloss-grid" id="gloss-grid"></dl>
+    <div class="methodbox">
+      <b>Nota metodologi:</b> Semua data diekstrak terus daripada teks OCR laporan rasmi RCI Tabung Haji (2022). Label <span class="badge tag-fakta">fakta</span> = angka tertulis terus dalam laporan; <span class="badge tag-terbitan">terbitan</span> = dikira daripada ≥2 angka fakta (cth. beza/peratus); <span class="badge tag-anggaran">anggaran</span> = unjuran masa depan yang laporan sendiri nyatakan sebagai unjuran, bukan fakta semasa. Dua angka OCR (kadar pindahan rizab tahunan, m/s 104-105) tidak dapat disahkan sepenuhnya akibat kualiti OCR dan sengaja tidak dimasukkan dalam dashboard ini. Rujuk <a href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noopener">teks penuh</a> untuk pengesahan lanjut.
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-foot">
+  <div class="wrap">
+    Dashboard tidak rasmi dibina untuk tujuan pendidikan data, berdasarkan teks awam Laporan RCI Tabung Haji 2022. Bukan terbitan rasmi Tabung Haji, Suruhanjaya Siasatan Diraja atau Kerajaan Malaysia.
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
