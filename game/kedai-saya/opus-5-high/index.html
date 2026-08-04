@@ -1,0 +1,2258 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#0e1a17">
+<meta name="description" content="Kedai Saya — permainan pengurusan kedai runcit kampung 3D. Tuai padi, isi rak, layan pelanggan, naik taraf kedai.">
+<title>Kedai Saya — Permainan Pengurusan Kedai 3D</title>
+<style>
+  :root{
+    --kuning:#ffd230; --merah:#e8462f; --teal:#16a39a; --hijau:#3fa34d;
+    --gelap:#0d1512; --kaca:rgba(10,18,16,.72); --tepi:rgba(255,255,255,.16);
+    --tulis:#f6f2e8;
+    --sf-t:env(safe-area-inset-top,0px); --sf-b:env(safe-area-inset-bottom,0px);
+    --sf-l:env(safe-area-inset-left,0px); --sf-r:env(safe-area-inset-right,0px);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#0d1512;
+    font-family:'Segoe UI',system-ui,-apple-system,'Helvetica Neue',Arial,sans-serif;
+    color:var(--tulis);-webkit-user-select:none;user-select:none;touch-action:none;overscroll-behavior:none}
+  canvas#gl{position:fixed;inset:0;display:block;width:100%;height:100%}
+
+  /* ─── lapisan label dunia ─── */
+  #lbls{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+  .lbl{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;text-align:center;
+    font-size:11px;font-weight:800;letter-spacing:.2px;line-height:1.15;
+    padding:3px 8px;border-radius:9px;background:rgba(9,16,14,.66);border:1px solid rgba(255,255,255,.14);
+    text-shadow:0 1px 2px rgba(0,0,0,.6);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
+  .lbl.stesen{background:rgba(9,16,14,.6)}
+  .lbl.rak{color:#ffe9a8}
+  .lbl.pad{background:linear-gradient(180deg,rgba(255,210,48,.94),rgba(240,160,30,.94));color:#2a1c00;
+    border-color:rgba(255,255,255,.6);font-size:11.5px;box-shadow:0 3px 10px rgba(0,0,0,.35)}
+  .lbl.pad small{display:block;font-weight:700;opacity:.85;font-size:9.5px}
+  .lbl .bar{margin-top:3px;height:4px;border-radius:3px;background:rgba(0,0,0,.28);overflow:hidden}
+  .lbl .bar u{display:block;height:100%;width:0;background:#fff;border-radius:3px}
+  .lbl.emo{font-size:17px;padding:2px 6px;background:rgba(255,255,255,.92);color:#111;border-color:#fff}
+  .lbl.mati{opacity:.45;filter:grayscale(.6)}
+  .flt{position:absolute;transform:translate(-50%,-50%);font-weight:900;font-size:15px;
+    text-shadow:0 2px 4px rgba(0,0,0,.55);pointer-events:none;white-space:nowrap}
+
+  /* ─── HUD ─── */
+  #hud{position:fixed;inset:0;z-index:10;pointer-events:none;
+    padding:calc(6px + var(--sf-t)) calc(8px + var(--sf-r)) calc(8px + var(--sf-b)) calc(8px + var(--sf-l));
+    display:flex;flex-direction:column;gap:6px}
+  #atas{display:flex;gap:6px;align-items:flex-start;flex-wrap:wrap}
+  .chip{display:flex;align-items:center;gap:5px;background:var(--kaca);border:1px solid var(--tepi);
+    border-radius:12px;padding:5px 9px;font-size:12px;font-weight:700;
+    backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:0 2px 10px rgba(0,0,0,.28)}
+  .chip b{font-weight:900;font-size:13px}
+  .chip.wang b{color:var(--kuning)}
+  #barHari{display:block;width:44px;height:5px;border-radius:4px;background:rgba(255,255,255,.2);overflow:hidden}
+  #barHari u{display:block;height:100%;width:0;background:linear-gradient(90deg,#ffd230,#ff8a3d)}
+  .sp{flex:1 1 auto;min-width:4px}
+  .btn{pointer-events:auto;cursor:pointer;font-family:inherit;font-weight:800;font-size:12px;
+    color:var(--tulis);background:var(--kaca);border:1px solid var(--tepi);border-radius:12px;
+    padding:7px 11px;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+    box-shadow:0 2px 10px rgba(0,0,0,.28);transition:transform .08s,filter .12s;white-space:nowrap}
+  .btn:active{transform:scale(.94);filter:brightness(1.25)}
+  .btn.utama{background:linear-gradient(180deg,#ffd230,#f0a01e);color:#2a1c00;border-color:rgba(255,255,255,.5)}
+  .btn.baru{animation:kilau 1.4s infinite}
+  @keyframes kilau{0%,100%{box-shadow:0 2px 10px rgba(0,0,0,.28)}50%{box-shadow:0 0 0 4px rgba(255,210,48,.35),0 2px 10px rgba(0,0,0,.28)}}
+
+  #tut{pointer-events:none;align-self:flex-start;max-width:min(92vw,430px);display:flex;gap:8px;align-items:center;
+    background:linear-gradient(180deg,rgba(22,163,154,.92),rgba(12,110,104,.92));
+    border:1px solid rgba(255,255,255,.28);border-radius:14px;padding:7px 11px;
+    box-shadow:0 4px 16px rgba(0,0,0,.34);transition:opacity .3s,transform .3s}
+  #tut.sorok{opacity:0;transform:translateY(-8px)}
+  #tutIkon{font-size:20px;flex:0 0 auto}
+  #tut b{font-size:12.5px;display:block;letter-spacing:.2px}
+  #tut span{font-size:11px;opacity:.95;line-height:1.25;display:block}
+  #bawahL{margin-top:auto;display:flex;align-items:flex-end;gap:8px}
+  #jual{font-size:11px;opacity:.92}
+
+  /* ─── kayu bedik ─── */
+  #stik{position:fixed;left:0;top:0;width:132px;height:132px;z-index:9;pointer-events:none;
+    opacity:0;transition:opacity .16s;transform:translate(-50%,-50%)}
+  #stik.on{opacity:1}
+  #stikBase{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(255,255,255,.35);
+    background:radial-gradient(circle,rgba(255,255,255,.14),rgba(255,255,255,.04) 70%,transparent)}
+  #stikKnob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;
+    background:radial-gradient(circle at 35% 30%,#fff,#ffd230 60%,#e59b16);
+    box-shadow:0 3px 12px rgba(0,0,0,.4),inset 0 -3px 6px rgba(0,0,0,.2)}
+
+  /* ─── hamparan ─── */
+  .ov{position:fixed;inset:0;z-index:20;display:none;align-items:center;justify-content:center;
+    padding:calc(14px + var(--sf-t)) 14px calc(14px + var(--sf-b));
+    background:rgba(6,12,10,.74);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+  .ov.on{display:flex}
+  .box{width:100%;max-width:420px;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    background:linear-gradient(180deg,#17251f,#101a16);border:1px solid rgba(255,255,255,.16);
+    border-radius:20px;padding:16px;box-shadow:0 18px 50px rgba(0,0,0,.55)}
+  .box h1{margin:0 0 2px;font-size:26px;letter-spacing:.5px;line-height:1.05}
+  .box h1 em{font-style:normal;color:var(--kuning)}
+  .box h2{margin:0 0 10px;font-size:15px}
+  .box p{margin:0 0 10px;font-size:12.5px;line-height:1.45;opacity:.9}
+  .box .kk{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+  .box .kk .btn{width:100%;padding:12px;font-size:14px;text-align:center;justify-content:center}
+  .tag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;
+    background:rgba(255,210,48,.16);color:var(--kuning);border:1px solid rgba(255,210,48,.35);
+    border-radius:99px;padding:3px 9px;margin-bottom:8px}
+  .baris{display:flex;justify-content:space-between;gap:8px;font-size:12.5px;padding:5px 0;
+    border-bottom:1px dashed rgba(255,255,255,.1)}
+  .baris b{color:var(--kuning)}
+  .kunci{font-size:11px;opacity:.75;line-height:1.5;margin-top:10px;
+    background:rgba(255,255,255,.05);border-radius:10px;padding:8px 10px}
+  .kunci kbd{background:rgba(255,255,255,.14);border-radius:4px;padding:1px 5px;font-size:10px;font-weight:800}
+
+  /* panel naik taraf */
+  .tf{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.09);border-radius:14px;padding:9px;margin-bottom:8px}
+  .tf .ik{font-size:22px;width:28px;text-align:center;flex:0 0 auto}
+  .tf .in{flex:1 1 auto;min-width:0}
+  .tf .in b{font-size:12.5px;display:block}
+  .tf .in span{font-size:10.5px;opacity:.8;display:block}
+  .tf .pip{display:flex;gap:3px;margin-top:4px}
+  .tf .pip i{width:13px;height:5px;border-radius:3px;background:rgba(255,255,255,.18)}
+  .tf .pip i.y{background:var(--kuning)}
+  .tf button{flex:0 0 auto}
+  .tf button:disabled{opacity:.4;filter:grayscale(.7)}
+
+  /* banner kedai ditutup */
+  #tutupBn{position:fixed;left:50%;top:38%;transform:translate(-50%,-50%) scale(.9);z-index:15;
+    pointer-events:none;text-align:center;opacity:0;transition:opacity .35s,transform .35s;width:min(94vw,400px)}
+  #tutupBn.on{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  #tutupBn .big{font-size:clamp(26px,8.5vw,42px);font-weight:900;letter-spacing:2px;color:#ffd230;
+    text-shadow:0 3px 0 #a34a12,0 6px 22px rgba(0,0,0,.7)}
+  #tutupBn .kad{margin-top:8px;background:rgba(9,16,14,.8);border:1px solid var(--tepi);border-radius:16px;
+    padding:10px 14px;font-size:12.5px;line-height:1.6;backdrop-filter:blur(6px)}
+  #tutupBn .kad b{color:var(--kuning)}
+
+  #flash{position:fixed;inset:0;z-index:18;background:#fff;opacity:0;pointer-events:none}
+  #memuat{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;gap:12px;
+    align-items:center;justify-content:center;background:#0d1512}
+  #memuat .t{font-size:20px;font-weight:900;letter-spacing:1px;color:var(--kuning)}
+  #memuat .s{font-size:12px;opacity:.7}
+  #memuat .r{width:120px;height:5px;border-radius:4px;background:rgba(255,255,255,.14);overflow:hidden}
+  #memuat .r u{display:block;height:100%;width:35%;background:var(--kuning);animation:sl 1.1s infinite}
+  @keyframes sl{0%{margin-left:-35%}100%{margin-left:100%}}
+  @media (min-width:760px){
+    .chip{font-size:13px;padding:6px 11px}.btn{font-size:13px;padding:8px 13px}
+    #tut b{font-size:14px}#tut span{font-size:12px}
+  }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="lbls"></div>
+
+<div id="hud">
+  <div id="atas">
+    <div class="chip wang">💰 <span>Wang</span> <b id="uWang">RM 0</b></div>
+    <div class="chip">📅 <b id="uHari">Hari 1</b><i id="barHari"><u></u></i></div>
+    <div class="chip">🧺 <span>Kapasiti</span> <b id="uBawa">0/6</b></div>
+    <div class="sp"></div>
+    <button class="btn utama" id="bNaik">⬆️ Naik Taraf</button>
+    <button class="btn" id="bJeda">⏸</button>
+  </div>
+  <div id="tut"><span id="tutIkon">👋</span><div><b id="tutTajuk">—</b><span id="tutTeks">—</span></div></div>
+  <div id="bawahL"><div class="chip" id="jual">📈 <span>Jualan</span> <b id="uJual">RM 0</b></div></div>
+</div>
+
+<div id="stik"><div id="stikBase"><div id="stikKnob"></div></div></div>
+<div id="tutupBn"><div class="big">KEDAI DITUTUP</div><div class="kad" id="tutupKad"></div></div>
+<div id="flash"></div>
+
+<!-- mula -->
+<div class="ov on" id="ovMula"><div class="box">
+  <span class="tag">Permainan Pengurusan Kedai 3D</span>
+  <h1>KEDAI <em>SAYA</em></h1>
+  <h2 style="opacity:.8;font-weight:700">Runcit kampung · Tuai · Isi Rak · Layan pelanggan</h2>
+  <p>Kau pemilik kedai runcit kampung. Tuai padi &amp; sayur, kutip telur kampung, isi <b>Rak</b>,
+     layan pelanggan di <b>Kaunter</b>, kutip <b>Wang</b>, dan <b>Naik Taraf</b> kedai sampai jadi
+     kedai paling meriah dalam kampung.</p>
+  <div class="kunci">
+    <b>Kawalan</b> — Telefon: sentuh &amp; heret di mana-mana untuk kayu bedik.
+    Desktop: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> atau kekunci anak panah.
+    <br>Semua kerja jalan sendiri bila kau berdiri dekat stesen yang betul.
+  </div>
+  <div class="kk">
+    <button class="btn utama" id="bMain">▶ MAIN</button>
+    <button class="btn" id="bBaru" style="display:none">🗑 Mula Semula (buang simpanan)</button>
+  </div>
+</div></div>
+
+<!-- jeda -->
+<div class="ov" id="ovJeda"><div class="box">
+  <span class="tag">Jeda</span>
+  <h1 style="font-size:22px">Kedai Berhenti Sekejap</h1>
+  <div id="statJeda" style="margin:10px 0"></div>
+  <div class="kk">
+    <button class="btn utama" id="bSambung">▶ Sambung</button>
+    <button class="btn" id="bBunyi">🔊 Bunyi: Buka</button>
+    <button class="btn" id="bUlang">🗑 Mula Semula</button>
+  </div>
+</div></div>
+
+<!-- naik taraf -->
+<div class="ov" id="ovNaik"><div class="box">
+  <span class="tag">Naik Taraf</span>
+  <h1 style="font-size:22px">Tingkatkan Kedai</h1>
+  <p style="margin-bottom:12px">Wang kau: <b id="uWang2" style="color:var(--kuning)">RM 0</b>.
+     Kawasan baharu dibuka dengan berdiri atas <b>pad kuning</b> dalam kedai.</p>
+  <div id="senaraiTaraf"></div>
+  <div id="senaraiBuka" style="margin-top:12px"></div>
+  <div class="kk"><button class="btn utama" id="bTutupNaik">Tutup</button></div>
+</div></div>
+
+<div id="memuat"><div class="t">KEDAI SAYA</div><div class="s">Memuatkan kampung…</div><div class="r"><u></u></div></div>
+
+<script type="module">
+/* ════════════════════════════════════════════════════════════════════════
+   KEDAI SAYA — permainan pengurusan kedai runcit kampung 3D
+   Semua grafik dijana secara prosedural daripada bentuk 3D ringkas.
+   ════════════════════════════════════════════════════════════════════════ */
+
+let THREE;
+try { THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js'); }
+catch(e){
+  try { THREE = await import('https://unpkg.com/three@0.160.0/build/three.module.js'); }
+  catch(e2){
+    document.getElementById('memuat').innerHTML =
+      '<div class="t">Gagal muat enjin 3D</div><div class="s">Sambungan internet diperlukan sekali sahaja (CDN three.js).</div>';
+    throw e2;
+  }
+}
+
+/* ─────────────── util ─────────────── */
+const TAU=Math.PI*2, PI=Math.PI;
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const lerp=(a,b,t)=>a+(b-a)*t;
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const rndi=(a,b)=>Math.floor(rnd(a,b+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const fmtRM=n=>'RM '+Math.round(n).toLocaleString('en-US');
+const V3=(x,y,z)=>new THREE.Vector3(x,y,z);
+const $=id=>document.getElementById(id);
+const MOBILE=/Android|iPhone|iPad|iPod|Mobile|Silk/i.test(navigator.userAgent)||('ontouchstart' in window && innerWidth<900);
+
+/* ─────────────── produk ─────────────── */
+const PROD={
+  beras    :{nama:'Beras',        ikon:'🌾', harga:5,  warna:0xf1e3bd},
+  sayur    :{nama:'Sayur',        ikon:'🥬', harga:8,  warna:0x53b84c},
+  telur    :{nama:'Telur Kampung',ikon:'🥚', harga:13, warna:0xefd2a2},
+  nasilemak:{nama:'Nasi Lemak',   ikon:'🍛', harga:30, warna:0x2f7d4f},
+};
+
+/* ─────────────── definisi naik taraf statistik ─────────────── */
+const TARAF={
+  kelajuan:{nama:'Kelajuan',        ikon:'👟', maks:5, kos:l=>Math.round(140*Math.pow(2.05,l)), nilai:l=>(5.4+l*0.9).toFixed(1)+' laju'},
+  bawaan  :{nama:'Kapasiti Bawaan', ikon:'🧺', maks:6, kos:l=>Math.round(170*Math.pow(1.95,l)), nilai:l=>(6+l*3)+' unit'},
+  rak     :{nama:'Kapasiti Rak',    ikon:'🗄️', maks:3, kos:l=>Math.round(320*Math.pow(2.2,l)),  nilai:l=>(8+l*4)+' unit/rak'},
+  jualan  :{nama:'Nilai Jualan',    ikon:'💹', maks:5, kos:l=>Math.round(430*Math.pow(2.25,l)), nilai:l=>'×'+(1+l*0.25).toFixed(2)},
+};
+
+/* ─────────────── pad "Buka" (kawasan/kemudahan) ─────────────── */
+const PAD=[
+  {id:'kebun',    nama:'Buka Kebun Sayur',      kos:150,  x: 6.5,  z:-10.2, syarat:null},
+  {id:'rakSayur', nama:'Buka Rak Sayur',        kos:260,  x: 4.4,  z:-3.4,  syarat:'kebun'},
+  {id:'reban',    nama:'Buka Reban Ayam',       kos:700,  x: 0,    z:-18.2, syarat:'rakSayur'},
+  {id:'rakTelur', nama:'Buka Rak Telur',        kos:900,  x:-4.4,  z: 0.8,  syarat:'reban'},
+  {id:'pekerja',  nama:'Upah Pekerja',          kos:1500, x: 5.9,  z: 7.2,  syarat:'rakTelur'},
+  {id:'dapur',    nama:'Buka Dapur Nasi Lemak', kos:2600, x:-6.3,  z: 7.0,  syarat:'pekerja'},
+  {id:'rakNasi',  nama:'Buka Rak Nasi Lemak',   kos:2000, x: 4.4,  z: 0.8,  syarat:'dapur'},
+  {id:'kaunter2', nama:'Buka Kaunter Kedua',    kos:3600, x: 6.3,  z: 4.4,  syarat:'rakNasi'},
+];
+
+const RAK_DEF=[
+  {id:'rakBeras', jenis:'beras',     nama:'Rak Beras',      x:-4.4, z:-5.8, kunci:null},
+  {id:'rakSayur', jenis:'sayur',     nama:'Rak Sayur',      x: 4.4, z:-5.8, kunci:'rakSayur'},
+  {id:'rakTelur', jenis:'telur',     nama:'Rak Telur',      x:-4.4, z:-1.6, kunci:'rakTelur'},
+  {id:'rakNasi',  jenis:'nasilemak', nama:'Rak Nasi Lemak', x: 4.4, z:-1.6, kunci:'rakNasi'},
+];
+
+const KAUNTER_DEF=[
+  {id:'k1', x:-3.2, z:4.2, kunci:null},
+  {id:'k2', x: 3.2, z:4.2, kunci:'kaunter2'},
+];
+
+const HARI_BUKA=170, HARI_TUTUP=20;
+
+/* ─────────────── keadaan permainan ─────────────── */
+const KUNCI_SIMPAN='kedaisaya.simpan.v2';
+function keadaanAsal(){
+  return {
+    wang:0, hari:1, masa:0, fasa:'buka',
+    buka:{}, bayar:{},                                  // buka: kawasan terbuka; bayar: bayaran separa pad
+    taraf:{kelajuan:0,bawaan:0,rak:0,jualan:0},
+    stok:{}, dapur:{beras:0,telur:0,siap:0}, reban:0,
+    jualan:0, jualanHari:0, pelanggan:0, pelangganHari:0, hilang:0,
+    ambil:0, kutip:0, tutorial:0, bunyi:true,
+  };
+}
+let G=keadaanAsal();
+function muat(){
+  try{
+    const s=JSON.parse(localStorage.getItem(KUNCI_SIMPAN)||'null');
+    if(s&&s.taraf){ G=Object.assign(keadaanAsal(),s);
+      G.taraf=Object.assign({kelajuan:0,bawaan:0,rak:0,jualan:0},s.taraf);
+      G.dapur=Object.assign({beras:0,telur:0,siap:0},s.dapur||{});
+      G.buka=s.buka||{}; G.bayar=s.bayar||{}; G.stok=s.stok||{};
+      return true; }
+  }catch(e){}
+  return false;
+}
+let adaSimpanan=muat();
+let simpanTimer=0, janganSimpan=false;
+function simpan(){ if(janganSimpan)return; try{ localStorage.setItem(KUNCI_SIMPAN,JSON.stringify(G)); }catch(e){} }
+function buangSimpanan(){
+  janganSimpan=true;                                  // halang autosimpan semasa reload
+  try{ localStorage.removeItem(KUNCI_SIMPAN); }catch(e){}
+  location.reload();
+}
+
+const lajuPemain=()=>5.4+G.taraf.kelajuan*0.9;
+const kapBawa   =()=>6+G.taraf.bawaan*3;
+const kapRak    =()=>8+G.taraf.rak*4;
+const gandaJual =()=>1+G.taraf.jualan*0.25;
+const kerjaLaju =()=>1+G.taraf.kelajuan*0.16;
+
+/* ─────────────── bunyi (WebAudio, dijana) ─────────────── */
+const Bunyi={
+  ctx:null,mas:null,on:true,
+  mula(){ if(this.ctx){ this.ctx.resume&&this.ctx.resume(); return; }
+    const AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
+    this.ctx=new AC(); this.mas=this.ctx.createGain(); this.mas.gain.value=.5; this.mas.connect(this.ctx.destination); },
+  n(f,d,t='sine',g=.13,del=0,f2=null){
+    if(!this.on||!this.ctx)return; const c=this.ctx,t0=c.currentTime+del;
+    const o=c.createOscillator(),v=c.createGain(); o.type=t;
+    o.frequency.setValueAtTime(f,t0); if(f2)o.frequency.exponentialRampToValueAtTime(Math.max(20,f2),t0+d);
+    v.gain.setValueAtTime(.0001,t0); v.gain.linearRampToValueAtTime(g,t0+.012);
+    v.gain.exponentialRampToValueAtTime(.0001,t0+d);
+    o.connect(v); v.connect(this.mas); o.start(t0); o.stop(t0+d+.03); },
+  tuai(){ this.n(rnd(430,520),.10,'triangle',.09,0,rnd(720,820)); },
+  isi(){ this.n(200,.09,'square',.055,0,130); },
+  duit(){ this.n(1046,.08,'sine',.11); this.n(1568,.12,'sine',.085,.055); },
+  kutip(n){ const k=Math.min(n,5); for(let i=0;i<k;i++) this.n(760+i*180,.07,'sine',.07,i*.045); },
+  buka(){ [523,659,784,1046,1318].forEach((f,i)=>this.n(f,.3,'triangle',.10,i*.075)); },
+  naik(){ [392,523,659,784].forEach((f,i)=>this.n(f,.26,'sine',.09,i*.06)); },
+  salah(){ this.n(150,.15,'sawtooth',.06,0,90); },
+  masuk(){ this.n(600,.06,'sine',.05); this.n(820,.08,'sine',.04,.05); },
+  marah(){ this.n(300,.2,'square',.055,0,140); },
+  tutup(){ [660,523,415].forEach((f,i)=>this.n(f,.34,'triangle',.08,i*.12)); },
+  masak(){ this.n(320,.18,'triangle',.06,0,520); },
+};
+
+/* ─────────────── renderer / scene ─────────────── */
+const canvas=$('gl');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:!MOBILE,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio||1, MOBILE?1.6:2));
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=MOBILE?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;
+renderer.toneMapping=THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure=1.06;
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.Fog(0xcfe9f2,54,132);
+
+const camera=new THREE.PerspectiveCamera(34,1,1,220);
+const camOff=V3(0,23,18.5);
+camera.position.copy(camOff);
+
+function texKanvas(w,h,lukis){
+  const c=document.createElement('canvas'); c.width=w; c.height=h;
+  lukis(c.getContext('2d'),w,h);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace;
+  t.anisotropy=4; return t;
+}
+/* langit bergradien */
+scene.background=texKanvas(4,256,(g,w,h)=>{
+  const gr=g.createLinearGradient(0,0,0,h);
+  gr.addColorStop(0,'#4fb6e8'); gr.addColorStop(.45,'#9fdcf2');
+  gr.addColorStop(.72,'#d9f0e6'); gr.addColorStop(1,'#f4e7c8');
+  g.fillStyle=gr; g.fillRect(0,0,w,h);
+});
+
+/* cahaya */
+const hemi=new THREE.HemisphereLight(0xd8f2ff,0x4e7a3c,.95); scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xfff2d0,2.0);
+sun.position.set(20,34,14); sun.castShadow=true;
+sun.shadow.mapSize.set(MOBILE?1024:2048,MOBILE?1024:2048);
+const sc=sun.shadow.camera; sc.left=-30; sc.right=30; sc.top=30; sc.bottom=-30; sc.near=1; sc.far=95;
+sun.shadow.bias=-0.0006; sun.shadow.normalBias=0.02;
+scene.add(sun); scene.add(sun.target);
+const isi=new THREE.DirectionalLight(0xbfd9ff,.32); isi.position.set(-16,12,-14); scene.add(isi);
+
+/* ─────────────── bahan bersama ─────────────── */
+const M=(c,o={})=>new THREE.MeshLambertMaterial(Object.assign({color:c},o));
+const MS=(c,o={})=>new THREE.MeshPhongMaterial(Object.assign({color:c,shininess:26},o));
+const bahan={
+  kayu:M(0xa9713f), kayuT:M(0x8a5730), papan:M(0xc79a63), papanGelap:M(0x7d5330),
+  putih:M(0xf7f3e8), krim:M(0xf2e5c8), teal:M(0x18a79c), merah:M(0xe8462f),
+  kuning:M(0xffd230), hijau:M(0x3fa34d), hijauT:M(0x2b7a3a), daun:M(0x4aa14a),
+  tanah:M(0x8b5a3c), air:MS(0x59a9c9,{shininess:80,transparent:true,opacity:.9}),
+  batu:M(0x9aa0a6), jalan:M(0x4b5158), simen:M(0xcfc9bb),
+  logam:MS(0xb9c2c9,{shininess:70}), gelap:M(0x2c3138),
+  kaca:MS(0x9fd7e8,{transparent:true,opacity:.42,shininess:90}),
+  ayam:M(0xfbfaf5), jingga:M(0xf0932b), pinkT:M(0xe36a86),
+};
+const geo={
+  kotak:new THREE.BoxGeometry(1,1,1),
+  sfera:new THREE.SphereGeometry(.5,12,10),
+  sferaK:new THREE.SphereGeometry(.5,8,6),
+  sil:new THREE.CylinderGeometry(.5,.5,1,12),
+  silK:new THREE.CylinderGeometry(.5,.5,1,7),
+  kon:new THREE.ConeGeometry(.5,1,10),
+  ikos:new THREE.IcosahedronGeometry(.5,0),
+};
+function kotak(w,h,d,mat,x=0,y=0,z=0,bayang=true){
+  const m=new THREE.Mesh(geo.kotak,mat); m.scale.set(w,h,d); m.position.set(x,y,z);
+  m.castShadow=bayang; m.receiveShadow=bayang; return m;
+}
+function sil(r,h,mat,x=0,y=0,z=0,kasar=false,bayang=true){
+  const m=new THREE.Mesh(kasar?geo.silK:geo.sil,mat); m.scale.set(r*2,h,r*2); m.position.set(x,y,z);
+  m.castShadow=bayang; m.receiveShadow=bayang; return m;
+}
+function sfera(r,mat,x=0,y=0,z=0,kasar=false){
+  const m=new THREE.Mesh(kasar?geo.sferaK:geo.sfera,mat); m.scale.setScalar(r*2); m.position.set(x,y,z);
+  m.castShadow=true; m.receiveShadow=true; return m;
+}
+/* leperkan sfera/kotak tanpa memusnahkan skala asal */
+function leper(m,sx,sy,sz){ m.scale.set(m.scale.x*sx,m.scale.y*sy,m.scale.z*sz); return m; }
+function kon(r,h,mat,x=0,y=0,z=0){
+  const m=new THREE.Mesh(geo.kon,mat); m.scale.set(r*2,h,r*2); m.position.set(x,y,z);
+  m.castShadow=true; m.receiveShadow=true; return m;
+}
+
+/* ─────────────── halangan (kolisi AABB) ─────────────── */
+const halangan=[];
+function hal(cx,cz,w,d,aktif=true){
+  const b={x0:cx-w/2,x1:cx+w/2,z0:cz-d/2,z1:cz+d/2,aktif};
+  halangan.push(b); return b;
+}
+function selesaiKolisi(p,r){
+  for(let i=0;i<halangan.length;i++){
+    const b=halangan[i];
+    if(!b.aktif)continue;
+    const cx=clamp(p.x,b.x0,b.x1), cz=clamp(p.z,b.z0,b.z1);
+    const dx=p.x-cx, dz=p.z-cz, d2=dx*dx+dz*dz;
+    if(d2<r*r){
+      if(d2>1e-7){ const d=Math.sqrt(d2); p.x=cx+dx/d*r; p.z=cz+dz/d*r; }
+      else{
+        const kl=p.x-b.x0, kr=b.x1-p.x, ka=p.z-b.z0, kb=b.z1-p.z;
+        const m=Math.min(kl,kr,ka,kb);
+        if(m===kl)p.x=b.x0-r; else if(m===kr)p.x=b.x1+r; else if(m===ka)p.z=b.z0-r; else p.z=b.z1+r;
+      }
+    }
+  }
+  p.x=clamp(p.x,-16,16); p.z=clamp(p.z,-27,20);
+}
+
+/* ─────────────── dunia: tanah, jalan, kampung ─────────────── */
+(function binaTanah(){
+  const texRumput=texKanvas(256,256,(g,w,h)=>{
+    g.fillStyle='#77bf4c'; g.fillRect(0,0,w,h);
+    for(let i=0;i<1400;i++){
+      g.fillStyle=`rgba(${rndi(80,130)},${rndi(150,200)},${rndi(60,100)},.5)`;
+      g.fillRect(Math.random()*w,Math.random()*h,rnd(1,4),rnd(1,4));
+    }
+  });
+  texRumput.wrapS=texRumput.wrapT=THREE.RepeatWrapping; texRumput.repeat.set(16,16);
+  const tanah=new THREE.Mesh(new THREE.PlaneGeometry(220,220),M(0xffffff,{map:texRumput}));
+  tanah.rotation.x=-PI/2; tanah.receiveShadow=true; scene.add(tanah);
+
+  // jalan tar + bahu jalan
+  const jalan=new THREE.Mesh(new THREE.PlaneGeometry(90,7.4),bahan.jalan);
+  jalan.rotation.x=-PI/2; jalan.position.set(0,.02,16.5); jalan.receiveShadow=true; scene.add(jalan);
+  for(let x=-40;x<40;x+=5){
+    const g=kotak(2.2,.02,.22,bahan.krim,x,.04,16.5,false); scene.add(g);
+  }
+  const kaki=new THREE.Mesh(new THREE.PlaneGeometry(90,3.4),bahan.simen);
+  kaki.rotation.x=-PI/2; kaki.position.set(0,.03,11.6); kaki.receiveShadow=true; scene.add(kaki);
+  // longkang
+  const lk=kotak(90,.3,.9,bahan.batu,0,.06,10.0,false); scene.add(lk);
+  const lkd=kotak(89,.1,.6,bahan.gelap,0,.19,10.0,false); scene.add(lkd);
+})();
+
+/* pokok kelapa / pisang / pokok bunga */
+function pokokKelapa(x,z,s=1){
+  const g=new THREE.Group(); g.position.set(x,0,z);
+  const t=sil(.22*s,4.6*s,bahan.kayuT,0,2.3*s,0,true); t.rotation.z=rnd(-.08,.08); g.add(t);
+  for(let i=0;i<7;i++){
+    const d=kotak(2.9*s,.12*s,.75*s,bahan.hijauT,0,0,0);
+    d.position.set(Math.cos(i/7*TAU)*1.35*s,4.5*s,Math.sin(i/7*TAU)*1.35*s);
+    d.rotation.y=-i/7*TAU; d.rotation.z=-.42; g.add(d);
+  }
+  for(let i=0;i<3;i++) g.add(sfera(.2*s,bahan.kayu,Math.cos(i*2.1)*.35*s,4.2*s,Math.sin(i*2.1)*.35*s,true));
+  scene.add(g); return g;
+}
+function pokokBunga(x,z,warna){
+  const g=new THREE.Group(); g.position.set(x,0,z);
+  g.add(sil(.12,.7,bahan.kayuT,0,.35,0,true));
+  for(let i=0;i<4;i++){
+    const b=new THREE.Mesh(geo.ikos,M(warna)); b.scale.setScalar(rnd(.7,1.1));
+    b.position.set(rnd(-.4,.4),rnd(.75,1.25),rnd(-.4,.4)); b.castShadow=true; g.add(b);
+  }
+  scene.add(g); return g;
+}
+function rumahKampung(x,z,ry,warna){
+  const g=new THREE.Group(); g.position.set(x,0,z); g.rotation.y=ry;
+  for(const dx of[-2.2,2.2])for(const dz of[-1.6,1.6]) g.add(sil(.16,1.2,bahan.kayuT,dx,.6,dz,true));
+  g.add(kotak(5.6,2.3,4.2,M(warna),0,2.35,0));
+  const bumbung=kon(4.4,1.7,bahan.merah,0,4.35,0); bumbung.rotation.y=PI/4; g.add(bumbung);
+  g.add(kotak(.9,1.5,.1,bahan.kayuT,0,1.95,2.15));
+  for(const dx of[-1.8,1.8]) g.add(kotak(.9,.8,.1,bahan.kaca,dx,2.6,2.14));
+  scene.add(g); return g;
+}
+const lampuJalan=[];
+function tiangLampu(x,z){
+  const g=new THREE.Group(); g.position.set(x,0,z);
+  g.add(sil(.11,5,bahan.batu,0,2.5,0,true));
+  g.add(kotak(1.4,.14,.24,bahan.batu,.6,4.95,0));
+  const kepala=kotak(.8,.22,.4,bahan.kuning,1.15,4.8,0); g.add(kepala);
+  const cahaya=new THREE.PointLight(0xffd79a,0,11,2); cahaya.position.set(1.15,4.6,0); g.add(cahaya);
+  scene.add(g); lampuJalan.push({kepala,cahaya}); return g;
+}
+/* motosikal kapcai */
+function motosikal(x,z,ry){
+  const g=new THREE.Group(); g.position.set(x,0,z); g.rotation.y=ry;
+  g.add(kotak(1.5,.28,.4,bahan.merah,0,.62,0));
+  g.add(kotak(.55,.3,.42,bahan.gelap,-.42,.86,0));
+  g.add(kotak(.6,.5,.34,bahan.kuning,.62,.7,0));
+  for(const dx of[-.72,.72]){
+    const w=sil(.34,.16,bahan.gelap,dx,.34,0,true); w.rotation.z=PI/2; g.add(w);
+    const r=sil(.18,.18,bahan.logam,dx,.34,0,true); r.rotation.z=PI/2; g.add(r);
+  }
+  const stang=kotak(.1,.5,1.0,bahan.logam,.66,1.05,0); g.add(stang);
+  scene.add(g); return g;
+}
+function mejaKerusi(x,z){
+  const g=new THREE.Group(); g.position.set(x,0,z);
+  g.add(sil(.72,.08,bahan.merah,0,.74,0,true));
+  g.add(sil(.09,.74,bahan.logam,0,.37,0,true));
+  for(let i=0;i<3;i++){
+    const a=i/3*TAU, k=new THREE.Group();
+    k.position.set(Math.cos(a)*1.35,0,Math.sin(a)*1.35); k.rotation.y=-a;
+    k.add(kotak(.5,.07,.5,bahan.kuning,0,.44,0));
+    k.add(kotak(.5,.5,.07,bahan.kuning,0,.68,-.22));
+    for(const dx of[-.19,.19])for(const dz of[-.19,.19]) k.add(sil(.03,.44,bahan.logam,dx,.22,dz,true));
+    g.add(k);
+  }
+  scene.add(g); return g;
+}
+/* kucing kampung tidur */
+let kucing=null;
+function binaKucing(x,z){
+  const g=new THREE.Group(); g.position.set(x,0,z); g.rotation.y=rnd(0,TAU);
+  const badan=leper(sfera(.34,M(0xdca55c),0,.3,0),1.2,.62,.75); g.add(badan);
+  g.add(sfera(.2,M(0xdca55c),.42,.4,0,true));
+  for(const dz of[-.1,.1]) g.add(kon(.07,.14,M(0xc98c46),.45,.58,dz));
+  const ekor=kotak(.5,.09,.09,M(0xdca55c),-.5,.3,0); g.add(ekor);
+  scene.add(g); kucing={g,ekor};
+}
+
+/* ─────────────── bangunan kedai ─────────────── */
+const TINGGI_DINDING=1.35;
+function binaKedai(){
+  const g=new THREE.Group(); scene.add(g);
+  // lantai berjubin
+  const texJubin=texKanvas(128,128,(c,w,h)=>{
+    c.fillStyle='#f2e6cf'; c.fillRect(0,0,w,h);
+    c.fillStyle='#e2cfae'; c.fillRect(0,0,w/2,h/2); c.fillRect(w/2,h/2,w/2,h/2);
+    c.strokeStyle='rgba(140,115,80,.35)'; c.lineWidth=2; c.strokeRect(0,0,w,h);
+  });
+  texJubin.wrapS=texJubin.wrapT=THREE.RepeatWrapping; texJubin.repeat.set(8,9);
+  const lantai=new THREE.Mesh(new THREE.PlaneGeometry(15.4,17.4),M(0xffffff,{map:texJubin}));
+  lantai.rotation.x=-PI/2; lantai.position.set(0,.05,.5); lantai.receiveShadow=true; g.add(lantai);
+
+  // dinding: kiri & kanan penuh, celah belakang (x -1.8..1.8) ke ladang, celah depan = pintu
+  const dindingBawah=M(0x1a8f88), dindingAtas=M(0xfaf1de);
+  function dinding(cx,cz,w,d){
+    const b=kotak(w,.62,d,dindingBawah,cx,.31,cz); g.add(b);
+    const a=kotak(w,TINGGI_DINDING-.62,d,dindingAtas,cx,.62+(TINGGI_DINDING-.62)/2,cz); g.add(a);
+    const t=kotak(w+.08,.1,d+.08,bahan.krim,cx,TINGGI_DINDING+.03,cz); g.add(t);
+    hal(cx,cz,w,d);
+  }
+  dinding(-7.8,0.5,.62,17.6);                  // kiri
+  dinding( 7.8,0.5,.62,17.6);                  // kanan
+  dinding(-4.65,9.3,5.7,.62);                  // depan kiri
+  dinding( 4.65,9.3,5.7,.62);                  // depan kanan
+  dinding(-4.65,-8.3,5.7,.62);                 // belakang kiri
+  dinding( 4.65,-8.3,5.7,.62);                 // belakang kanan
+
+  // tiang sudut
+  for(const [x,z] of [[-7.8,-8.3],[7.8,-8.3],[-7.8,9.3],[7.8,9.3]]){
+    g.add(kotak(.85,2.9,.85,bahan.krim,x,1.45,z));
+    g.add(kotak(1.0,.2,1.0,bahan.merah,x,2.95,z));
+  }
+  // tiang penyangga awning (di luar, atas kaki lima)
+  for(const x of [-6.6,-2.6,2.6,6.6]) g.add(sil(.13,3.1,bahan.krim,x,1.55,12.1,true));
+
+  // awning berjalur merah-putih — diletak di luar supaya tidak menutup dalam kedai
+  const awn=new THREE.Group(); awn.position.set(0,3.15,11.2); awn.rotation.x=-.26; g.add(awn);
+  for(let i=-11;i<=11;i++){
+    awn.add(kotak(1.0,.09,2.0,i%2?bahan.merah:bahan.putih,i*1.0,0,0));
+  }
+  awn.add(kotak(23,.14,.24,bahan.krim,0,.02,1.02));
+
+  // papan tanda kedai
+  const texTanda=texKanvas(1024,256,(c,w,h)=>{
+    const gr=c.createLinearGradient(0,0,0,h); gr.addColorStop(0,'#ffd230'); gr.addColorStop(1,'#f0a01e');
+    c.fillStyle=gr; c.fillRect(0,0,w,h);
+    c.strokeStyle='#c62d1c'; c.lineWidth=16; c.strokeRect(8,8,w-16,h-16);
+    c.fillStyle='#7a1f0f'; c.font='900 108px Georgia,serif'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('KEDAI  SAYA',w/2,104);
+    c.fillStyle='#2c1a05'; c.font='700 42px Segoe UI,Arial'; c.fillText('RUNCIT · SAYUR · TELUR KAMPUNG',w/2,192);
+  });
+  const tanda=new THREE.Mesh(new THREE.PlaneGeometry(11.6,2.5),M(0xffffff,{map:texTanda}));
+  tanda.position.set(0,5.3,12.2); tanda.rotation.x=-.2; g.add(tanda);
+  g.add(kotak(12.0,2.8,.26,bahan.merah,0,5.3,12.06));   // rangka di belakang papan
+  for(const x of [-5.2,5.2]) g.add(sil(.1,1.5,bahan.logam,x,4.0,12.1,true));
+
+  // papan BUKA / TUTUP
+  const texBuka=texKanvas(256,128,(c,w,h)=>{
+    c.fillStyle='#1c8f5a'; c.fillRect(0,0,w,h);
+    c.fillStyle='#fff'; c.font='900 64px Segoe UI,Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('BUKA',w/2,h/2);
+  });
+  const texTutup=texKanvas(256,128,(c,w,h)=>{
+    c.fillStyle='#b82c1c'; c.fillRect(0,0,w,h);
+    c.fillStyle='#fff'; c.font='900 56px Segoe UI,Arial'; c.textAlign='center'; c.textBaseline='middle';
+    c.fillText('TUTUP',w/2,h/2);
+  });
+  const papanBuka=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.75),M(0xffffff,{map:texBuka}));
+  papanBuka.position.set(4.2,2.5,12.35); g.add(papanBuka);
+  const papanTutup=new THREE.Mesh(new THREE.PlaneGeometry(1.5,.75),M(0xffffff,{map:texTutup}));
+  papanTutup.position.set(4.2,2.5,12.35); papanTutup.visible=false; g.add(papanTutup);
+
+  // bunting warna-warni tergantung di hadapan awning
+  const warnaBunting=[0xe8462f,0xffd230,0x18a79c,0x3fa34d,0xe36a86];
+  for(let i=0;i<22;i++){
+    const t=i/21, x=lerp(-7.4,7.4,t);
+    const y=4.2+Math.sin(t*PI)*-.5;
+    const b=kon(.19,.42,M(warnaBunting[i%5]),x,y,12.35); b.rotation.x=PI; g.add(b);
+  }
+
+  // lampu dalam kedai
+  const lampuDalam=[];
+  for(const z of [-6,0,6]){
+    g.add(kotak(3.2,.12,.4,bahan.krim,0,2.62,z));
+    const p=new THREE.PointLight(0xffe6b0,0,15,1.7); p.position.set(0,2.5,z); g.add(p); lampuDalam.push(p);
+  }
+  // peti sejuk hiasan (sudut belakang kiri)
+  const peti=new THREE.Group(); peti.position.set(-6.5,0,-7.1); g.add(peti);
+  peti.add(kotak(2.2,2.0,1.0,bahan.putih,0,1.0,0));
+  peti.add(kotak(1.9,1.4,.08,bahan.kaca,0,1.15,.53));
+  peti.add(kotak(2.2,.2,1.1,bahan.teal,0,2.08,0));
+  hal(-6.5,-7.1,2.2,1.0);
+  for(let i=0;i<5;i++) peti.add(sfera(.16,M(pick([0xe8462f,0xffd230,0x18a79c])),rnd(-.8,.8),rnd(.5,1.7),.26,true));
+
+  // rak hiasan (sudut belakang kanan)
+  const hiasan=new THREE.Group(); hiasan.position.set(6.5,0,-7.4); g.add(hiasan);
+  for(let t=0;t<3;t++){
+    hiasan.add(kotak(2.4,.08,.7,bahan.papan,0,.6+t*.6,0));
+    for(let i=0;i<4;i++) hiasan.add(sil(.12,.34,M(pick([0xe8462f,0xffd230,0x18a79c,0x3fa34d])),-.9+i*.6,.8+t*.6,0,true));
+  }
+  hal(6.5,-7.4,2.4,.7);
+
+  // hiasan lantai: peti kayu, tong gas, tikar mengkuang, papan tanda harga
+  for(const [x,z] of [[-6.7,-3.4],[-6.7,-1.8],[6.7,-3.4]]){
+    const p=new THREE.Group(); p.position.set(x,0,z); g.add(p);
+    for(let i=0;i<2;i++){
+      const b=kotak(1.05,.5,.95,M(i?0xb98a52:0xcb9d62),rnd(-.05,.05),.26+i*.52,rnd(-.05,.05));
+      b.rotation.y=rnd(-.2,.2); p.add(b);
+      p.add(kotak(1.08,.07,.98,bahan.kayuT,0,.52+i*.52,0,false));
+    }
+    for(let i=0;i<3;i++) p.add(sfera(.15,M(pick([0xe8462f,0xffd230,0x53b84c])),rnd(-.3,.3),1.14,rnd(-.3,.3),true));
+  }
+  for(const [x,z] of [[6.8,-1.6],[6.8,-0.4]]){
+    g.add(sil(.3,1.0,M(0xd94f3a),x,.5,z,true));
+    g.add(sil(.14,.16,bahan.logam,x,1.06,z,true));
+  }
+  const tikar=new THREE.Mesh(new THREE.PlaneGeometry(3.2,1.8),M(0xc98f5a));
+  tikar.rotation.x=-PI/2; tikar.position.set(0,.07,7.6); tikar.receiveShadow=true; g.add(tikar);
+  for(let i=-3;i<=3;i++) g.add(kotak(.06,.02,1.7,M(0xb5793f),i*.44,.08,7.6,false));
+
+  return {papanBuka,papanTutup,lampuDalam};
+}
+const KEDAI=binaKedai();
+
+/* luaran & kampung */
+pokokKelapa(-12,6,1.05); pokokKelapa(-11,-2.5,.9); pokokKelapa(12.5,6.5,1.0);
+pokokKelapa(11.5,-2,.92); pokokKelapa(-13,-19,1.0); pokokKelapa(13,-19,.95);
+pokokKelapa(-11,19,1.1); pokokKelapa(10,20,1.0); pokokKelapa(-15,13,1.05);
+pokokBunga(-9.6,8.5,0xe36a86); pokokBunga(-10.4,3,0xffd230); pokokBunga(9.6,9.0,0xe36a86);
+pokokBunga(10.4,3.5,0xf0932b); pokokBunga(-12,11,0x9b59b6); pokokBunga(12,11.5,0x9b59b6);
+pokokBunga(-11.5,-25,0xffd230); pokokBunga(11.5,-25,0xe36a86);
+rumahKampung(-15,25,.25,0xf3e2c0); rumahKampung(4,26,-.2,0xd8e9f5); rumahKampung(17,24,.1,0xf6d9c0);
+tiangLampu(-9,11.4); tiangLampu(9,11.4); tiangLampu(-20,11.4);
+motosikal(-6.0,13.6,.35); motosikal(-4.6,13.8,-.2); mejaKerusi(6.4,13.8);
+binaKucing(-8.6,11.0);
+// bukit jauh
+for(let i=0;i<7;i++){
+  const b=kon(rnd(9,16),rnd(4,8),M(0x6fa85e),rnd(-70,70),0,-rnd(48,70)); b.castShadow=false; scene.add(b);
+}
+
+/* ─────────────── label DOM dunia ─────────────── */
+const lapisLabel=$('lbls');
+const semuaLabel=[];
+function buatLabel(html,kelas,pos,oy=1.8){
+  const el=document.createElement('div'); el.className='lbl '+(kelas||''); el.innerHTML=html;
+  lapisLabel.appendChild(el);
+  const k=kelas||'';
+  const L={el,pos:pos.clone(),oy,tampak:true,skala:1,selalu:k.indexOf('pad')>=0||k.indexOf('emo')>=0};
+  semuaLabel.push(L); return L;
+}
+const _v=new THREE.Vector3();
+function kemasLabel(){
+  const w=innerWidth,h=innerHeight;
+  for(let i=0;i<semuaLabel.length;i++){
+    const L=semuaLabel[i];
+    if(!L.tampak){ if(L.el.style.display!=='none')L.el.style.display='none'; continue; }
+    if(!L.selalu){
+      const dx=L.pos.x-P.g.position.x, dz=L.pos.z-P.g.position.z;
+      const d=Math.sqrt(dx*dx+dz*dz);
+      if(d>16){ L.el.style.display='none'; continue; }
+      L.el.style.opacity=d>8.5?clamp(1-(d-8.5)/7,.12,1).toFixed(2):'1';
+    }
+    _v.set(L.pos.x,L.pos.y+L.oy,L.pos.z).project(camera);
+    if(_v.z>1){ L.el.style.display='none'; continue; }
+    const x=(_v.x*.5+.5)*w, y=(-_v.y*.5+.5)*h;
+    if(x<-140||x>w+140||y<-90||y>h+90){ L.el.style.display='none'; continue; }
+    if(L.el.style.display==='none')L.el.style.display='';
+    L.el.style.transform=`translate(-50%,-50%) scale(${L.skala})`;
+    L.el.style.left=x+'px'; L.el.style.top=y+'px';
+  }
+}
+/* teks terapung */
+const apung=[];
+function teksApung(pos,teks,warna='#ffd230',naik=1.5){
+  const el=document.createElement('div'); el.className='flt'; el.textContent=teks;
+  el.style.color=warna; lapisLabel.appendChild(el);
+  apung.push({el,pos:pos.clone(),t:0,naik});
+  if(apung.length>26){ const o=apung.shift(); o.el.remove(); }
+}
+function kemasApung(dt){
+  const w=innerWidth,h=innerHeight;
+  for(let i=apung.length-1;i>=0;i--){
+    const a=apung[i]; a.t+=dt;
+    if(a.t>1.15){ a.el.remove(); apung.splice(i,1); continue; }
+    _v.set(a.pos.x,a.pos.y+1.9+a.t*a.naik,a.pos.z).project(camera);
+    a.el.style.left=((_v.x*.5+.5)*w)+'px'; a.el.style.top=((-_v.y*.5+.5)*h)+'px';
+    a.el.style.opacity=String(1-Math.max(0,(a.t-.55)/.6));
+    a.el.style.transform=`translate(-50%,-50%) scale(${1+Math.min(a.t*1.6,.35)})`;
+  }
+}
+
+/* ─────────────── partikel ─────────────── */
+const texZarah=texKanvas(64,64,(c,w,h)=>{
+  const g=c.createRadialGradient(32,32,0,32,32,32);
+  g.addColorStop(0,'rgba(255,255,255,1)'); g.addColorStop(.4,'rgba(255,255,255,.7)');
+  g.addColorStop(1,'rgba(255,255,255,0)'); c.fillStyle=g; c.fillRect(0,0,w,h);
+});
+const ZARAH_MAKS=MOBILE?90:150;
+const kolamZarah=[];
+for(let i=0;i<ZARAH_MAKS;i++){
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:texZarah,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+  s.visible=false; s.scale.setScalar(.3); scene.add(s);
+  kolamZarah.push({s,hidup:0,maks:1,v:V3(0,0,0),skala:.3,grav:-4});
+}
+let zIdx=0;
+function zarah(pos,n,warna,kuat=3,skala=.32,grav=-5,tambah=0){
+  for(let i=0;i<n;i++){
+    const p=kolamZarah[zIdx]; zIdx=(zIdx+1)%ZARAH_MAKS;
+    p.hidup=0; p.maks=rnd(.35,.75);
+    p.s.visible=true; p.s.material.color.set(warna); p.s.material.opacity=1;
+    p.s.position.copy(pos); p.s.position.y+=tambah;
+    p.skala=skala*rnd(.7,1.3); p.s.scale.setScalar(p.skala);
+    p.v.set(rnd(-1,1)*kuat,rnd(.4,1.4)*kuat,rnd(-1,1)*kuat); p.grav=grav;
+  }
+}
+function kemasZarah(dt){
+  for(let i=0;i<ZARAH_MAKS;i++){
+    const p=kolamZarah[i]; if(!p.s.visible)continue;
+    p.hidup+=dt;
+    if(p.hidup>=p.maks){ p.s.visible=false; continue; }
+    p.v.y+=p.grav*dt;
+    p.s.position.addScaledVector(p.v,dt);
+    const t=p.hidup/p.maks;
+    p.s.material.opacity=1-t;
+    p.s.scale.setScalar(p.skala*(1+t*.9));
+  }
+}
+/* konfeti buka kawasan */
+const konfeti=[];
+const BAHAN_KONFETI=[0xffd230,0xe8462f,0x18a79c,0x3fa34d,0xffffff,0xe36a86].map(c=>M(c));
+function letupKonfeti(pos){
+  for(let i=0;i<(MOBILE?26:44);i++){
+    let k=konfeti.find(c=>!c.m.visible);
+    if(!k){
+      if(konfeti.length>60)break;
+      const m=kotak(.16,.16,.03,BAHAN_KONFETI[0],0,0,0,false); scene.add(m);
+      k={m,v:V3(),spin:V3(),hidup:0}; konfeti.push(k);
+    }
+    k.m.visible=true; k.m.material=pick(BAHAN_KONFETI);
+    k.m.position.copy(pos); k.m.position.y+=.6;
+    k.v.set(rnd(-5,5),rnd(4,9),rnd(-5,5));
+    k.spin.set(rnd(-9,9),rnd(-9,9),rnd(-9,9)); k.hidup=0;
+  }
+}
+function kemasKonfeti(dt){
+  for(const k of konfeti){
+    if(!k.m.visible)continue;
+    k.hidup+=dt; if(k.hidup>2.1){k.m.visible=false;continue;}
+    k.v.y-=13*dt; k.m.position.addScaledVector(k.v,dt);
+    k.m.rotation.x+=k.spin.x*dt; k.m.rotation.y+=k.spin.y*dt; k.m.rotation.z+=k.spin.z*dt;
+    if(k.m.position.y<.08){ k.m.position.y=.08; k.v.set(0,0,0); }
+  }
+}
+
+/* ─────────────── mesh produk ─────────────── */
+function meshProduk(jenis){
+  const g=new THREE.Group();
+  if(jenis==='beras'){
+    g.add(kotak(.33,.42,.28,M(0xf7ecd2),0,.21,0));            // guni beras putih
+    g.add(kotak(.24,.15,.03,M(0xc0392b),0,.24,.15,false));    // label merah
+    g.add(kotak(.22,.09,.2,M(0xc9ad78),0,.45,0,false));       // ikatan atas
+    g.add(kotak(.35,.04,.3,M(0xd8bf8e),0,.04,0,false));       // tapak
+  }else if(jenis==='sayur'){
+    const b=leper(sfera(.19,M(0x3f9c3d),0,.19,0,true),1,.8,1); g.add(b);
+    for(let i=0;i<5;i++){
+      const d=kotak(.2,.05,.12,M(0x5fc257),0,0,0,false);
+      d.position.set(Math.cos(i*1.3)*.14,.26,Math.sin(i*1.3)*.14);
+      d.rotation.set(rnd(-.4,.4),i*1.3,rnd(-.3,.3)); g.add(d);
+    }
+  }else if(jenis==='telur'){
+    g.add(kotak(.38,.09,.28,M(0xb5793f),0,.05,0));            // dulang kadbod
+    for(let i=0;i<4;i++){
+      const e=sfera(.085,M(0xf6e3c0),(i%2?.09:-.09),.15,(i<2?-.07:.07),true);
+      leper(e,1,1.3,1); g.add(e);
+    }
+  }else{ // nasi lemak — bungkus daun pisang berbentuk piramid
+    g.add(kotak(.32,.09,.26,M(0x2f7d4f),0,.045,0));
+    const t=kon(.19,.44,M(0x4fbf62),0,.31,0); t.rotation.y=PI/4; g.add(t);
+    const nasi=kon(.1,.15,M(0xfdfaf0),0,.55,0); nasi.rotation.y=PI/4; g.add(nasi);
+    g.add(sfera(.065,M(0xe8462f),0,.64,0,true));
+    g.add(kotak(.34,.03,.28,M(0x25603c),0,.1,0,false));
+  }
+  g.traverse(o=>{ if(o.isMesh){o.castShadow=false;o.receiveShadow=false;} });
+  return g;
+}
+
+/* ─────────────── watak (orang) ─────────────── */
+const WARNA_KULIT=[0xf5d6b6,0xe9bf95,0xd8a172,0xc08a5c,0xa06f45];
+const WARNA_BAJU=[0xe8462f,0x18a79c,0xffd230,0x3fa34d,0x8e6bd6,0xe36a86,0x3d7bd6,0xf0932b,0xf7f3e8,0x2c3138];
+const WARNA_RAMBUT=[0x22201e,0x3a2a1c,0x5a3a22,0x14120f];
+const NAMA=['Puan Aminah','Encik Tan','Ah Meng','Kumar','Siti','Mei Ling','Ravi','Fatimah','Devi','Wong','Azman','Priya','Lim','Hafiz','Sunita','Chong','Nurul','Bala','Jia Wei','Rosli'];
+
+function binaOrang(op={}){
+  const g=new THREE.Group();
+  const kulit=M(op.kulit||pick(WARNA_KULIT));
+  const baju=M(op.baju||pick(WARNA_BAJU));
+  const rambut=M(pick(WARNA_RAMBUT));
+  const tinggi=op.tinggi||1;
+  const badan=new THREE.Group(); badan.position.y=0; g.add(badan);
+
+  const torso=new THREE.Mesh(new THREE.CylinderGeometry(.3,.36,.78,10),baju);
+  torso.position.y=1.02*tinggi; torso.castShadow=true; badan.add(torso);
+  // kain / apron
+  if(op.apron){
+    const ap=new THREE.Mesh(new THREE.CylinderGeometry(.37,.44,.5,10),M(op.apron));
+    ap.position.y=.72*tinggi; ap.castShadow=true; badan.add(ap);
+  }
+  if(op.kain){ // kain batik / baju kurung bawah
+    const k=new THREE.Mesh(new THREE.CylinderGeometry(.36,.5,.62,10),M(op.kain));
+    k.position.y=.62*tinggi; k.castShadow=true; badan.add(k);
+  }
+  const kepala=sfera(.26,kulit,0,1.62*tinggi,0); badan.add(kepala);
+  // muka
+  for(const dx of[-.1,.1]) badan.add(sfera(.035,bahan.gelap,dx,1.66*tinggi,.23,true));
+  const mulut=kotak(.11,.025,.02,M(0x8a4a3a),0,1.55*tinggi,.245,false); badan.add(mulut);
+
+  const gaya=op.gaya||pick(['rambut','tudung','songkok','kopiah','sanggul','topi']);
+  if(gaya==='tudung'){
+    const t=sfera(.31,M(op.tudung||pick([0xf6c3d5,0xf7f3e8,0x9fd9e8,0xe8b3f0,0xffd230,0xb5e0c0])),0,1.63*tinggi,0);
+    leper(t,1,1.08,1); badan.add(t);
+    const l=kotak(.5,.42,.06,t.material,0,1.36*tinggi,-.17,false); badan.add(l);
+  }else if(gaya==='songkok'){
+    badan.add(sil(.24,.24,M(0x1b1f2a),0,1.86*tinggi,0,true));
+    const r=leper(sfera(.27,rambut,0,1.66*tinggi,-.05,true),1,.6,1); badan.add(r);
+  }else if(gaya==='kopiah'){
+    const k=leper(sfera(.24,M(0xf7f3e8),0,1.78*tinggi,0,true),1,.65,1); badan.add(k);
+    const rk=leper(sfera(.27,rambut,0,1.64*tinggi,-.04,true),1,.6,1); badan.add(rk);
+  }else if(gaya==='sanggul'){
+    const r=leper(sfera(.28,rambut,0,1.66*tinggi,-.02,true),1,.85,1); badan.add(r);
+    badan.add(sfera(.14,rambut,0,1.7*tinggi,-.26,true));
+  }else if(gaya==='topi'){
+    const wt=op.topi||pick([0xe8462f,0x3d7bd6,0x2c3138]);
+    badan.add(sil(.25,.16,M(wt),0,1.82*tinggi,0,true));
+    badan.add(kotak(.44,.05,.3,M(wt),0,1.76*tinggi,.22,false));
+    const r=leper(sfera(.27,rambut,0,1.63*tinggi,-.04,true),1,.6,1); badan.add(r);
+  }else{
+    const r=leper(sfera(.28,rambut,0,1.68*tinggi,-.01,true),1,.72,1); badan.add(r);
+  }
+  // tangan
+  const tangan=[];
+  for(const dx of[-.36,.36]){
+    const t=kotak(.14,.55,.14,baju,dx,1.06*tinggi,0); badan.add(t); tangan.push(t);
+    badan.add(sfera(.09,kulit,dx,.78*tinggi,0,true));
+  }
+  // kaki
+  const kaki=[];
+  for(const dx of[-.14,.14]){
+    const k=kotak(.17,.62,.19,M(op.seluar||0x3a4250),dx,.33,0); badan.add(k); kaki.push(k);
+    badan.add(kotak(.19,.09,.3,M(0x2a2f38),dx,.05,.05,false));
+  }
+  g.userData={badan,kaki,tangan,kepala,tinggi};
+  return g;
+}
+
+/* timbunan barang di atas kepala */
+function binaTimbunan(g,tinggi){
+  const t=new THREE.Group(); t.position.y=1.92*tinggi; g.add(t); return t;
+}
+function kemasTimbunan(holder){
+  const {timbunan,bawa}=holder;
+  const kunci=bawa.join(',');
+  if(holder._kunciBawa===kunci)return;
+  holder._kunciBawa=kunci;
+  timbunan.clear();
+  const nampak=Math.min(bawa.length,12);
+  for(let i=0;i<nampak;i++){
+    const m=meshProduk(bawa[i]);
+    m.position.set(0,i*.3,0); m.rotation.y=i*.5;
+    timbunan.add(m);
+  }
+}
+
+/* ─────────────── pemain ─────────────── */
+const P={
+  g:binaOrang({baju:0xffd230,apron:0x18a79c,gaya:'songkok',seluar:0x2f3542,kulit:0xe9bf95}),
+  pos:V3(0,0,6), hala:0, laju:0, bawa:[], prog:0, progId:'',
+  langkah:0,
+};
+P.g.position.copy(P.pos); P.g.scale.setScalar(1.1); scene.add(P.g);
+P.timbunan=binaTimbunan(P.g,1);
+/* cincin penanda di bawah pemain supaya senang dijejak */
+const cincinPemain=new THREE.Mesh(new THREE.RingGeometry(.52,.72,20),
+  M(0xffd230,{transparent:true,opacity:.75,side:THREE.DoubleSide}));
+cincinPemain.rotation.x=-PI/2; cincinPemain.position.y=.12; P.g.add(cincinPemain);
+buatLabel('Pemilik','',P.pos,2.35).el.style.opacity='.75';
+const labelPemilik=semuaLabel[semuaLabel.length-1];
+
+/* ─────────────── RAK ─────────────── */
+class Rak{
+  constructor(def){
+    Object.assign(this,def);
+    this.stok=G.stok[def.id]||0; this.tempah=0; this.masaKosong=0;
+    this.pos=V3(def.x,0,def.z);
+    this.depan=V3(def.x,0,def.z+2.05);
+    this.g=new THREE.Group(); this.g.position.set(def.x,0,def.z);
+    scene.add(this.g);
+    // gerai bertingkat terbuka — semua barang nampak dari kamera atas
+    const TY=[.54,.80,1.06,1.32], TZ=[.46,.14,-.18,-.50];
+    this.g.add(kotak(2.9,.46,1.32,bahan.kayu,0,.23,0));
+    this.g.add(kotak(3.04,.1,1.44,bahan.papan,0,.51,0));
+    for(let t=1;t<4;t++){
+      const h=TY[t]-.54;
+      this.g.add(kotak(2.9,h,.36,bahan.papanGelap,0,.54+h/2,TZ[t]));
+      this.g.add(kotak(2.94,.05,.4,bahan.papan,0,TY[t]+.01,TZ[t],false));
+    }
+    // papan belakang + tiang
+    this.g.add(kotak(2.96,1.0,.14,bahan.teal,0,1.35,-.76));
+    for(const dx of[-1.42,1.42]) this.g.add(kotak(.13,2.3,.14,bahan.logam,dx,1.15,-.76));
+    this.g.add(kotak(3.0,.12,.3,bahan.merah,0,.44,.66));
+    this.TY=TY; this.TZ=TZ;
+    // papan harga
+    const tex=texKanvas(256,128,(c,w,h)=>{
+      c.fillStyle='#fff8e0'; c.fillRect(0,0,w,h);
+      c.strokeStyle='#e8462f'; c.lineWidth=8; c.strokeRect(4,4,w-8,h-8);
+      c.fillStyle='#2c1a05'; c.textAlign='center'; c.textBaseline='middle';
+      c.font='900 34px Segoe UI,Arial'; c.fillText(PROD[def.jenis].nama.toUpperCase(),w/2,42);
+      c.fillStyle='#c62d1c'; c.font='900 52px Segoe UI,Arial';
+      c.fillText('RM '+PROD[def.jenis].harga,w/2,96);
+    });
+    const pt=new THREE.Mesh(new THREE.PlaneGeometry(1.7,.85),M(0xffffff,{map:tex}));
+    pt.position.set(0,2.24,-.66); this.g.add(pt);
+    this.g.add(kotak(1.82,.95,.1,bahan.merah,0,2.24,-.74));
+    // slot barang (maks 20) — 4 tingkat × 5
+    this.slot=[];
+    for(let t=0;t<4;t++)for(let i=0;i<5;i++){
+      const m=meshProduk(def.jenis);
+      m.position.set(-1.1+i*.55,TY[t]+.03,TZ[t]+rnd(-.03,.03));
+      m.scale.setScalar(1.04);
+      m.rotation.y=rnd(-.3,.3); m.visible=false;
+      this.g.add(m); this.slot.push(m);
+    }
+    this.terbuka=!def.kunci||!!G.buka[def.kunci];
+    this.kotakHal=hal(def.x,def.z,2.8,1.24,this.terbuka);
+    this.label=buatLabel('',`rak`,this.pos,3.15);
+    this.g.visible=this.terbuka;
+    this.kemas();
+  }
+  get kapasiti(){ return kapRak(); }
+  get ruang(){ return this.kapasiti-this.stok; }
+  get ada(){ return this.stok-this.tempah; }
+  kemas(){
+    const n=Math.min(this.stok,20);
+    for(let i=0;i<20;i++) this.slot[i].visible=i<n;
+    const p=this.kapasiti?this.stok/this.kapasiti:0;
+    const warna=this.stok===0?'#ff9c8a':(p>.6?'#bdf5b0':'#ffe9a8');
+    this.label.el.innerHTML=
+      `<span style="color:${warna}">${PROD[this.jenis].ikon} ${this.nama}</span><br>`+
+      `<span style="font-size:10px;opacity:.9">${this.stok}/${this.kapasiti} · RM ${PROD[this.jenis].harga}</span>`+
+      `<div class="bar"><u style="width:${(p*100).toFixed(0)}%;background:${warna}"></u></div>`;
+    this.label.tampak=this.terbuka;
+    G.stok[this.id]=this.stok;
+  }
+  bukaRak(){ this.terbuka=true; this.kotakHal.aktif=true; this.g.visible=true; this.kemas();
+    this.g.scale.set(.1,.1,.1); this.animasi=0; }
+}
+const raks=RAK_DEF.map(d=>new Rak(d));
+const rakUtk=j=>raks.find(r=>r.jenis===j&&r.terbuka);
+
+/* ─────────────── KAUNTER ─────────────── */
+class Kaunter{
+  constructor(def){
+    Object.assign(this,def);
+    this.pos=V3(def.x,0,def.z);
+    this.zon=V3(def.x,0,def.z-1.85);         // tempat kasyer berdiri
+    this.barisan=[]; this.tunai=0; this.prog=0;
+    this.slot=[V3(def.x,0,def.z+1.7),V3(def.x,0,def.z+2.9),V3(def.x,0,def.z+4.1)];
+    this.g=new THREE.Group(); this.g.position.set(def.x,0,def.z); scene.add(this.g);
+    this.g.add(kotak(3.0,1.0,1.35,bahan.kayu,0,.5,0));
+    this.g.add(kotak(3.2,.12,1.5,bahan.papan,0,1.05,0));
+    this.g.add(kotak(3.05,.5,.1,bahan.teal,0,.55,.69));
+    // mesin daftar
+    this.g.add(kotak(.8,.5,.58,bahan.putih,.95,1.35,0));
+    this.g.add(kotak(.55,.06,.38,bahan.gelap,.95,1.62,-.05,false));
+    const skrin=kotak(.48,.3,.05,M(0x2ad1a0),.95,1.5,.3,false); this.g.add(skrin); this.skrin=skrin;
+    // bekas gula-gula
+    for(let i=0;i<3;i++){
+      this.g.add(sil(.15,.34,M(pick([0xffd230,0xe8462f,0x18a79c])),-1.2+i*.34,1.28,.18,true));
+    }
+    // timbunan wang
+    this.tumpuk=new THREE.Group(); this.tumpuk.position.set(-.35,1.12,-.1); this.g.add(this.tumpuk);
+    this.terbuka=!def.kunci||!!G.buka[def.kunci];
+    this.kotakHal=hal(def.x,def.z,3.0,1.35,this.terbuka);
+    this.label=buatLabel('',`stesen`,this.pos,2.5);
+    this.g.visible=this.terbuka; this.label.tampak=this.terbuka;
+    this.pekerja=null;
+  }
+  kemasTumpuk(){
+    const n=clamp(Math.floor(this.tunai/26),0,10);
+    while(this.tumpuk.children.length>n) this.tumpuk.remove(this.tumpuk.children[this.tumpuk.children.length-1]);
+    while(this.tumpuk.children.length<n){
+      const i=this.tumpuk.children.length;
+      const w=kotak(.5,.045,.28,M(i%3===0?0x9fd9a0:(i%3===1?0xc9b6f0:0xf0d59f)),rnd(-.06,.06),i*.05,rnd(-.05,.05),false);
+      w.rotation.y=rnd(-.25,.25); this.tumpuk.add(w);
+    }
+  }
+  kemas(){
+    this.kemasTumpuk();
+    const q=this.barisan.length;
+    this.label.el.innerHTML=`💵 Kaunter${this.id==='k2'?' 2':''}<br>`+
+      `<span style="font-size:10px;opacity:.9">${this.tunai>0?`<b style="color:#ffd230">${fmtRM(this.tunai)}</b> · `:''}Barisan ${q}</span>`;
+    this.label.tampak=this.terbuka;
+    if(this.skrin) this.skrin.material.color.set(this.tunai>0?0xffd230:0x2ad1a0);
+  }
+  bukaKaunter(){ this.terbuka=true; this.kotakHal.aktif=true; this.g.visible=true;
+    this.label.tampak=true; this.g.scale.set(.1,.1,.1); this.animasi=0; }
+}
+const kaunters=KAUNTER_DEF.map(d=>new Kaunter(d));
+const kaunterBuka=()=>kaunters.filter(k=>k.terbuka);
+
+/* ─────────────── STESEN (ladang / dapur) ─────────────── */
+class Ladang{
+  constructor(op){
+    Object.assign(this,op);
+    this.pos=V3(op.x,0,op.z);
+    this.g=new THREE.Group(); this.g.position.set(op.x,0,op.z); scene.add(this.g);
+    this.tanaman=[];
+    if(op.jenis==='beras'){
+      const air=new THREE.Mesh(new THREE.PlaneGeometry(op.w,op.d),bahan.air);
+      air.rotation.x=-PI/2; air.position.y=.08; this.g.add(air);
+      // batas
+      for(const s of[[0,-op.d/2],[0,op.d/2]]) this.g.add(kotak(op.w+.6,.32,.6,bahan.tanah,s[0],.16,s[1]));
+      for(const s of[[-op.w/2,0],[op.w/2,0]]) this.g.add(kotak(.6,.32,op.d+.6,bahan.tanah,s[0],.16,s[1]));
+    }else{
+      const t=new THREE.Mesh(new THREE.PlaneGeometry(op.w,op.d),bahan.tanah);
+      t.rotation.x=-PI/2; t.position.y=.07; t.receiveShadow=true; this.g.add(t);
+      for(let i=0;i<4;i++) this.g.add(kotak(op.w,.14,.4,M(0x7a4d33),0,.14,-op.d/2+1.1+i*(op.d-2.2)/3,false));
+    }
+    // tanaman
+    const kx=op.kx,kz=op.kz;
+    for(let i=0;i<kx;i++)for(let j=0;j<kz;j++){
+      const x=-op.w/2+1.1+i*(op.w-2.2)/(kx-1||1);
+      const z=-op.d/2+1.1+j*(op.d-2.2)/(kz-1||1);
+      const c=new THREE.Group(); c.position.set(x,.1,z); this.g.add(c);
+      if(op.jenis==='beras'){
+        for(let k=0;k<5;k++){
+          const b=kotak(.06,.9,.06,M(0x8cc257),rnd(-.2,.2),.45,rnd(-.2,.2),false);
+          b.rotation.z=rnd(-.16,.16); c.add(b);
+        }
+        const bulir=kon(.14,.5,M(0xe3c04c),0,1.05,0); bulir.castShadow=false; c.add(bulir);
+        c.userData.bulir=bulir;
+      }else{
+        const b=new THREE.Mesh(geo.ikos,M(0x4aa14a)); b.scale.setScalar(.62);
+        b.position.y=.34; b.castShadow=true; c.add(b);
+        for(let k=0;k<3;k++){
+          const d=kotak(.36,.06,.18,M(0x63c45c),0,0,0,false);
+          d.position.set(Math.cos(k*2.1)*.24,.3,Math.sin(k*2.1)*.24); d.rotation.y=k*2.1; c.add(d);
+        }
+        c.userData.bulir=b;
+      }
+      this.tanaman.push({g:c,t:rnd(.3,1),masak:false});
+    }
+    this.label=buatLabel('',`stesen`,this.pos,3.7);
+    this.terbuka=!op.kunci||!!G.buka[op.kunci];
+    this.g.visible=this.terbuka; this.label.tampak=this.terbuka;
+    this.kemas();
+  }
+  get siap(){ let n=0; for(const t of this.tanaman) if(t.masak)n++; return n; }
+  kemas(){
+    const n=this.siap;
+    this.label.el.innerHTML=`${PROD[this.jenis].ikon} ${this.nama}<br>`+
+      `<span style="font-size:10px;opacity:.9">${n>0?`<b style="color:#bdf5b0">${n} sedia dituai</b>`:'sedang tumbuh…'}</span>`;
+    this.label.tampak=this.terbuka;
+  }
+  langkah(dt){
+    if(!this.terbuka)return;
+    let ubah=false;
+    for(const t of this.tanaman){
+      if(t.masak){
+        const s=1+Math.sin(masaJam*2+t.g.position.x)*.03;
+        t.g.scale.set(s,1,s);
+        continue;
+      }
+      t.t+=dt/this.tumbuh;
+      if(t.t>=1){ t.t=1; t.masak=true; ubah=true;
+        t.g.visible=true; t.g.scale.setScalar(1);
+        t.g.userData.bulir.visible=true;
+      }else{
+        const s=clamp(t.t,.06,1); t.g.scale.set(1,s,1);
+        t.g.visible=true;
+        if(this.jenis==='beras') t.g.userData.bulir.visible=false;
+      }
+    }
+    if(ubah) this.kemas();
+  }
+  tuai(dari){
+    // ambil tanaman masak terdekat
+    let terbaik=null,dd=1e9;
+    for(const t of this.tanaman){
+      if(!t.masak)continue;
+      const dx=this.pos.x+t.g.position.x-dari.x, dz=this.pos.z+t.g.position.z-dari.z;
+      const d=dx*dx+dz*dz; if(d<dd){dd=d;terbaik=t;}
+    }
+    if(!terbaik)return null;
+    terbaik.masak=false; terbaik.t=0; terbaik.g.scale.set(1,.06,1);
+    if(this.jenis==='beras') terbaik.g.userData.bulir.visible=false;
+    const p=V3(this.pos.x+terbaik.g.position.x,.4,this.pos.z+terbaik.g.position.z);
+    zarah(p,7,this.jenis==='beras'?0xe3c04c:0x6ddc63,2.4,.28,-6);
+    this.kemas();
+    return this.jenis;
+  }
+  bukaLadang(){ this.terbuka=true; this.g.visible=true; this.g.scale.set(.05,.05,.05); this.animasi=0; this.kemas(); }
+}
+const padi=new Ladang({id:'padi',nama:'Sawah Padi',jenis:'beras',x:-6.6,z:-14.6,w:8,d:7,kx:5,kz:4,tumbuh:8.5,r:4.4,kunci:null});
+const kebun=new Ladang({id:'kebun',nama:'Kebun Sayur',jenis:'sayur',x:6.6,z:-14.6,w:8,d:7,kx:5,kz:3,tumbuh:9.5,r:4.4,kunci:'kebun'});
+
+/* reban ayam */
+class Reban{
+  constructor(){
+    this.id='reban'; this.nama='Reban Ayam'; this.jenis='telur'; this.r=4.4;
+    this.x=0; this.z=-22.5; this.pos=V3(this.x,0,this.z);
+    this.stok=G.reban||0; this.kapasiti=16; this.jam=0;
+    this.g=new THREE.Group(); this.g.position.set(this.x,0,this.z); scene.add(this.g);
+    const tanah=new THREE.Mesh(new THREE.PlaneGeometry(9,8),M(0xa88a5c));
+    tanah.rotation.x=-PI/2; tanah.position.y=.07; tanah.receiveShadow=true; this.g.add(tanah);
+    // pagar dawai
+    for(let i=-4.5;i<=4.5;i+=1.5){ this.g.add(sil(.07,1.1,bahan.kayuT,i,.55,-4,true)); this.g.add(sil(.07,1.1,bahan.kayuT,i,.55,4,true)); }
+    for(let j=-4;j<=4;j+=1.6){ this.g.add(sil(.07,1.1,bahan.kayuT,-4.5,.55,j,true)); this.g.add(sil(.07,1.1,bahan.kayuT,4.5,.55,j,true)); }
+    for(const y of[.45,.95]){
+      this.g.add(kotak(9,.04,.04,bahan.logam,0,y,-4,false)); this.g.add(kotak(9,.04,.04,bahan.logam,0,y,4,false));
+      this.g.add(kotak(.04,.04,8,bahan.logam,-4.5,y,0,false)); this.g.add(kotak(.04,.04,8,bahan.logam,4.5,y,0,false));
+    }
+    // pondok reban
+    const pondok=new THREE.Group(); pondok.position.set(-2.6,0,-2.2); this.g.add(pondok);
+    pondok.add(kotak(2.6,1.5,2.2,M(0xc98f5a),0,.75,0));
+    const bumbung=kon(2.0,1.0,bahan.merah,0,1.9,0); bumbung.rotation.y=PI/4; pondok.add(bumbung);
+    pondok.add(kotak(.8,.9,.08,bahan.gelap,0,.5,1.12));
+    // ayam
+    this.ayam=[];
+    for(let i=0;i<6;i++){
+      const a=new THREE.Group();
+      const badan=leper(sfera(.28,bahan.ayam,0,.34,0),1.15,.95,.9); a.add(badan);
+      a.add(sfera(.16,bahan.ayam,.26,.6,0,true));
+      const tembolok=kon(.07,.16,bahan.jingga,.42,.6,0); tembolok.rotation.z=-PI/2; a.add(tembolok);
+      const sikat=kotak(.06,.14,.16,bahan.merah,.24,.75,0,false); a.add(sikat);
+      for(const dx of[-.08,.08]) a.add(kotak(.05,.2,.05,bahan.jingga,dx,.12,0,false));
+      const ekor=kon(.16,.3,bahan.ayam,-.3,.46,0); ekor.rotation.z=PI/2.4; a.add(ekor);
+      a.position.set(rnd(-3.5,3.8),0,rnd(-3.2,3.2));
+      this.g.add(a);
+      this.ayam.push({g:a,tuju:V3(rnd(-3.8,3.8),0,rnd(-3.4,3.4)),tunggu:rnd(0,2)});
+    }
+    // telur di tanah (visual)
+    this.telurMesh=[];
+    for(let i=0;i<10;i++){
+      const e=sfera(.13,M(0xf2ddb4),rnd(-1.4,1.4),.14,rnd(-1.2,1.2),true);
+      leper(e,1,1.3,1); e.position.x+=1.5; e.visible=false; this.g.add(e); this.telurMesh.push(e);
+    }
+    this.terbuka=!!G.buka.reban;
+    this.kotakHal=hal(this.x-2.6,this.z-2.2,2.6,2.2,this.terbuka);
+    this.label=buatLabel('','stesen',this.pos,3.8);
+    this.g.visible=this.terbuka; this.label.tampak=this.terbuka;
+    this.kemas();
+  }
+  kemas(){
+    this.label.el.innerHTML=`🥚 ${this.nama}<br><span style="font-size:10px;opacity:.9">`+
+      (this.stok>0?`<b style="color:#bdf5b0">${this.stok} telur sedia</b>`:'ayam sedang bertelur…')+'</span>';
+    this.label.tampak=this.terbuka;
+    for(let i=0;i<10;i++) this.telurMesh[i].visible=i<Math.min(this.stok,10);
+    G.reban=this.stok;
+  }
+  langkah(dt){
+    if(!this.terbuka)return;
+    this.jam+=dt;
+    if(this.jam>2.4){ this.jam=0; if(this.stok<this.kapasiti){ this.stok++; this.kemas(); } }
+    for(const a of this.ayam){
+      a.tunggu-=dt;
+      const d=a.tuju.clone().sub(a.g.position); d.y=0;
+      const dist=d.length();
+      if(dist<.3||a.tunggu<-3.5){ a.tuju.set(rnd(-3.8,3.8),0,rnd(-3.4,3.4)); a.tunggu=rnd(.5,2.4); }
+      if(a.tunggu<=0&&dist>.3){
+        d.normalize(); a.g.position.addScaledVector(d,dt*1.5);
+        a.g.rotation.y=Math.atan2(d.x,d.z);
+        a.g.position.y=Math.abs(Math.sin(masaJam*11+a.g.position.x))*.07;
+      }else a.g.position.y*=.9;
+    }
+  }
+  get siap(){ return this.stok; }
+  tuai(){ if(this.stok<=0)return null; this.stok--; this.kemas();
+    zarah(V3(this.x,.5,this.z),6,0xfff0c0,2.2,.26,-6); return 'telur'; }
+  bukaReban(){ this.terbuka=true; this.kotakHal.aktif=true; this.g.visible=true;
+    this.g.scale.set(.05,.05,.05); this.animasi=0; this.kemas(); }
+}
+const reban=new Reban();
+
+/* dapur nasi lemak */
+class Dapur{
+  constructor(){
+    this.id='dapur'; this.nama='Dapur Nasi Lemak'; this.r=2.5;
+    this.x=-6.3; this.z=3.6; this.pos=V3(this.x,0,this.z);
+    this.kapIn=8; this.kapOut=8; this.masak=0;
+    this.g=new THREE.Group(); this.g.position.set(this.x,0,this.z);
+    this.g.rotation.y=PI/2; scene.add(this.g);
+    this.g.add(kotak(4.4,1.0,1.9,bahan.simen,0,.5,0));
+    this.g.add(kotak(4.6,.12,2.05,bahan.logam,0,1.05,0));
+    // dapur gas + kuali
+    this.g.add(kotak(1.1,.18,1.1,bahan.gelap,-1.4,1.2,0));
+    const kuali=new THREE.Mesh(new THREE.SphereGeometry(.55,12,8,0,TAU,0,PI/2),bahan.gelap);
+    kuali.rotation.x=PI; kuali.position.set(-1.4,1.45,0); kuali.castShadow=true; this.g.add(kuali);
+    this.g.add(sil(.5,.1,M(0xf6f2e2),-1.4,1.3,0,true));
+    // periuk nasi
+    this.g.add(sil(.42,.6,bahan.putih,.3,1.4,0,true));
+    this.g.add(sil(.45,.1,bahan.logam,.3,1.72,0,true));
+    // dulang siap
+    this.dulang=new THREE.Group(); this.dulang.position.set(1.8,1.12,0); this.g.add(this.dulang);
+    this.g.add(kotak(1.4,.06,1.4,bahan.papan,1.8,1.09,0,false));
+    // bekas bahan
+    this.g.add(kotak(.7,.4,.7,M(0xf1e3bd),-2.4,1.3,-.5,true));
+    this.g.add(kotak(.7,.4,.7,M(0xefd2a2),-2.4,1.3,.5,true));
+    this.terbuka=!!G.buka.dapur;
+    this.kotakHal=hal(this.x,this.z,1.9,4.4,this.terbuka);
+    this.pKuali=V3(this.x,1.7,this.z+1.4);   // koordinat dunia untuk wap
+    this.pDulang=V3(this.x,1.5,this.z-1.8);  // koordinat dunia untuk hasil siap
+    this.hampir=V3(this.x+1.7,0,this.z-1.4); // tempat berdiri (di luar meja)
+    this.label=buatLabel('','stesen',this.pos,2.9);
+    this.g.visible=this.terbuka; this.label.tampak=this.terbuka;
+    this.wap=0;
+    this.kemas();
+  }
+  kemas(){
+    const d=G.dapur;
+    this.label.el.innerHTML=`🍛 ${this.nama}<br><span style="font-size:10px;opacity:.9">`+
+      `🌾${d.beras}/${this.kapIn} + 🥚${d.telur}/${this.kapIn} → <b style="color:#bdf5b0">🍛${d.siap}</b></span>`;
+    this.label.tampak=this.terbuka;
+    const n=Math.min(d.siap,6);
+    while(this.dulang.children.length>n) this.dulang.remove(this.dulang.children[this.dulang.children.length-1]);
+    while(this.dulang.children.length<n){
+      const i=this.dulang.children.length;
+      const m=meshProduk('nasilemak'); m.position.set((i%3-1)*.42,Math.floor(i/3)*.3,0); this.dulang.add(m);
+    }
+  }
+  langkah(dt){
+    if(!this.terbuka)return;
+    const d=G.dapur;
+    if(d.beras>0&&d.telur>0&&d.siap<this.kapOut){
+      this.masak+=dt;
+      this.wap-=dt;
+      if(this.wap<=0){ this.wap=.22; zarah(this.pKuali,2,0xffffff,.7,.4,1.6); }
+      if(this.masak>=2.6){ this.masak=0; d.beras--; d.telur--; d.siap++; this.kemas();
+        Bunyi.masak(); zarah(this.pDulang,8,0xffe9a8,1.8,.24,-4); }
+    }else this.masak=0;
+  }
+  bukaDapur(){ this.terbuka=true; this.kotakHal.aktif=true; this.g.visible=true;
+    this.g.scale.set(.05,.05,.05); this.animasi=0; this.kemas(); }
+}
+const dapur=new Dapur();
+
+/* ─────────────── PAD NAIK TARAF ─────────────── */
+class Pad{
+  constructor(def){
+    Object.assign(this,def);
+    this.pos=V3(def.x,0,def.z);
+    this.bayar=G.bayar[def.id]||0;
+    this.g=new THREE.Group(); this.g.position.set(def.x,0,def.z); scene.add(this.g);
+    const p=new THREE.Mesh(new THREE.CircleGeometry(1.5,22),M(0xffd230,{transparent:true,opacity:.92}));
+    p.rotation.x=-PI/2; p.position.y=.09; this.g.add(p); this.plat=p;
+    const cincin=new THREE.Mesh(new THREE.RingGeometry(1.5,1.75,22),M(0xe8462f,{transparent:true,opacity:.9}));
+    cincin.rotation.x=-PI/2; cincin.position.y=.1; this.g.add(cincin);
+    this.isi=new THREE.Mesh(new THREE.CircleGeometry(1.42,22),M(0x3fa34d,{transparent:true,opacity:.95}));
+    this.isi.rotation.x=-PI/2; this.isi.position.y=.11; this.isi.scale.setScalar(.01); this.g.add(this.isi);
+    this.anak=kon(.34,.7,M(0xffffff),0,1.5,0); this.g.add(this.anak);
+    this.label=buatLabel('','pad',this.pos,2.55);
+    this.selesai=!!G.buka[def.id];
+    this.kemas();
+  }
+  get kelayakan(){ return !this.syarat||!!G.buka[this.syarat]; }
+  kemas(){
+    const nampak=!this.selesai&&this.kelayakan;
+    this.g.visible=nampak; this.label.tampak=nampak;
+    if(!nampak)return;
+    const baki=this.kos-this.bayar;
+    const p=this.bayar/this.kos;
+    this.isi.scale.setScalar(Math.max(.01,Math.sqrt(p)));
+    this.label.el.innerHTML=`${this.nama}<small>${fmtRM(baki)} lagi</small>`+
+      `<div class="bar"><u style="width:${(p*100).toFixed(0)}%"></u></div>`;
+    G.bayar[this.id]=this.bayar;
+  }
+  langkah(dt,dekat){
+    if(this.selesai||!this.kelayakan)return;
+    this.anak.position.y=1.5+Math.sin(masaJam*3.2)*.16;
+    this.anak.rotation.y+=dt*1.6;
+    if(dekat&&G.wang>0){
+      const kadar=Math.max(this.kos/1.7,110);
+      const guna=Math.min(kadar*dt,G.wang,this.kos-this.bayar);
+      if(guna>0){
+        G.wang-=guna; this.bayar+=guna; this.kemas();
+        if(Math.random()<.5) zarah(V3(this.x,.5,this.z),1,0xffd230,1.6,.3,-4);
+        if(this.bayar>=this.kos-.01) this.siapkan();
+      }
+    }
+  }
+  siapkan(){
+    this.selesai=true; G.buka[this.id]=true; this.kemas();
+    bukaKawasan(this.id,this.pos);
+  }
+}
+const pads=PAD.map(d=>new Pad(d));
+const padUtk=id=>pads.find(p=>p.id===id);
+
+/* ─────────────── pekerja (autonomi) ─────────────── */
+const pekerjaSemua=[];
+class Pekerja{
+  constructor(tugas,x,z){
+    this.tugas=tugas;         // 'rak' | 'kaunter'
+    this.pos=V3(x,0,z);
+    this.g=binaOrang(tugas==='rak'
+      ? {baju:0x18a79c,apron:0xf0932b,gaya:'topi',topi:0xe8462f,seluar:0x35506b,kulit:0xd8a172}
+      : {baju:0xe36a86,apron:0xf7f3e8,gaya:'tudung',tudung:0xffd230,kulit:0xe9bf95,kain:0xe36a86});
+    this.g.position.copy(this.pos); scene.add(this.g);
+    this.timbunan=binaTimbunan(this.g,1);
+    this.bawa=[]; this.prog=0; this.hala=0; this.laju=0; this.langkahT=0;
+    this.rute=[]; this.mod='idle'; this.sasar=null; this.jamIdle=0;
+    this.label=buatLabel(tugas==='rak'?'👷 Pekerja Rak':'👩‍💼 Pekerja Kaunter','',this.pos,2.4);
+    this.label.el.style.opacity='.8';
+    pekerjaSemua.push(this);
+  }
+  get kap(){ return 5; }
+  fikir(){
+    if(this.tugas==='kaunter')return;
+    if(this.bawa.length>0){
+      const j=this.bawa[0], r=rakUtk(j);
+      if(r&&r.ruang>0){ this.mod='ke_rak'; this.sasar=r; this.jamMod=0; setRute(this,r.depan); return; }
+      this.bawa.length=0; kemasTimbunan(this);
+    }
+    // pilih rak paling kosong yang sumbernya terbuka & ada hasil
+    let terbaik=null,skor=1e9;
+    for(const r of raks){
+      if(!r.terbuka)continue;
+      const s=sumberUtk(r.jenis);
+      if(!s||!s.terbuka)continue;
+      if(r.jenis==='nasilemak'&&s.siap<=0)continue;   // dapur kosong, jangan tunggu di sana
+      if(r.ruang<=0)continue;
+      const rasio=r.stok/r.kapasiti;
+      if(rasio<skor){skor=rasio;terbaik=r;}
+    }
+    if(terbaik&&skor<.85){
+      this.mod='ke_sumber'; this.sasar=terbaik; this.jamMod=0;
+      const s=sumberUtk(terbaik.jenis); setRute(this,(s.hampir||s.pos).clone());
+      return;
+    }
+    // tiada kerja: kutip tunai kaunter
+    const k=kaunterBuka().find(k=>k.tunai>60);
+    if(k){ this.mod='ke_tunai'; this.sasar=k; setRute(this,k.zon.clone()); return; }
+    this.mod='rehat'; this.sasar=null;
+    this.rute=[V3(rnd(-5,5),0,rnd(6,8))];
+  }
+  langkahKerja(dt){
+    const lajuP=4.6;
+    if(this.tugas==='kaunter'){
+      // berdiri di kaunter 2, animasi ringan
+      const k=kaunters[1];
+      const tuju=k.zon;
+      const d=tuju.clone().sub(this.pos); d.y=0;
+      if(d.length()>.2){ d.normalize(); this.pos.addScaledVector(d,dt*lajuP); this.laju=1; this.hala=Math.atan2(d.x,d.z); }
+      else{ this.laju=0; this.hala=lerpSudut(this.hala,0,dt*4); }
+      selesaiKolisi(this.pos,.42);
+      this.terap(dt);
+      return;
+    }
+    if(this.mod==='idle'||this.mod==='rehat'){
+      this.jamIdle-=dt;
+      if(this.jamIdle<=0){ this.jamIdle=1.2; this.fikir(); }
+    }else{
+      // jaga-jaga: jika tersekat terlalu lama, fikir semula
+      this.jamMod=(this.jamMod||0)+dt;
+      if(this.jamMod>14){ this.jamMod=0; this.mod='idle'; this.rute=[]; }
+    }
+    const sampai=ikutRute(this,dt,lajuP);
+    if(sampai){
+      if(this.mod==='ke_sumber'){
+        const s=sumberUtk(this.sasar?this.sasar.jenis:'beras');
+        if(!s){this.mod='idle';}
+        else{
+          this.prog+=dt*3.0;
+          if(this.prog>=1){
+            this.prog=0;
+            const j=s.tuai(this.pos);
+            if(j){ this.bawa.push(j); kemasTimbunan(this); Bunyi.tuai(); }
+            if(this.bawa.length>=this.kap||!s.siap){
+              if(this.bawa.length>0){ this.mod='ke_rak'; setRute(this,this.sasar.depan); }
+              else this.mod='idle';
+            }
+          }
+        }
+      }else if(this.mod==='ke_rak'){
+        const r=this.sasar;
+        if(!r||!r.terbuka){ this.mod='idle'; }
+        else{
+          this.prog+=dt*6;
+          if(this.prog>=1){
+            this.prog=0;
+            const i=this.bawa.findIndex(b=>b===r.jenis);
+            if(i>=0&&r.ruang>0){
+              this.bawa.splice(i,1); r.stok++; r.kemas(); kemasTimbunan(this); Bunyi.isi();
+              zarah(r.depan,3,PROD[r.jenis].warna,1.4,.22,-4);
+            }else{ this.mod='idle'; }
+            if(this.bawa.length===0) this.mod='idle';
+          }
+        }
+      }else if(this.mod==='ke_tunai'){
+        const k=this.sasar;
+        if(k&&k.tunai>0){ kutipTunai(k,this.pos); }
+        this.mod='idle';
+      }else this.mod='idle';
+    }
+    this.terap(dt);
+  }
+  terap(dt){
+    this.g.position.lerp(this.pos,1-Math.pow(.001,dt));
+    this.g.position.y=0;
+    this.g.rotation.y=lerpSudut(this.g.rotation.y,this.hala,dt*10);
+    animasiJalan(this.g,this.laju,dt);
+    this.label.pos.copy(this.g.position);
+  }
+}
+function sumberUtk(jenis){
+  if(jenis==='beras')return padi;
+  if(jenis==='sayur')return kebun;
+  if(jenis==='telur')return reban;
+  if(jenis==='nasilemak')return {terbuka:dapur.terbuka,pos:dapur.pos,hampir:dapur.hampir,
+    get siap(){ return G.dapur.siap; },
+    tuai:()=>{ if(G.dapur.siap>0){G.dapur.siap--;dapur.kemas();return 'nasilemak';} return null; }};
+  return null;
+}
+
+/* ─────────────── laluan (portal) ─────────────── */
+const PORTAL=[
+  {masuk:V3(0,0,-7.3), keluar:V3(0,0,-9.8)},    // celah belakang → ladang
+  {masuk:V3(0,0,8.2),  keluar:V3(0,0,10.8)},    // pintu depan → jalan
+];
+const dalamKedai=p=>p.x>-7.6&&p.x<7.6&&p.z>-8.1&&p.z<9.1;
+const LOR_Z=KAUNTER_DEF[0].z;                       // garisan kaunter
+/* barisan kaunter memisahkan kedai jadi dua; lalu ikut lorong tengah */
+function jalanDalam(wp,dari,ke){
+  const sA=dari.z>LOR_Z+.9, sB=ke.z>LOR_Z+.9;
+  if(sA===sB)return;
+  if(sA) wp.push(V3(0,0,LOR_Z+2.5),V3(0,0,LOR_Z-1.7));
+  else   wp.push(V3(0,0,LOR_Z-1.7),V3(0,0,LOR_Z+2.5));
+}
+function setRute(a,tuju){
+  const wp=[];
+  const dalamA=dalamKedai(a.pos), dalamB=dalamKedai(tuju);
+  if(dalamA!==dalamB){
+    let terbaik=PORTAL[0],dd=1e9;
+    for(const p of PORTAL){
+      const t=dalamB?p.keluar:p.masuk;
+      const d=t.distanceToSquared(tuju); if(d<dd){dd=d;terbaik=p;}
+    }
+    if(dalamA){ jalanDalam(wp,a.pos,terbaik.masuk); wp.push(terbaik.masuk,terbaik.keluar); }
+    else{ wp.push(terbaik.keluar,terbaik.masuk); jalanDalam(wp,terbaik.masuk,tuju); }
+  }else if(dalamA){ jalanDalam(wp,a.pos,tuju); }
+  wp.push(tuju);
+  a.rute=wp.map(v=>v.clone());
+}
+function ikutRute(a,dt,laju){
+  if(!a.rute||a.rute.length===0){ a.laju=0; return true; }
+  const t=a.rute[0];
+  const d=t.clone().sub(a.pos); d.y=0;
+  const jarak=d.length();
+  const ambang=a.rute.length>1?.55:.9;
+  if(jarak<ambang){ a.rute.shift(); if(a.rute.length===0){a.laju=0;return true;} return false; }
+  d.normalize();
+  a.pos.addScaledVector(d,dt*laju);
+  selesaiKolisi(a.pos,.42);
+  a.hala=Math.atan2(d.x,d.z);
+  a.laju=1;
+  return false;
+}
+function lerpSudut(a,b,t){
+  let d=((b-a+PI)%TAU+TAU)%TAU-PI;
+  return a+d*clamp(t,0,1);
+}
+function animasiJalan(g,laju,dt){
+  const u=g.userData; if(!u||!u.kaki)return;
+  if(laju>.05){
+    u.fasa=(u.fasa||0)+dt*11*Math.min(laju,1.6);
+    const s=Math.sin(u.fasa);
+    u.kaki[0].rotation.x=s*.65; u.kaki[1].rotation.x=-s*.65;
+    if(u.tangan){ u.tangan[0].rotation.x=-s*.5; u.tangan[1].rotation.x=s*.5; }
+    u.badan.position.y=Math.abs(Math.cos(u.fasa))*.055;
+    u.badan.rotation.z=Math.sin(u.fasa)*.03;
+  }else{
+    u.fasa=(u.fasa||0);
+    u.kaki[0].rotation.x*=.82; u.kaki[1].rotation.x*=.82;
+    if(u.tangan){ u.tangan[0].rotation.x*=.82; u.tangan[1].rotation.x*=.82; }
+    u.badan.position.y=Math.sin(masaJam*2.2)*.02;
+    u.badan.rotation.z*=.85;
+  }
+}
+
+/* ─────────────── PELANGGAN ─────────────── */
+const pelangganSemua=[];
+const PELANGGAN_MAKS=MOBILE?8:11;
+class Pelanggan{
+  constructor(){
+    const gaya=pick(['rambut','tudung','songkok','kopiah','sanggul','topi','rambut','tudung']);
+    const op={gaya,kulit:pick(WARNA_KULIT),baju:pick(WARNA_BAJU),seluar:pick([0x35506b,0x2f3542,0x6b4a2f,0x4a4a55])};
+    if(gaya==='tudung'){ op.tudung=pick([0xf6c3d5,0xf7f3e8,0x9fd9e8,0xe8b3f0,0xffd230,0xb5e0c0]); op.kain=op.baju; }
+    if(gaya==='sanggul'&&Math.random()<.6) op.kain=pick([0xe36a86,0xffd230,0x8e6bd6]);
+    this.g=binaOrang(op); scene.add(this.g);
+    this.pos=V3(rnd(-7,7),0,18.4); this.g.position.copy(this.pos);
+    this.timbunan=binaTimbunan(this.g,1);
+    this.bawa=[]; this.hala=PI; this.laju=0;
+    this.mahu=rndi(1,3); this.rute=[]; this.prog=0;
+    this.mod='masuk'; this.sabar=rnd(26,38); this.jam=0;
+    this.rak=null; this.kaunter=null; this.slot=-1;
+    this.nama=pick(NAMA);
+    this.emo=buatLabel('💭','emo',this.pos,2.45);
+    setRute(this,V3(rnd(-4,4),0,6.8));
+    this.lajuAsas=rnd(3.1,4.0);
+  }
+  buang(){
+    scene.remove(this.g);
+    this.g.traverse(o=>{ if(o.isMesh&&o.geometry&&o.geometry.dispose&&!Object.values(geo).includes(o.geometry)) o.geometry.dispose(); });
+    this.emo.el.remove();
+    const i=semuaLabel.indexOf(this.emo); if(i>=0)semuaLabel.splice(i,1);
+    const j=pelangganSemua.indexOf(this); if(j>=0)pelangganSemua.splice(j,1);
+  }
+  lepasTempah(){ if(this.rak){ this.rak.tempah=Math.max(0,this.rak.tempah-1); this.rak=null; } }
+  keluarMarah(){
+    this.lepasTempah();
+    if(this.kaunter){ const i=this.kaunter.barisan.indexOf(this); if(i>=0)this.kaunter.barisan.splice(i,1); this.kaunter=null; }
+    // pulangkan barang ke rak
+    for(const j of this.bawa){ const r=rakUtk(j); if(r&&r.ruang>0){ r.stok++; r.kemas(); } }
+    this.bawa.length=0; kemasTimbunan(this);
+    this.mod='keluar'; this.emo.el.textContent='😠'; this.emo.el.classList.remove('mati');
+    G.hilang++; Bunyi.marah();
+    setRute(this,V3(rnd(-8,8),0,18.5));
+  }
+  langkah(dt){
+    this.jam+=dt;
+    if(this.mod!=='keluar'&&this.mod!=='bayar'){
+      this.sabar-=dt;
+      if(this.sabar<=0){ this.keluarMarah(); }
+    }
+    if(G.fasa==='tutup'&&this.mod!=='keluar'&&this.mod!=='bayar'&&this.mod!=='beratur'){
+      if(this.bawa.length===0){ this.mod='keluar'; this.emo.el.textContent='🙁'; setRute(this,V3(rnd(-8,8),0,18.5)); }
+    }
+    const laju=this.lajuAsas;
+    switch(this.mod){
+      case 'masuk': {
+        if(ikutRute(this,dt,laju)){ this.mod='cari'; }
+        break;
+      }
+      case 'cari': {
+        const r=this.pilihRak();
+        if(r){ this.rak=r; r.tempah++; this.mod='ke_rak'; setRute(this,r.depan.clone()); this.emo.el.textContent=PROD[r.jenis].ikon; }
+        else{
+          this.mod='tunggu'; this.tungguT=0; this.emo.el.textContent='💭';
+          this.rute=[V3(rnd(-5.5,5.5),0,rnd(6,8.2))];
+        }
+        break;
+      }
+      case 'tunggu': {
+        this.tungguT=(this.tungguT||0)+dt;
+        if(ikutRute(this,dt,laju*.7)) this.rute=[V3(rnd(-5.5,5.5),0,rnd(6,8.2))];
+        if(this.tungguT>2.2){ this.tungguT=0;
+          const r=this.pilihRak();
+          if(r){ this.rak=r; r.tempah++; this.mod='ke_rak'; setRute(this,r.depan.clone()); this.emo.el.textContent=PROD[r.jenis].ikon; }
+          else if(this.sabar<14&&this.bawa.length===0){ this.keluarMarah(); }
+          else if(this.bawa.length>0){ this.mod='ke_kaunter'; }
+        }
+        break;
+      }
+      case 'ke_rak': {
+        if(!this.rak||!this.rak.terbuka){ this.lepasTempah(); this.mod='cari'; break; }
+        if(ikutRute(this,dt,laju)){ this.mod='ambil'; this.prog=0; }
+        break;
+      }
+      case 'ambil': {
+        this.prog+=dt;
+        this.hala=lerpSudut(this.hala,Math.atan2(this.rak.pos.x-this.pos.x,this.rak.pos.z-this.pos.z),dt*8);
+        if(this.prog>=.65){
+          const r=this.rak;
+          if(r&&r.stok>0){
+            r.stok--; r.tempah=Math.max(0,r.tempah-1); r.kemas();
+            this.bawa.push(r.jenis); kemasTimbunan(this);
+            zarah(r.depan,4,PROD[r.jenis].warna,1.6,.22,-5);
+            G.ambil++;
+            this.rak=null;
+          }else{ this.lepasTempah(); }
+          if(this.bawa.length>=this.mahu) this.mod='ke_kaunter';
+          else this.mod='cari';
+        }
+        break;
+      }
+      case 'ke_kaunter': {
+        if(!this.kaunter){
+          const ks=kaunterBuka().filter(k=>k.barisan.length<k.slot.length);
+          if(ks.length===0){ this.mod='tunggu'; this.tungguT=0; break; }
+          ks.sort((a,b)=>a.barisan.length-b.barisan.length||Math.abs(a.x-this.pos.x)-Math.abs(b.x-this.pos.x));
+          this.kaunter=ks[0]; this.kaunter.barisan.push(this); this.kaunter.kemas();
+        }
+        this.emo.el.textContent='💵';
+        if(this.pos.z<LOR_Z+.9){ this.mod='ke_lorong'; setRute(this,V3(this.kaunter.pos.x,0,LOR_Z+2.4)); }
+        else this.mod='beratur';
+        break;
+      }
+      case 'ke_lorong': { if(ikutRute(this,dt,laju)) this.mod='beratur'; break; }
+      case 'beratur': {
+        const k=this.kaunter;
+        if(!k){ this.mod='ke_kaunter'; break; }
+        const i=k.barisan.indexOf(this);
+        if(i<0){ this.kaunter=null; this.mod='ke_kaunter'; break; }
+        const tuju=k.slot[Math.min(i,k.slot.length-1)];
+        const d=tuju.clone().sub(this.pos); d.y=0;
+        if(d.length()>.28){ d.normalize(); this.pos.addScaledVector(d,dt*laju); selesaiKolisi(this.pos,.4);
+          this.hala=Math.atan2(d.x,d.z); this.laju=1; }
+        else{ this.laju=0; this.hala=lerpSudut(this.hala,Math.atan2(k.pos.x-this.pos.x,k.pos.z-this.pos.z),dt*8); }
+        break;
+      }
+      case 'bayar': {
+        this.laju=0;
+        this.hala=lerpSudut(this.hala,Math.atan2(this.kaunter.pos.x-this.pos.x,this.kaunter.pos.z-this.pos.z),dt*8);
+        break;
+      }
+      case 'keluar': {
+        if(ikutRute(this,dt,laju*1.15)){ this.buang(); return; }
+        break;
+      }
+    }
+    this.g.position.lerp(this.pos,1-Math.pow(.0015,dt));
+    this.g.position.y=0;
+    this.g.rotation.y=lerpSudut(this.g.rotation.y,this.hala,dt*9);
+    animasiJalan(this.g,this.laju,dt);
+    this.emo.pos.copy(this.g.position);
+    // tanda sabar rendah
+    if(this.mod!=='keluar'&&this.sabar<8) this.emo.el.style.background=(Math.sin(masaJam*8)>0?'#ffb3a8':'rgba(255,255,255,.92)');
+    else this.emo.el.style.background='rgba(255,255,255,.92)';
+  }
+  pilihRak(){
+    const ada=raks.filter(r=>r.terbuka&&r.ada>0);
+    if(ada.length===0)return null;
+    // suka barang mahal sedikit, tapi rawak
+    ada.sort(()=>Math.random()-.5);
+    if(Math.random()<.45) ada.sort((a,b)=>PROD[b.jenis].harga-PROD[a.jenis].harga);
+    // elak beli jenis sama lebih dari 2
+    for(const r of ada){ if(this.bawa.filter(b=>b===r.jenis).length<2) return r; }
+    return ada[0];
+  }
+  nilai(){
+    let n=0; for(const j of this.bawa) n+=PROD[j].harga;
+    return Math.round(n*gandaJual());
+  }
+}
+
+/* layan pelanggan di kaunter */
+function layanKaunter(k,dt){
+  if(!k.terbuka)return;
+  const p=k.barisan[0];
+  const adaKasyer=(P.pos.distanceTo(k.zon)<2.3)||(k.pekerja!=null);
+  if(!p||(p.mod!=='beratur'&&p.mod!=='bayar'&&p.mod!=='ke_lorong')){ k.prog=0; return; }
+  const diSlot=p.pos.distanceTo(k.slot[0])<.7;
+  if(!adaKasyer||!diSlot){ k.prog=0; if(p.mod==='bayar')p.mod='beratur'; return; }
+  p.mod='bayar';
+  const tempoh=k.pekerja?1.05:.8;
+  k.prog+=dt/tempoh;
+  if(k.prog>=1){
+    k.prog=0;
+    const amaun=p.nilai();
+    k.tunai+=amaun; G.jualan+=amaun; G.jualanHari+=amaun; G.pelanggan++; G.pelangganHari++;
+    k.kemas();
+    p.bawa.length=0; kemasTimbunan(p);
+    p.mod='keluar'; p.emo.el.textContent='😄';
+    setRute(p,V3(rnd(-8,8),0,18.6));
+    k.barisan.shift();
+    teksApung(p.pos,'+'+fmtRM(amaun),'#9ff5a8');
+    zarah(V3(k.x,1.3,k.z),9,0xffd230,2.2,.26,-5);
+    Bunyi.duit();
+    getar(12);
+  }
+}
+function kutipTunai(k,dari){
+  if(k.tunai<=0)return 0;
+  const n=k.tunai; G.wang+=n; G.kutip+=n; k.tunai=0; k.kemas();
+  teksApung(dari?V3(dari.x,0,dari.z):V3(k.x,0,k.z),'+'+fmtRM(n),'#ffd230',1.9);
+  zarah(V3(k.x,1.25,k.z),14,0xffd230,2.6,.3,-5);
+  Bunyi.kutip(Math.ceil(n/40)); getar(18);
+  return n;
+}
+
+/* ─────────────── buka kawasan ─────────────── */
+function bukaKawasan(id,pos){
+  Bunyi.buka(); getar([20,40,25]);
+  letupKonfeti(pos); zarah(pos,26,0xffd230,4.5,.4,-4,.5);
+  kilat(.55); goncang(.5);
+  const nama={kebun:'Kebun Sayur',rakSayur:'Rak Sayur',reban:'Reban Ayam',rakTelur:'Rak Telur',
+    pekerja:'Pekerja',dapur:'Dapur Nasi Lemak',rakNasi:'Rak Nasi Lemak',kaunter2:'Kaunter Kedua'}[id]||id;
+  teksApung(pos,nama+' dibuka!','#ffd230',1.2);
+  if(id==='kebun') kebun.bukaLadang();
+  if(id==='reban') reban.bukaReban();
+  if(id==='dapur') dapur.bukaDapur();
+  if(id==='rakSayur') raks.find(r=>r.id==='rakSayur').bukaRak();
+  if(id==='rakTelur') raks.find(r=>r.id==='rakTelur').bukaRak();
+  if(id==='rakNasi')  raks.find(r=>r.id==='rakNasi').bukaRak();
+  if(id==='kaunter2'){ kaunters[1].bukaKaunter(); const w=new Pekerja('kaunter',kaunters[1].zon.x,kaunters[1].zon.z); kaunters[1].pekerja=w; }
+  if(id==='pekerja') new Pekerja('rak',-5,6.5);
+  for(const p of pads) p.kemas();
+  kemasPanelNaik();
+  simpan();
+}
+/* pulihkan kawasan dari simpanan */
+function pulihkan(){
+  if(G.buka.kebun) kebun.terbuka=true, kebun.g.visible=true, kebun.kemas();
+  if(G.buka.reban) reban.terbuka=true, reban.kotakHal.aktif=true, reban.g.visible=true, reban.kemas();
+  if(G.buka.dapur) dapur.terbuka=true, dapur.kotakHal.aktif=true, dapur.g.visible=true, dapur.kemas();
+  if(G.buka.pekerja) new Pekerja('rak',-5,6.5);
+  if(G.buka.kaunter2){ const w=new Pekerja('kaunter',kaunters[1].zon.x,kaunters[1].zon.z); kaunters[1].pekerja=w; }
+  for(const p of pads) p.kemas();
+}
+pulihkan();
+
+/* ─────────────── kesan skrin ─────────────── */
+let goncangA=0, kilatA=0;
+const elFlash=$('flash');
+function goncang(a){ goncangA=Math.max(goncangA,a); }
+function kilat(a){ kilatA=Math.max(kilatA,a); }
+function getar(p){ try{ navigator.vibrate&&navigator.vibrate(p); }catch(e){} }
+
+/* ─────────────── input ─────────────── */
+const gerak={x:0,z:0};
+const kekunci={};
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  kekunci[k]=true;
+  if(k==='escape'||k==='p'){ togolJeda(); }
+  if(['arrowup','arrowdown','arrowleft','arrowright',' '].includes(k)) e.preventDefault();
+  Bunyi.mula();
+},{passive:false});
+addEventListener('keyup',e=>{ kekunci[e.key.toLowerCase()]=false; });
+
+const elStik=$('stik'), elKnob=$('stikKnob');
+let stikId=null, stikO={x:0,y:0};
+const R_STIK=54;
+function mulaStik(x,y,id){
+  stikId=id; stikO.x=x; stikO.y=y;
+  elStik.style.left=x+'px'; elStik.style.top=y+'px';
+  elStik.classList.add('on'); elKnob.style.transform='translate(0,0)';
+}
+function gerakStik(x,y){
+  const dx=x-stikO.x, dy=y-stikO.y;
+  const d=Math.hypot(dx,dy);
+  const nx=d>1e-4?dx/d:0, ny=d>1e-4?dy/d:0;
+  const jarak=Math.min(d,R_STIK);
+  elKnob.style.transform=`translate(${(nx*jarak).toFixed(1)}px,${(ny*jarak).toFixed(1)}px)`;
+  const kuat=d<7?0:jarak/R_STIK;
+  gerak.x=nx*kuat; gerak.z=ny*kuat;
+}
+function lepasStik(){ stikId=null; elStik.classList.remove('on'); gerak.x=0; gerak.z=0; }
+function bolehStik(t){ return !(t.closest&&t.closest('#hud .btn')); }
+canvas.addEventListener('pointerdown',e=>{
+  Bunyi.mula();
+  if(main!=='main')return;
+  if(stikId!==null)return;
+  if(!bolehStik(e.target))return;
+  mulaStik(e.clientX,e.clientY,e.pointerId);
+  canvas.setPointerCapture&&canvas.setPointerCapture(e.pointerId);
+});
+canvas.addEventListener('pointermove',e=>{ if(e.pointerId===stikId) gerakStik(e.clientX,e.clientY); });
+for(const ev of['pointerup','pointercancel','pointerleave'])
+  canvas.addEventListener(ev,e=>{ if(e.pointerId===stikId) lepasStik(); });
+
+/* ─────────────── UI ─────────────── */
+let main='mula';   // 'mula' | 'main' | 'jeda'
+const uWang=$('uWang'), uWang2=$('uWang2'), uHari=$('uHari'), uBawa=$('uBawa'), uJual=$('uJual'), barHari=$('barHari').firstElementChild;
+function kemasHUD(){
+  uWang.textContent=fmtRM(G.wang);
+  uWang2.textContent=fmtRM(G.wang);
+  uHari.textContent='Hari '+G.hari;
+  uBawa.textContent=P.bawa.length+'/'+kapBawa();
+  uJual.textContent=fmtRM(G.jualan);
+  barHari.style.width=(G.fasa==='buka'?(G.masa/HARI_BUKA*100):100).toFixed(0)+'%';
+  barHari.style.background=G.fasa==='buka'?'linear-gradient(90deg,#ffd230,#ff8a3d)':'#7fd1ff';
+}
+/* panel naik taraf */
+const senaraiTaraf=$('senaraiTaraf'), senaraiBuka=$('senaraiBuka');
+function kemasPanelNaik(){
+  let h='';
+  for(const k in TARAF){
+    const d=TARAF[k], l=G.taraf[k], maks=l>=d.maks, kos=d.kos(l);
+    let pip=''; for(let i=0;i<d.maks;i++) pip+=`<i class="${i<l?'y':''}"></i>`;
+    h+=`<div class="tf"><div class="ik">${d.ikon}</div><div class="in">
+      <b>${d.nama}</b><span>Sekarang: ${d.nilai(l)}${maks?'':' → '+d.nilai(l+1)}</span>
+      <div class="pip">${pip}</div></div>
+      <button class="btn ${!maks&&G.wang>=kos?'utama':''}" data-t="${k}" ${maks||G.wang<kos?'disabled':''}>
+      ${maks?'MAKS':fmtRM(kos)}</button></div>`;
+  }
+  senaraiTaraf.innerHTML=h;
+  senaraiTaraf.querySelectorAll('button[data-t]').forEach(b=>{
+    b.onclick=()=>{
+      const k=b.dataset.t, d=TARAF[k], l=G.taraf[k];
+      if(l>=d.maks)return;
+      const kos=d.kos(l);
+      if(G.wang<kos){ Bunyi.salah(); return; }
+      G.wang-=kos; G.taraf[k]++;
+      Bunyi.naik(); getar(15);
+      if(k==='rak') raks.forEach(r=>r.kemas());
+      teksApung(P.pos,d.nama+' naik!','#9ff5a8');
+      zarah(V3(P.pos.x,1.4,P.pos.z),14,0x9ff5a8,2.4,.3,-5);
+      kemasPanelNaik(); kemasHUD(); simpan();
+    };
+  });
+  // senarai kawasan
+  let hb='<div style="font-size:11px;font-weight:900;letter-spacing:.6px;opacity:.7;margin:4px 0 6px">KAWASAN & KEMUDAHAN</div>';
+  for(const p of pads){
+    const siap=p.selesai, layak=p.kelayakan;
+    hb+=`<div class="baris"><span style="${siap?'opacity:.55':(layak?'':'opacity:.45')}">
+      ${siap?'✅':(layak?'🟡':'🔒')} ${p.nama.replace('Buka ','')}</span>
+      <b>${siap?'Dibuka':(layak?fmtRM(p.kos-p.bayar):'Terkunci')}</b></div>`;
+  }
+  senaraiBuka.innerHTML=hb;
+}
+$('bNaik').onclick=()=>{ Bunyi.mula(); kemasPanelNaik(); $('ovNaik').classList.add('on'); main='jeda'; };
+$('bTutupNaik').onclick=()=>{ $('ovNaik').classList.remove('on'); main='main'; };
+$('bJeda').onclick=()=>togolJeda();
+function togolJeda(){
+  if(main==='mula')return;
+  if(main==='main'){
+    main='jeda'; $('ovJeda').classList.add('on'); lepasStik();
+    $('statJeda').innerHTML=
+      `<div class="baris"><span>Wang</span><b>${fmtRM(G.wang)}</b></div>`+
+      `<div class="baris"><span>Jualan keseluruhan</span><b>${fmtRM(G.jualan)}</b></div>`+
+      `<div class="baris"><span>Pelanggan dilayan</span><b>${G.pelanggan}</b></div>`+
+      `<div class="baris"><span>Pelanggan hilang</span><b>${G.hilang}</b></div>`+
+      `<div class="baris"><span>Hari</span><b>${G.hari}</b></div>`+
+      `<div class="baris"><span>Kawasan dibuka</span><b>${Object.keys(G.buka).length}/${PAD.length}</b></div>`;
+    simpan();
+  }else{ main='main'; $('ovJeda').classList.remove('on'); $('ovNaik').classList.remove('on'); }
+}
+$('bSambung').onclick=()=>togolJeda();
+$('bBunyi').onclick=()=>{
+  G.bunyi=!G.bunyi; Bunyi.on=G.bunyi;
+  $('bBunyi').textContent=G.bunyi?'🔊 Bunyi: Buka':'🔇 Bunyi: Tutup';
+  if(G.bunyi)Bunyi.naik(); simpan();
+};
+$('bUlang').onclick=()=>{ if(confirm('Mula semula? Semua kemajuan akan hilang.')) buangSimpanan(); };
+$('bBaru').onclick=()=>{ if(confirm('Buang simpanan dan mula baharu?')) buangSimpanan(); };
+$('bMain').onclick=()=>{
+  Bunyi.mula(); Bunyi.on=G.bunyi;
+  $('bBunyi').textContent=G.bunyi?'🔊 Bunyi: Buka':'🔇 Bunyi: Tutup';
+  $('ovMula').classList.remove('on'); main='main';
+};
+if(adaSimpanan){
+  $('bMain').textContent='▶ SAMBUNG ('+fmtRM(G.wang)+' · Hari '+G.hari+')';
+  $('bBaru').style.display='';
+}
+
+/* ─────────────── tutorial ─────────────── */
+const TUT=[
+  {ikon:'🌾',tajuk:'Tuai padi dahulu',teks:'Ikut panah kuning: keluar pintu belakang di tengah kedai, pergi ke Sawah Padi. Kerja jalan sendiri bila kau hampir.',
+   sasar:()=>padi.pos, siap:()=>P.bawa.length>0},
+  {ikon:'🗄️',tajuk:'Isi Rak Beras',teks:'Balik masuk kedai, berdiri di hadapan Rak Beras untuk isi barang.',
+   sasar:()=>raks[0].depan, siap:()=>raks[0].stok>0},
+  {ikon:'🧍',tajuk:'Tunggu pelanggan',teks:'Pelanggan akan masuk dari jalan dan ambil barang dari Rak.',
+   sasar:()=>V3(0,0,10), siap:()=>G.ambil>0},
+  {ikon:'💵',tajuk:'Berdiri di Kaunter',teks:'Pelanggan beratur. Berdiri di belakang Kaunter untuk terima bayaran dalam RM.',
+   sasar:()=>kaunters[0].zon, siap:()=>G.jualan>0},
+  {ikon:'💰',tajuk:'Kutip Wang',teks:'Wang bertimbun di Kaunter. Berdiri di sana untuk kutip hasil Jualan.',
+   sasar:()=>kaunters[0].zon, siap:()=>G.kutip>0},
+  {ikon:'🟨',tajuk:'Buka kawasan baharu',teks:'Berdiri atas pad kuning "Naik Taraf" sampai penuh untuk Buka Kebun Sayur.',
+   sasar:()=>padUtk('kebun').pos, siap:()=>!!G.buka.kebun},
+  {ikon:'🎉',tajuk:'Kedai Saya milik kau!',teks:'Terus tuai, isi Rak, layan pelanggan dan Naik Taraf. Tekan ⬆️ untuk tingkatkan Kelajuan & Kapasiti.',
+   sasar:()=>null, siap:()=>false, akhir:true},
+];
+const elTut=$('tut');
+let tutJam=0;
+function kemasTutorial(dt){
+  if(G.tutorial>=TUT.length){
+    elTut.classList.add('sorok'); panahSasar.visible=false;
+    arahkanPenunjuk(G.wang>60?padSeterusnya():null);
+    return;
+  }
+  const t=TUT[G.tutorial];
+  $('tutIkon').textContent=t.ikon; $('tutTajuk').textContent=t.tajuk; $('tutTeks').textContent=t.teks;
+  elTut.classList.remove('sorok');
+  if(t.akhir){ tutJam+=dt; if(tutJam>9){ G.tutorial++; simpan(); } }
+  if(t.siap()){ G.tutorial++; tutJam=0; Bunyi.naik(); simpan(); }
+  const s=t.sasar&&t.sasar();
+  if(s){ panahSasar.visible=true; panahSasar.position.set(s.x,2.4+Math.sin(masaJam*3)*.22,s.z); panahSasar.rotation.y+=dt*2; }
+  else panahSasar.visible=false;
+  arahkanPenunjuk(s);
+}
+/* panah objektif di atas sasaran */
+const panahSasar=new THREE.Group();
+{
+  const k=kon(.42,.9,M(0xffd230)); k.rotation.x=PI; panahSasar.add(k);
+  const c=new THREE.Mesh(new THREE.TorusGeometry(.6,.08,6,16),M(0xe8462f));
+  c.rotation.x=PI/2; c.position.y=-.5; panahSasar.add(c);
+  panahSasar.visible=false; scene.add(panahSasar);
+}
+/* penunjuk arah di kaki pemain (bila sasaran di luar skrin) */
+const penunjuk=new THREE.Group();
+{
+  const t=kon(.3,.66,M(0xffd230)); t.rotation.x=PI/2; t.position.z=.42; penunjuk.add(t);
+  const b=kotak(.24,.09,.5,M(0xf0a01e),0,0,-.02,false); penunjuk.add(b);
+  penunjuk.position.y=.17; penunjuk.visible=false; scene.add(penunjuk);
+}
+function arahkanPenunjuk(sasaran){
+  if(!sasaran){ penunjuk.visible=false; return; }
+  const dx=sasaran.x-P.g.position.x, dz=sasaran.z-P.g.position.z;
+  const d=Math.sqrt(dx*dx+dz*dz);
+  if(d<4.5){ penunjuk.visible=false; return; }
+  penunjuk.visible=true;
+  const n=1/d;
+  penunjuk.position.set(P.g.position.x+dx*n*1.55,.17+Math.sin(masaJam*5)*.03,P.g.position.z+dz*n*1.55);
+  penunjuk.rotation.y=Math.atan2(dx,dz);
+}
+/* sasaran semasa selepas tutorial: pad "Buka" seterusnya yang layak */
+function padSeterusnya(){
+  let terbaik=null,dd=1e9;
+  for(const p of pads){
+    if(p.selesai||!p.kelayakan)continue;
+    const d=p.pos.distanceToSquared(P.g.position);
+    if(d<dd){dd=d;terbaik=p;}
+  }
+  return terbaik?terbaik.pos:null;
+}
+
+/* ─────────────── kerja pemain (auto ikut kedekatan) ─────────────── */
+function kerjaPemain(dt){
+  const kl=kerjaLaju();
+  let buat=false;
+  // 1) isi rak jika ada barang sepadan
+  for(const r of raks){
+    if(!r.terbuka)continue;
+    if(P.pos.distanceTo(r.depan)>2.3)continue;
+    const i=P.bawa.findIndex(b=>b===r.jenis);
+    if(i>=0&&r.ruang>0){
+      tambahProg(dt*9*kl,'isi'+r.id);
+      while(P.prog>=1&&r.ruang>0){
+        const j=P.bawa.findIndex(b=>b===r.jenis);
+        if(j<0)break;
+        P.prog-=1; P.bawa.splice(j,1); r.stok++; r.kemas(); kemasTimbunan(P);
+        Bunyi.isi(); zarah(V3(r.depan.x,1.1,r.depan.z),3,PROD[r.jenis].warna,1.3,.2,-4);
+      }
+      buat=true;
+    }
+  }
+  if(buat)return true;
+  // 2) dapur nasi lemak
+  if(dapur.terbuka&&P.pos.distanceTo(dapur.pos)<dapur.r){
+    const d=G.dapur;
+    const iB=P.bawa.indexOf('beras'), iT=P.bawa.indexOf('telur');
+    if(iB>=0&&d.beras<dapur.kapIn){
+      tambahProg(dt*7*kl,'dapurIn');
+      if(P.prog>=1){ P.prog=0; P.bawa.splice(iB,1); d.beras++; dapur.kemas(); kemasTimbunan(P); Bunyi.isi(); }
+      return true;
+    }
+    if(iT>=0&&d.telur<dapur.kapIn){
+      tambahProg(dt*7*kl,'dapurIn');
+      if(P.prog>=1){ P.prog=0; P.bawa.splice(iT,1); d.telur++; dapur.kemas(); kemasTimbunan(P); Bunyi.isi(); }
+      return true;
+    }
+    if(d.siap>0&&P.bawa.length<kapBawa()){
+      tambahProg(dt*5*kl,'dapurOut');
+      if(P.prog>=1){ P.prog=0; d.siap--; dapur.kemas(); P.bawa.push('nasilemak'); kemasTimbunan(P);
+        Bunyi.tuai(); zarah(dapur.pDulang,4,0xffe9a8,1.6,.24,-4); }
+      return true;
+    }
+  }
+  // 3) ladang & reban
+  for(const s of [padi,kebun,reban]){
+    if(!s.terbuka)continue;
+    if(P.pos.distanceTo(s.pos)>s.r)continue;
+    if(P.bawa.length>=kapBawa()){ return true; }
+    if(s.siap<=0) return true;
+    tambahProg(dt*3.5*kl,'tuai'+s.id);
+    while(P.prog>=1&&P.bawa.length<kapBawa()&&s.siap>0){
+      P.prog-=1;
+      const j=s.tuai(P.pos);
+      if(!j)break;
+      P.bawa.push(j); kemasTimbunan(P); Bunyi.tuai();
+    }
+    return true;
+  }
+  // 4) kaunter: kutip wang
+  for(const k of kaunters){
+    if(!k.terbuka)continue;
+    if(P.pos.distanceTo(k.zon)<2.3){
+      if(k.tunai>0){
+        tambahProg(dt*4.5*kl,'kutip'+k.id);
+        if(P.prog>=1){ P.prog=0; kutipTunai(k,P.pos); }
+      }
+      return true;
+    }
+  }
+  P.progId=''; P.prog=0;
+  return false;
+}
+function tambahProg(d,id){
+  if(P.progId!==id){ P.progId=id; P.prog=0; }
+  P.prog+=d;
+}
+
+/* ─────────────── hari / malam ─────────────── */
+const elTutupBn=$('tutupBn'), elTutupKad=$('tutupKad');
+let spawnJam=2.5, gelapSemasa=G.fasa==='tutup'?1:0;
+function langkahHari(dt){
+  G.masa+=dt;
+  if(G.fasa==='buka'){
+    if(G.masa>=HARI_BUKA){
+      G.fasa='tutup'; G.masa=0; Bunyi.tutup();
+      KEDAI.papanBuka.visible=false; KEDAI.papanTutup.visible=true;
+      elTutupBn.classList.add('on');
+      simpan();
+    }
+  }else{
+    if(G.masa>=HARI_TUTUP){
+      G.fasa='buka'; G.masa=0; G.hari++; G.jualanHari=0; G.pelangganHari=0;
+      KEDAI.papanBuka.visible=true; KEDAI.papanTutup.visible=false;
+      elTutupBn.classList.remove('on');
+      Bunyi.buka(); teksApung(P.pos,'Hari '+G.hari+' — Kedai Buka!','#9ff5a8');
+      simpan();
+    }else{
+      elTutupKad.innerHTML=
+        `Jualan Hari ${G.hari}: <b>${fmtRM(G.jualanHari)}</b> · Pelanggan: <b>${G.pelangganHari}</b><br>`+
+        `Guna masa ini untuk tuai, isi <b>Rak</b> dan <b>Naik Taraf</b>.<br>`+
+        `Hari ${G.hari+1} bermula dalam <b>${Math.ceil(HARI_TUTUP-G.masa)}s</b>`;
+    }
+  }
+  // pencahayaan siang/malam (dilancarkan supaya tiada kejutan gelap bila hari mula)
+  const sasarGelap=G.fasa==='tutup'?1:0;
+  gelapSemasa=lerp(gelapSemasa,sasarGelap,1-Math.pow(.02,dt));
+  const gelap=gelapSemasa;
+  sun.intensity=lerp(2.0,.28,gelap);
+  sun.color.setHex(gelap>.5?0x8fa6d8:0xfff2d0);
+  hemi.intensity=lerp(.95,.34,gelap);
+  hemi.color.setHex(gelap>.5?0x4a5e8a:0xd8f2ff);
+  scene.fog.color.setRGB(lerp(.81,.16,gelap),lerp(.91,.20,gelap),lerp(.95,.31,gelap));
+  renderer.toneMappingExposure=lerp(1.06,.86,gelap);
+  for(const l of lampuJalan){ l.cahaya.intensity=gelap*1.5; l.kepala.material=gelap>.4?bahan.kuning:bahan.batu; }
+  for(const p of KEDAI.lampuDalam) p.intensity=gelap*3.2;
+
+  // spawn pelanggan
+  if(G.fasa==='buka'&&main==='main'){
+    spawnJam-=dt;
+    if(spawnJam<=0){
+      const jenisAda=raks.filter(r=>r.terbuka&&r.ada>0).length;
+      const asas=clamp(6.2-G.hari*.28-jenisAda*.55,1.5,6.2);
+      spawnJam=asas*rnd(.75,1.3);
+      if(pelangganSemua.length<PELANGGAN_MAKS&&jenisAda>0){
+        pelangganSemua.push(new Pelanggan()); Bunyi.masuk();
+      }
+    }
+  }
+}
+
+/* ─────────────── kamera / saiz ─────────────── */
+function saiz(){
+  const w=Math.max(1,innerWidth||1), h=Math.max(1,innerHeight||1);
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;
+  // jarak kamera dikira supaya lebar dunia yang nampak sentiasa mencukupi
+  const aspek=w/h;
+  camera.fov=aspek<1?37:32;
+  const lebarMahu=aspek<.55?11.5:(aspek<1?14:26);
+  const tanH=Math.tan(camera.fov*PI/360)*aspek;
+  let jarak=(lebarMahu/2)/tanH;
+  if(!isFinite(jarak)) jarak=34;
+  camOff.set(0,Math.sin(1.06)*clamp(jarak,26,62),Math.cos(1.06)*clamp(jarak,26,62));
+  camera.updateProjectionMatrix();
+}
+addEventListener('resize',saiz); addEventListener('orientationchange',()=>setTimeout(saiz,180));
+saiz();
+
+/* ─────────────── gelung utama ─────────────── */
+let masaJam=0, lalu=performance.now();
+const camTuju=V3(0,0,0), _camA=V3(0,0,0), _camB=V3(0,0,0);
+camTuju.copy(P.pos);
+camera.position.copy(P.pos).add(camOff);
+
+function tick(now){
+  requestAnimationFrame(tick);
+  let dt=(now-lalu)/1000; lalu=now;
+  if(dt>.06)dt=.06;
+  kemaskini(dt);
+}
+function kemaskini(dt){
+  masaJam+=dt;
+
+  if(main==='main'){
+    /* input pemain */
+    let gx=gerak.x, gz=gerak.z;
+    if(kekunci['a']||kekunci['arrowleft'])gx-=1;
+    if(kekunci['d']||kekunci['arrowright'])gx+=1;
+    if(kekunci['w']||kekunci['arrowup'])gz-=1;
+    if(kekunci['s']||kekunci['arrowdown'])gz+=1;
+    const m=Math.hypot(gx,gz);
+    if(m>1){gx/=m;gz/=m;}
+    const kuasa=Math.min(Math.hypot(gx,gz),1);
+    if(kuasa>.06){
+      const laju=lajuPemain()*kuasa;
+      P.pos.x+=gx*laju*dt; P.pos.z+=gz*laju*dt;
+      selesaiKolisi(P.pos,.5);
+      P.hala=Math.atan2(gx,gz);
+      P.laju=kuasa;
+      P.langkah+=dt*kuasa*lajuPemain();
+      if(P.langkah>1.3){ P.langkah=0; if(Math.random()<.5)Bunyi.n(rnd(90,120),.05,'triangle',.02); }
+    }else P.laju=lerp(P.laju,0,dt*12);
+    P.g.position.lerp(P.pos,1-Math.pow(.0005,dt));
+    P.g.position.y=0;
+    P.g.rotation.y=lerpSudut(P.g.rotation.y,P.hala,dt*12);
+    animasiJalan(P.g,P.laju,dt);
+    labelPemilik.pos.copy(P.g.position);
+    // label naik ke atas timbunan barang supaya tidak bertindih
+    labelPemilik.oy=2.35+Math.min(P.bawa.length,12)*.33;
+    const kap=kapBawa();
+    const teksP=P.bawa.length?`Pemilik · ${P.bawa.length}/${kap}`:'Pemilik';
+    if(labelPemilik.el.textContent!==teksP) labelPemilik.el.textContent=teksP;
+
+    /* kerja automatik */
+    kerjaPemain(dt);
+
+    /* stesen */
+    padi.langkah(dt); kebun.langkah(dt); reban.langkah(dt); dapur.langkah(dt);
+
+    /* pad naik taraf */
+    for(const p of pads){
+      p.langkah(dt,P.pos.distanceTo(p.pos)<1.6);
+    }
+
+    /* kaunter */
+    for(const k of kaunters) layanKaunter(k,dt);
+
+    /* pelanggan */
+    for(let i=pelangganSemua.length-1;i>=0;i--) pelangganSemua[i].langkah(dt);
+
+    /* pekerja */
+    for(const w of pekerjaSemua) w.langkahKerja(dt);
+
+    /* hari */
+    langkahHari(dt);
+
+    /* animasi pop bagi objek baru dibuka */
+    for(const o of [kebun,reban,dapur,...raks,...kaunters]){
+      if(o.animasi!==undefined&&o.animasi<1){
+        o.animasi=Math.min(1,o.animasi+dt*2.6);
+        const e=1+Math.sin(o.animasi*PI)*.16;
+        const s=o.animasi<1?o.animasi*e:1;
+        o.g.scale.setScalar(s);
+        if(o.animasi>=1)o.g.scale.setScalar(1);
+      }
+    }
+    /* kucing */
+    if(kucing){ kucing.ekor.rotation.y=Math.sin(masaJam*2.2)*.5; }
+
+    /* autosimpan */
+    simpanTimer+=dt; if(simpanTimer>5){ simpanTimer=0; simpan(); }
+
+    kemasTutorial(dt);
+    kemasHUD();
+  }
+
+  /* kamera */
+  _camA.set(clamp(P.g.position.x,-8,8),0,clamp(P.g.position.z,-21,13));
+  camTuju.lerp(_camA,1-Math.pow(.002,dt));
+  _camB.copy(camTuju).add(camOff);
+  // pulih jika saiz tetingkap pernah dilaporkan sifar (kamera boleh jadi NaN)
+  if(!isFinite(camera.position.x)||!isFinite(camera.position.y)||!isFinite(camera.position.z))
+    camera.position.copy(_camB);
+  camera.position.lerp(_camB,1-Math.pow(.004,dt));
+  if(goncangA>.001){
+    camera.position.x+=rnd(-1,1)*goncangA*.35;
+    camera.position.y+=rnd(-1,1)*goncangA*.35;
+    goncangA*=Math.pow(.02,dt);
+  }
+  camera.lookAt(camTuju.x,1.1,camTuju.z-1.2);
+  sun.target.position.copy(camTuju);
+  sun.position.set(camTuju.x+20,34,camTuju.z+14);
+
+  if(kilatA>.001){ kilatA*=Math.pow(.015,dt); elFlash.style.opacity=String(kilatA*.55); }
+  else if(elFlash.style.opacity!=='0') elFlash.style.opacity='0';
+
+  kemasZarah(dt); kemasKonfeti(dt); kemasApung(dt); kemasLabel();
+  renderer.render(scene,camera);
+}
+
+/* mula */
+kemasHUD(); kemasPanelNaik();
+raks.forEach(r=>r.kemas()); kaunters.forEach(k=>k.kemas());
+KEDAI.papanBuka.visible=G.fasa==='buka'; KEDAI.papanTutup.visible=G.fasa!=='buka';
+if(G.fasa==='tutup') elTutupBn.classList.add('on');
+Bunyi.on=G.bunyi;
+$('memuat').style.display='none';
+requestAnimationFrame(tick);
+
+/* pemegang untuk ujian automatik / penyahpepijatan */
+window.KEDAI={G,P,raks,kaunters,pads,padi,kebun,reban,dapur,pelangganSemua,pekerjaSemua,
+  camera,scene,simpan,kemasPanelNaik,bukaKawasan,
+  langkah:(dt,n)=>{ for(let i=0;i<(n||1);i++) kemaskini(dt||1/60); },
+  ke:(x,z)=>{P.pos.set(x,0,z);P.g.position.set(x,0,z);},
+  beri:n=>{G.wang+=n;kemasHUD();kemasPanelNaik();},
+  status:()=>({wang:G.wang,jualan:G.jualan,bawa:P.bawa.slice(),hari:G.hari,fasa:G.fasa,
+    stok:raks.map(r=>r.id+':'+r.stok+(r.terbuka?'':'(kunci)')),
+    tunai:kaunters.map(k=>k.id+':'+k.tunai),pelanggan:pelangganSemua.length,
+    buka:Object.keys(G.buka),tutorial:G.tutorial,pekerja:pekerjaSemua.length}),
+  main:()=>main, buangSimpanan};
+
+addEventListener('visibilitychange',()=>{ if(document.hidden&&main==='main'){ togolJeda(); } simpan(); });
+addEventListener('pagehide',simpan);
+addEventListener('beforeunload',simpan);
+</script>
+</body>
+</html>

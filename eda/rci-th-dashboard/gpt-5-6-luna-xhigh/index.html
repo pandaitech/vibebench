@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101713">
+  <meta name="color-scheme" content="light">
+  <title>RCI Tabung Haji — Jejak jurang, risiko dan keputusan</title>
+  <meta name="description" content="Dashboard penerokaan data untuk memahami Laporan Suruhanjaya Siasatan Diraja Tabung Haji, dengan jejak terus ke halaman sumber.">
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <a class="skip-link" href="#utama">Langkau ke analisis</a>
+
+  <header class="masthead" id="atas">
+    <div class="wrap masthead__inner">
+      <div class="masthead__copy">
+        <div class="eyebrow"><span class="eyebrow__mark"></span> FAIL EDA · LAPORAN RCI TABUNG HAJI · 2022</div>
+        <h1>Jejak jurang.<br><em>Uji ceritanya.</em></h1>
+        <p class="masthead__dek">Laporan ini bukan sekadar cerita tentang satu kerugian. Ia ialah rangkaian keputusan: hibah yang tinggi, cara aset dinilai, risiko pelaburan dan kos haji yang semuanya berkongsi dana yang sama.</p>
+        <div class="masthead__actions">
+          <button class="btn btn--warm" data-scroll="#cerita">Mulakan dengan peta cerita <span>↓</span></button>
+          <a class="btn btn--ghost" href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noreferrer">Laporan asal <span>↗</span></a>
+        </div>
+      </div>
+      <aside class="scope-card" aria-label="Skop laporan">
+        <div class="scope-card__top"><span>SKOP SIASATAN</span><span>2014—2020</span></div>
+        <div class="scope-card__seal">RCI<br><small>TH</small></div>
+        <div class="scope-card__stats">
+          <div><strong>240</strong><span>halaman PDF</span></div>
+          <div><strong>14</strong><span>pelaburan bermasalah</span></div>
+          <div><strong>4</strong><span>pendekatan siasatan</span></div>
+          <div><strong>2017</strong><span>tahun krisis terserlah</span></div>
+        </div>
+        <p>Angka ini menerangkan skop dan titik tumpuan laporan — bukan ukuran salah laku.</p>
+      </aside>
+    </div>
+  </header>
+
+  <nav class="topic-nav" aria-label="Bahagian dashboard">
+    <div class="wrap topic-nav__inner">
+      <a href="#cerita" class="is-active">Cerita besar</a>
+      <a href="#hibah">Hibah &amp; jurang</a>
+      <a href="#ujsb">UJSB</a>
+      <a href="#portfolio">Pelaburan</a>
+      <a href="#haji">Kos haji</a>
+      <a href="#tadbir">Tadbir urus</a>
+      <a href="#masa">Jejak masa</a>
+      <a href="#bukti">Bukti &amp; had</a>
+    </div>
+  </nav>
+
+  <main id="utama">
+    <section class="section section--dark" id="cerita" data-section>
+      <div class="wrap">
+        <div class="section-head section-head--dark">
+          <div><p class="kicker">01 · CERITA BESAR</p><h2>Masalahnya bergerak<br>daripada pulangan ke risiko</h2></div>
+          <p>Tekan setiap langkah. Setiap satu membawa kepada soalan seterusnya dan halaman bukti dalam laporan.</p>
+        </div>
+        <div class="story-rail" id="storyRail" role="tablist" aria-label="Empat langkah cerita"></div>
+        <div class="story-reading" id="storyReading" aria-live="polite"></div>
+        <div class="question-grid">
+          <button data-scroll="#hibah"><span>SOALAN 01</span><strong>Adakah hibah mampu dibayar?</strong><small>Banding aset, liabiliti dan agihan sebenar.</small><i>→</i></button>
+          <button data-scroll="#ujsb"><span>SOALAN 02</span><strong>Apa yang ditukar untuk menutup jurang?</strong><small>Ikut aset, Sukuk dan komitmen Kerajaan.</small><i>→</i></button>
+          <button data-scroll="#portfolio"><span>SOALAN 03</span><strong>Di mana risiko tertumpu?</strong><small>Saring pelaburan ikut sektor, status dan ukuran kerugian.</small><i>→</i></button>
+          <button data-scroll="#haji"><span>SOALAN 04</span><strong>Siapa menanggung kos haji?</strong><small>Uji beban HAFIS hari ini dan dalam unjuran.</small><i>→</i></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="hibah" data-section>
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">02 · HIBAH &amp; JURANG</p><h2>Angka yang sama boleh bercerita<br>dua keadaan kewangan</h2></div>
+          <p>Paparan kiri menggunakan analisis PwC berasaskan angka laporan kewangan. Paparan kanan menunjukkan apa yang berlaku selepas agihan.</p>
+        </div>
+        <div class="analysis-grid">
+          <article class="panel panel--wide">
+            <div class="panel-head">
+              <div><span class="tag tag--fact">FAKTA LAPORAN</span><h3>Jurang aset–liabiliti selepas hibah</h3></div>
+              <button class="source-link" data-source="112">PDF 112</button>
+            </div>
+            <p class="panel-intro">Pilih tahun. Batang gelap menunjukkan aset dan liabiliti sebelum agihan; bar merah menunjukkan baki selepas hibah.</p>
+            <div class="year-pills" id="balanceYears" role="group" aria-label="Pilih tahun"></div>
+            <div id="balanceViz" class="balance-viz"></div>
+            <div class="legend"><span><i class="dot dot--ink"></i>Aset</span><span><i class="dot dot--slate"></i>Liabiliti</span><span><i class="dot dot--red"></i>Selepas agihan</span></div>
+            <div class="callout callout--red" id="balanceCallout"></div>
+          </article>
+          <article class="panel panel--accent">
+            <div class="panel-head"><div><span class="tag tag--derived">FAKTA + PELARASAN</span><h3>Tahun 2017: untung rasmi vs untung terlaras</h3></div><button class="source-link" data-source="149">PDF 149</button></div>
+            <p class="panel-intro">PwC menguji kesan rosot nilai dan pelarasan nilai saksama jika piawaian FRS digunakan sepenuhnya.</p>
+            <div class="compare-stack" id="profitCompare"></div>
+            <div class="delta-card"><span>Jurang pelarasan</span><strong>RM4.845b</strong><small>Daripada untung direkod kepada kerugian terlaras.</small></div>
+            <p class="fineprint"><b>Perlu dibaca begini:</b> angka merah bukan “kerugian tunai tahun itu” semata-mata; ia ialah hasil pelarasan nilai dan rosot nilai dalam analisis PwC.</p>
+          </article>
+        </div>
+
+        <div class="subsection-head"><div><p class="kicker">UJIAN ASAS</p><h3>Bila agihan ditolak daripada wang yang tersedia</h3></div><span class="tag tag--sim">SIMULASI RINGKAS</span></div>
+        <div class="simulator panel">
+          <div class="simulator__copy"><p class="simulator__question">Jika kadar agihan berubah, berapa banyak jurang yang tinggal?</p><p>Gerakkan pelaras untuk mengubah peratus daripada agihan 2017 yang dibayar. Ini bukan angka baharu dalam laporan; ia alat untuk memahami sensitiviti jurang.</p></div>
+          <div class="simulator__control"><label for="payoutSlider">Bayar <output id="payoutValue">100%</output> daripada agihan 2017</label><input id="payoutSlider" type="range" min="0" max="100" value="100" step="5"><div class="range-labels"><span>0% agihan</span><span>100% sebenar</span></div></div>
+          <div class="simulator__result" id="payoutResult"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--soft" id="ujsb" data-section>
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">03 · UJSB &amp; PEMULIHAN</p><h2>Jurang ditutup dengan pemindahan aset,<br>tetapi komitmen berpindah ke masa depan</h2></div>
+          <p>UJSB ialah syarikat milik penuh Menteri Kewangan Diperbadankan. Gunakan paparan untuk melihat nilai aset, instrumen yang diterima LTH dan tarikh matang.</p>
+        </div>
+        <div class="deal-toggle" role="group" aria-label="Pilih cara melihat urus niaga UJSB"><button class="is-active" data-deal="asset">Apa yang dipindah</button><button data-deal="obligation">Apa yang perlu dibayar</button></div>
+        <div class="deal-board" id="dealBoard"></div>
+        <div class="analysis-grid ujsb-grid">
+          <article class="panel">
+            <div class="panel-head"><div><span class="tag tag--fact">FAKTA LAPORAN</span><h3>Nilai pemindahan bukan nilai pasaran</h3></div><button class="source-link" data-source="25">PDF 25</button></div>
+            <div class="bar-compare" id="transferCompare"></div>
+            <p class="interpretation" id="transferText"></p>
+          </article>
+          <article class="panel panel--dark-mini">
+            <div class="panel-head"><div><span class="tag tag--dark">JEJAK OBLIGASI</span><h3>Sukuk matang pada dua titik masa</h3></div><button class="source-link source-link--dark" data-source="26">PDF 26</button></div>
+            <div class="maturity-track" id="maturityTrack"></div>
+            <div class="dark-note"><strong>RM17.8b</strong><span>peruntukan Kerajaan yang diluluskan untuk menampung shortfall penebusan Sukuk</span></div>
+          </article>
+        </div>
+        <div class="note-strip"><span class="note-strip__icon">i</span><p><b>Jangan samakan ini dengan keuntungan.</b> Pemindahan aset kepada UJSB ialah mekanisme pemulihan dan penstrukturan. Laporan menyebut hasil akruan Sukuk menyumbang hampir 26% daripada pendapatan tahunan LTH — kebergantungan ini sendiri menjadi risiko tumpuan.</p></div>
+      </div>
+    </section>
+
+    <section class="section" id="portfolio" data-section>
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">04 · PORTFOLIO BERMASALAH</p><h2>Jangan jumlahkan nombor<br>yang tidak setara</h2></div>
+          <p>Gunakan carian dan penapis untuk melihat bagaimana masalah muncul: kerugian yang direkod, wang yang belum diterima, aset dihapus kira atau pertikaian yang masih berjalan.</p>
+        </div>
+        <div class="portfolio-toolbar panel">
+          <label class="search-box"><span>⌕</span><input id="investmentSearch" type="search" placeholder="Cari nama atau isu…" aria-label="Cari pelaburan"></label>
+          <label class="select-box"><span>Sektor</span><select id="sectorFilter"><option value="Semua">Semua sektor</option><option value="Ekuiti">Ekuiti</option><option value="Perladangan">Perladangan</option><option value="Hartanah / hotel">Hartanah / hotel</option><option value="Maritim">Maritim</option><option value="Lain-lain">Lain-lain</option></select></label>
+          <label class="select-box"><span>Jenis isu</span><select id="statusFilter"><option value="Semua">Semua isu</option><option value="Nilai susut">Nilai susut</option><option value="Undang-undang">Undang-undang</option><option value="Tadbir urus">Tadbir urus</option><option value="Aset dipindah">Aset dipindah</option></select></label>
+        </div>
+        <div class="portfolio-summary" id="portfolioSummary"></div>
+        <div class="portfolio-layout">
+          <article class="panel ranking-panel"><div class="panel-head"><div><span class="tag tag--derived">RM DISEBUT DALAM LAPORAN</span><h3>Saiz angka yang boleh dibandingkan</h3></div><button class="source-link" data-source="138">PDF 138</button></div><p class="panel-intro">Bar ini hanya mengisih angka dalam RM yang mempunyai maksud jelas pada barisnya. Ia bukan jumlah kerugian keseluruhan portfolio.</p><div id="investmentBars" class="investment-bars"></div><div class="legend"><span><i class="dot dot--red"></i>Rosot nilai / kerugian disebut</span><span><i class="dot dot--amber"></i>Nilai pelaburan / pendedahan</span></div></article>
+          <article class="panel portfolio-table-panel"><div class="table-head"><h3>Fail kes <span id="caseCount"></span></h3><button id="resetFilters" class="text-btn">Set semula</button></div><div class="case-list" id="caseList"></div></article>
+        </div>
+        <div class="portfolio-footnote"><span class="tag tag--sim">TAK BOLEH DIJUMLAH TERUS</span><p>USD, SR, nilai buku, kerugian tidak nyata, peruntukan dan komitmen masa hadapan bukan ukuran yang sama. Dashboard mengekalkan label asal supaya perbandingan tidak mengelirukan.</p></div>
+      </div>
+    </section>
+
+    <section class="section section--soft" id="haji" data-section>
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">05 · HAFIS &amp; KOS HAJI</p><h2>Apabila kos naik, subsidi memakan<br>ruang hibah</h2></div>
+          <p>HAFIS ialah Bantuan Kewangan Haji: beza antara kos sebenar pakej Muassasah dan bayaran jemaah. Tukar antara angka sebenar dan unjuran laporan.</p>
+        </div>
+        <div class="haji-switch" role="group" aria-label="Pilih siri kos haji"><button class="is-active" data-haji-mode="actual">2014—2019 · sebenar</button><button data-haji-mode="projection">2022—2030 · unjuran</button></div>
+        <div class="haji-layout">
+          <article class="panel haji-chart-panel"><div class="panel-head"><div><span class="tag" id="hajiTag">FAKTA LAPORAN</span><h3 id="hajiChartTitle">Kos sebenar dan HAFIS</h3></div><button class="source-link" data-source="204">PDF 204</button></div><div class="haji-years" id="hajiYears"></div><div id="hajiViz" class="haji-viz"></div><div class="legend"><span><i class="dot dot--ink"></i>Bayaran jemaah</span><span><i class="dot dot--amber"></i>HAFIS per jemaah</span><span><i class="dot dot--red"></i>HAFIS keseluruhan</span></div></article>
+          <aside class="panel haji-readout" id="hajiReadout"></aside>
+        </div>
+        <div class="haji-callouts"><div><strong>RM60b</strong><span>Dana minimum yang disebut laporan diperlukan untuk menampung HAFIS pada tahap semasa.</span><button class="source-link" data-source="206">Bukti · PDF 206</button></div><div><strong>65%</strong><span>Bahagian kos haji yang boleh ditanggung HAFIS menjelang 2030 jika bayaran kekal RM12,980.</span><button class="source-link" data-source="205">Bukti · PDF 205</button></div><div><strong>33 tahun</strong><span>Unjuran tempoh menunggu jika minimum pendaftaran dinaikkan kepada RM12,980; ini ialah cadangan, bukan hasil yang sudah berlaku.</span><button class="source-link" data-source="208">Bukti · PDF 208</button></div></div>
+      </div>
+    </section>
+
+    <section class="section" id="tadbir" data-section>
+      <div class="wrap">
+        <div class="section-head">
+          <div><p class="kicker">06 · TADBIR URUS</p><h2>Jejak siapa memberi input,<br>siapa meluluskan, siapa menyemak</h2></div>
+          <p>Laporan menggambarkan lebih daripada satu lapisan keputusan. Pilih entiti untuk melihat peranan dan titik geseran yang disebut Suruhanjaya.</p>
+        </div>
+        <div class="governance-layout">
+          <article class="network-card panel"><div class="network-stage" id="networkStage"></div><div class="network-legend"><span><i class="network-dot network-dot--core"></i>LTH / dalaman</span><span><i class="network-dot network-dot--external"></i>semakan luar</span><span><i class="network-dot network-dot--state"></i>Kerajaan</span></div></article>
+          <article class="panel entity-detail" id="entityDetail" aria-live="polite"></article>
+        </div>
+        <div class="governance-facts"><div><span>2014—2017</span><strong>Audit bersih</strong><small>Namun laporan 2017 mengandungi “Emphasis of Matter”.</small><button class="source-link" data-source="125">Bukti · PDF 125</button></div><div><span>2017</span><strong>Polisi berubah 2×</strong><small>Ambang rosot nilai bergerak daripada 70% kepada 85% kemudian 90%.</small><button class="source-link" data-source="148">Bukti · PDF 148</button></div><div><span>2018</span><strong>Panel Pelaburan dibubarkan</strong><small>Suruhanjaya mencadangkan jawatankuasa penting dikanunkan.</small><button class="source-link" data-source="17">Bukti · PDF 17</button></div></div>
+      </div>
+    </section>
+
+    <section class="section section--dark" id="masa" data-section>
+      <div class="wrap">
+        <div class="section-head section-head--dark"><div><p class="kicker">07 · JEJAK MASA</p><h2>Daripada teguran audit<br>kepada pelan pemulihan</h2></div><p>Garis masa ini membezakan peristiwa yang dilaporkan daripada rumusan sebab-akibat dashboard.</p></div>
+        <div class="timeline-filters" id="timelineFilters" role="group" aria-label="Tapis garis masa"><button class="is-active" data-timeline-filter="Semua">Semua</button><button data-timeline-filter="Kewangan">Kewangan</button><button data-timeline-filter="UJSB">UJSB</button><button data-timeline-filter="Siasatan">Siasatan</button><button data-timeline-filter="Haji">Haji</button></div>
+        <div class="timeline" id="timeline"></div>
+      </div>
+    </section>
+
+    <section class="section section--soft" id="bukti" data-section>
+      <div class="wrap">
+        <div class="section-head"><div><p class="kicker">08 · BUKTI &amp; HAD</p><h2>Setiap insight perlu ada<br>label dan jejak</h2></div><p>Dashboard ini memisahkan fakta, kiraan terbitan, unjuran laporan dan simulasi supaya pengguna tahu apa yang boleh — dan tidak boleh — disimpulkan.</p></div>
+        <div class="evidence-grid"><article><span class="tag tag--fact">FAKTA LAPORAN</span><h3>Ditulis atau dijadualkan dalam laporan</h3><p>Contoh: aset dipindah pada RM19.9b, HAFIS 2019 RM299m, 14 pelaburan bermasalah dan tarikh UJSB.</p></article><article><span class="tag tag--derived">DATA TERBITAN</span><h3>Dikira daripada nombor laporan</h3><p>Contoh: beza RM4.845b antara untung rasmi dan angka terlaras, atau RM225m susut nilai DSSB (RM257m − RM32m).</p></article><article><span class="tag tag--sim">UNJURAN / SIMULASI</span><h3>Bukan hasil yang sudah berlaku</h3><p>Unjuran kos 2022—2030 dan pelaras bayaran hibah ialah alat untuk membaca risiko, bukan ramalan baharu atau bukti transaksi.</p></article><article><span class="tag tag--limit">HAD TAFSIRAN</span><h3>Apa yang data ini tidak buktikan</h3><p>Angka portfolio tidak membuktikan punca tunggal, niat individu atau kerugian boleh pulih. Untuk itu, laporan merujuk prosiding, siasatan dan tindakan undang-undang.</p></article></div>
+        <div class="method-note panel"><div><p class="kicker">CARA MEMBACA</p><h3>Mulakan pada hubungan, berhenti pada bukti.</h3></div><p>Dashboard ini ialah sintesis analitik daripada laporan RCI, bukan pengganti laporan asal. Buka mana-mana rujukan halaman untuk membaca konteks penuh sebelum membuat kesimpulan.</p><a class="btn btn--ink" href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noreferrer">Baca laporan penuh <span>↗</span></a></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="wrap"><span>RCI TH / EXPLORATORY DATA ANALYSIS</span><span>Data daripada Laporan Suruhanjaya Siasatan Diraja, 30 Ogos 2022</span><a href="#atas">↑ atas</a></div></footer>
+
+  <dialog id="sourceDialog" class="source-dialog"><button class="dialog-close" id="dialogClose" aria-label="Tutup">×</button><div id="dialogBody"></div></dialog>
+  <script src="app.js"></script>
+</body>
+</html>
