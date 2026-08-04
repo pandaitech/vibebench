@@ -69,7 +69,7 @@
   @keyframes cashGlow{50%{transform:translateX(-50%) scale(1.06);}}
   #cashPill b{font-size:16px;}
 
-  #upgradeBtn{position:absolute;bottom:max(76px,calc(env(safe-area-inset-bottom) + 62px));right:14px;
+  #upgradeBtn{position:absolute;bottom:max(148px,calc(env(safe-area-inset-bottom) + 134px));right:14px;
     padding:13px 20px;border-radius:999px;background:linear-gradient(160deg,#ffb25e,#ef7d2e);color:#fff;
     border:3px solid #ffe7b0;box-shadow:0 12px 30px rgba(160,80,10,.5);font-size:15px;font-weight:900;
     animation:upGlow 1.2s ease-in-out infinite;}
@@ -305,7 +305,25 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+  window.__threeLoaded = (function () {
+    if (window.THREE) return Promise.resolve();
+    function load(src) {
+      return new Promise(function (res) {
+        var s = document.createElement("script");
+        s.src = src;
+        s.onload = res;
+        s.onerror = function () { document.body.removeChild(s); res(); };
+        document.body.appendChild(s);
+      });
+    }
+    return load("https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js")
+      .then(function () {
+        if (window.THREE) return;
+        return load("https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js");
+      });
+  })();
+</script>
 <script>
 "use strict";
 (function () {
@@ -362,6 +380,7 @@
     pop: function () { beep(520, 0.07, "sine", 0.12, 680); },
     coin: function () { beep(920, 0.09, "square", 0.07, 1240); beep(1380, 0.16, "square", 0.07, 1500); },
     ching: function () { beep(880, 0.1, "triangle", 0.12, 1100); beep(1320, 0.22, "triangle", 0.1, 1600); },
+    chime: function () { beep(660, 0.16, "sine", 0.12, 880); beep(990, 0.22, "sine", 0.1, 1320); },
     buy: function () { beep(240, 0.1, "sine", 0.1, 300); beep(360, 0.12, "sine", 0.08, 420); },
     door: function () { beep(660, 0.18, "sine", 0.09, 520); beep(440, 0.2, "sine", 0.07, 330); },
     unlock: function () { beep(392, 0.12, "square", 0.1); setTimeout(function(){beep(523,0.12,"square",0.1);},110); setTimeout(function(){beep(659,0.12,"square",0.1);},220); setTimeout(function(){beep(784,0.3,"square",0.12);},330); },
@@ -641,7 +660,7 @@
       if (u.id === "kebun2") { S.fields.kebun2.count = 4; showPlot("kebun2"); }
       if (u.id === "reban") { showCoop(); }
       if (u.id === "dapur") { showKitchen(); }
-      if (u.id === "pekerja1" || u.id === "pekerja2" || u.id === "pekerja3") { hireWorker(); }
+      if (u.id === "pekerja1" || u.id === "pekerja2" || u.id === "pekerja3") { S.workers++; hireWorker(); }
     } else {
       S.levels[u.key]++;
       if (u.key === "shelfCap") rebuildAllShelves();
@@ -700,7 +719,7 @@
     kebun2: { id: "kebun2", kind: "sayur", x: 3.2, z: -9.5, w: 4, d: 4, max: 10, regrow: 2.4, unlock: "kebun2" },
     coop: { id: "coop", kind: "telur", x: 6.7, z: -10.0, w: 3, d: 4.5, unlock: "reban" }
   };
-  var KITCHEN = { x: 7.3, z: 5.0, w: 2.8, d: 2.2, unlock: "dapur" };
+  var KITCHEN = { x: 7.1, z: 0.5, w: 2.8, d: 2.2, unlock: "dapur" };
   var PAD = { x: -8.0, z: 8.6, r: 1.5 };
   var spawnPoint = { x: 0, z: 11.9 };
 
@@ -1129,7 +1148,7 @@
   var nav = new Uint8Array(GRID_W * GRID_H);
   function buildNav() {
     nav.fill(0);
-    var pad = 0.35;
+    var pad = 0.38;
     for (var r = 0; r < GRID_H; r++) {
       for (var c = 0; c < GRID_W; c++) {
         var wx = GRID_OX + (c + 0.5) * CELL, wz = GRID_OZ + (r + 0.5) * CELL;
@@ -1137,8 +1156,8 @@
         for (var i = 0; i < BLOCKS.length; i++) {
           var b = BLOCKS[i];
           if (b.unlock && !S.unlocked[b.unlock]) continue;
-          if (b.always === undefined && !b.walk) continue;
-          var ex = b.w / 2 + pad + 0.15, ez = b.d / 2 + pad + 0.15;
+          if (b.walk) continue;
+          var ex = b.w / 2 + pad, ez = b.d / 2 + pad;
           if (Math.abs(wx - b.x) < ex && Math.abs(wz - b.z) < ez) { blocked = true; break; }
         }
         if (blocked) nav[r * GRID_W + c] = 1;
@@ -1290,11 +1309,18 @@
     var p = aStar(npc.pos.x, npc.pos.z, tx, tz);
     if (p && p.length) {
       npc.path = p;
-      if (p.length <= 1) { npc.arrived = true; npc.moving = false; }
+      npc.arrived = p.length <= 1;
+      npc.moving = !npc.arrived;
     } else {
       npc.arrived = false;
       npc.path = [];
+      npc.moving = false;
     }
+  }
+  function syncNpc(npc, dt) {
+    npc.mesh.position.set(npc.pos.x, 0, npc.pos.z);
+    npc.mesh.rotation.y = lerpAngle(npc.mesh.rotation.y, npc.facing, 0.22);
+    animateWalk(npc.mesh, npc.moving, npc.speed, dt);
   }
 
   /* ================= CUSTOMERS ================= */
@@ -1388,14 +1414,16 @@
     var mesh = c.mesh;
     switch (c.state) {
       case "enter": {
-        if (c.arrived) {
-          var t = nextShoppingTarget(c);
-          if (!t) {
-            c.arrived = false; c.state = "leave"; c.leaveTime = 0;
-            break;
+        if (!c.path.length && !c.moving && !c.arrived) {
+          if (!c.retry) c.retry = 0;
+          c.retry -= dt;
+          if (c.retry <= 0) {
+            c.retry = 0.6;
+            var t0 = nextShoppingTarget(c);
+            if (!t0) { c.state = "leave"; c.arrived = false; break; }
+            var fr0 = shelfFront(t0.shelf);
+            setPath(c, fr0.x, fr0.z);
           }
-          var fr = shelfFront(t.shelf);
-          setPath(c, fr.x, fr.z);
         }
         if (c.path.length || c.moving) followPath(c, dt, c.speed);
         if (c.arrived) {
@@ -1438,12 +1466,13 @@
                 if (!ct) { c.state = "leave"; c.arrived = false; break; }
                 ct.q.push(c); c.counter = ct; c.qIndex = ct.q.length - 1;
                 setPath(c, queueSpot(ct, c.qIndex).x, queueSpot(ct, c.qIndex).z);
-              } else if (next) {
-                c.currentShelf = next.shelf;
-                c.arrived = false;
-                var fr = shelfFront(next.shelf);
-                setPath(c, fr.x, fr.z);
-              } else if (c.bought === 0) {
+          } else if (next) {
+            c.currentShelf = next.shelf;
+            c.arrived = false;
+            var fr = shelfFront(next.shelf);
+            setPath(c, fr.x, fr.z);
+            if (!c.path.length) { c.retry = 0.5; c.state = "shopWait"; c.waitTimer = 0; }
+          } else if (c.bought === 0) {
                 c.state = "leave"; c.arrived = false;
               }
             }
@@ -1555,6 +1584,7 @@
         }
       }
     }
+    syncNpc(c, dt);
   }
 
   function releaseCounter(ct) {
@@ -1606,7 +1636,6 @@
   /* ================= WORKERS ================= */
   var workers = [];
   function hireWorker() {
-    S.workers++;
     var mesh = makePerson({ skin: SKINS[randi(0, SKINS.length - 1)], shirt: 0x2a9d8f, pants: 0x2b3a2b, hat: "cap", face: "smile" });
     var sp = { x: fieldDefs.padi.x, z: fieldDefs.padi.z + 1 };
     mesh.position.set(sp.x, 0, sp.z);
@@ -1739,6 +1768,7 @@
         break;
       }
     }
+    syncNpc(w, dt);
   }
 
   /* ================= PARTICLES ================= */
@@ -1978,15 +2008,15 @@
   function movePlayer(dt) {
     var mv = { x: 0, z: 0 };
     var useJoy = isTouch && joyActive;
-    if (useJoy) { mv.x = joyVec.x; mv.z = joyVec.y; }
+    if (useJoy) { mv.x = joyVec.x; mv.z = -joyVec.y; }
     else {
       var fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
       fwd.y = 0; fwd.normalize();
       var right = new THREE.Vector3().crossVectors(fwd, new THREE.Vector3(0, 1, 0)).normalize();
       if (fwd.lengthSq() < 0.001) right.set(1, 0, 0);
       var up = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), right).normalize();
-      if (keys.KeyW || keys.ArrowUp) mv.z += -1;
-      if (keys.KeyS || keys.ArrowDown) mv.z += 1;
+      if (keys.KeyW || keys.ArrowUp) mv.z += 1;
+      if (keys.KeyS || keys.ArrowDown) mv.z += -1;
       if (keys.KeyA || keys.ArrowLeft) mv.x += -1;
       if (keys.KeyD || keys.ArrowRight) mv.x += 1;
       if (mv.x !== 0 || mv.z !== 0) {
@@ -2052,7 +2082,6 @@
     var actions = [];
     function near(tx, tz, r) { return dist(px, pz, tx, tz) <= r; }
 
-    fieldDefs.padi.unlock = null;
     if (near(fieldDefs.padi.x, fieldDefs.padi.z, 2.6)) {
       if (player.carry.length < carryCap()) {
         if (S.fields.padi.count > 0) actions.push({ type: "harvest", id: "padi", text: "🌾 Menuai Padi…", dur: 0.4 });
@@ -2417,9 +2446,6 @@
     actionProgress = actionTimer > 0 ? 1 - actionTimer / (currentAction ? currentAction.dur : 1) : 0;
 
     S.fields.padi.count = Math.min(fieldDefs.padi.max, S.fields.padi.count + dt / fieldDefs.padi.regrow);
-    if (S.fields.padi.count > 0 && Math.floor(S.fields.padi.count) !== Math.floor(S.fields.padi.count - dt / fieldDefs.padi.regrow + 0.001)) {
-      refreshPlotVisual("padi");
-    }
     S.fields.sayur.count = Math.min(fieldDefs.sayur.max, S.fields.sayur.count + dt / fieldDefs.sayur.regrow);
     if (S.unlocked.kebun2) S.fields.kebun2.count = Math.min(fieldDefs.kebun2.max, S.fields.kebun2.count + dt / fieldDefs.kebun2.regrow);
     if (S.unlocked.reban) {
@@ -2464,13 +2490,13 @@
     updateHUD();
   }
 
-  var lastPadiShown = -1;
+  var lastShownCounts = { padi: -1, sayur: -1, kebun2: -1 };
   function refreshRegrowVisuals() {
-    var c1 = Math.floor(S.fields.padi.count);
-    if (c1 !== lastPadiShown) { lastPadiShown = c1; refreshPlotVisual("padi"); }
-    var c2 = Math.floor(S.fields.sayur.count);
-    if (c2 !== lastPadiShown + 100) { refreshPlotVisual("sayur"); }
-    if (S.unlocked.kebun2) refreshPlotVisual("kebun2");
+    ["padi", "sayur", "kebun2"].forEach(function (id) {
+      if (id === "kebun2" && !S.unlocked.kebun2) return;
+      var c = Math.floor(S.fields[id].count);
+      if (c !== lastShownCounts[id]) { lastShownCounts[id] = c; refreshPlotVisual(id); }
+    });
   }
 
   function updateCoopChickens(dt) {
@@ -2548,7 +2574,7 @@
     if (!S.stats) S.stats = freshState().stats;
     S.paused = false;
     soundOn = !!d.sound;
-    if (soundOn) $("btnSound").textContent = "🔊";
+    $("btnSound").textContent = soundOn ? "🔊" : "🔇";
   }
 
   function applyExistingState() {
@@ -2558,7 +2584,8 @@
     if (S.unlocked.reban) showCoop();
     if (S.unlocked.dapur) showKitchen();
     if (S.unlocked.kebun2) buildNav();
-    for (var i = 0; i < S.workers; i++) hireWorker();
+    var wc = S.workers;
+    for (var i = 0; i < wc; i++) hireWorker();
     refreshPlotVisual("padi"); refreshPlotVisual("sayur");
     if (S.unlocked.kebun2) refreshPlotVisual("kebun2");
     refreshCoopVisual();
@@ -2646,22 +2673,47 @@
   }
 
   function boot() {
-    if (typeof THREE === "undefined") {
-      $("loading").style.display = "none";
-      $("loadErr").style.display = "grid";
-      return;
+    function start() {
+      try {
+        if (typeof THREE === "undefined") {
+          $("loading").style.display = "none";
+          $("loadErr").style.display = "grid";
+          return;
+        }
+        initThree();
+        bootUI();
+        var d = loadGame();
+        if (d && d.v === 1) {
+          $("btnContinue").classList.remove("hidden");
+        }
+        $("loading").style.display = "none";
+      } catch (e) {
+        window.__bootErr = String((e && e.stack) || e);
+      }
     }
-    initThree();
-    bootUI();
-    var d = loadGame();
-    if (d && d.v === 1) {
-      $("btnContinue").classList.remove("hidden");
-    }
-    $("loading").style.display = "none";
+    if (window.__threeLoaded) window.__threeLoaded.then(start);
+    else start();
   }
+  function _safeBoot(){try{boot();}catch(e){window.__bootErr=String((e&&e.stack)||e);}}
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", _safeBoot);
+  else _safeBoot();
 
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
+  if (location.search.indexOf("test") >= 0) {
+    window.__KS = {
+      state: function () { return S; },
+      setPlayer: function (x, z) { if (player) { player.pos.x = x; player.pos.z = z; player.moveTarget = null; } },
+      setCarry: function (arr) { player.carry = arr.slice(); setCarry(player.mesh, player.carry); updateHUD(); },
+      spawn: function () { spawnCustomer(); },
+      buy: function (id) { var u = UPGRADES.find(function (x) { return x.id === id; }); return u ? buyUpgrade(u) : false; },
+      carry: function () { return player.carry.slice(); },
+      workers: function () { return workers.slice(); },
+      customers: function () { return customers.map(function (c) { return { x: c.pos.x, z: c.pos.z, st: c.state, it: c.items.length }; }); },
+      playerPos: function () { return { x: player.pos.x, z: player.pos.z }; },
+      save: function () { saveGame(); },
+      wipe: function () { wipeSave(); },
+      update: function () { updateHUD(); }
+    };
+  }
 })();
 </script>
 </body>
