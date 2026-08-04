@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1a1814" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f1e7" media="(prefers-color-scheme: light)">
+<title>Bedah Siasatan RCI Tabung Haji · Buku Penerokaan Data</title>
+<meta name="description" content="Dashboard penerokaan data Laporan Suruhanjaya Siasatan Diraja Tabung Haji (2014–2020). Jejak krisis kewangan, hibah di luar kemampuan, penyelamatan UJSB dan 14 pelaburan bermasalah kembali ke muka surat laporan asal.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%231a1814'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='17' fill='%23c69a3f' text-anchor='middle'%3ES%3C/text%3E%3C/svg%3E">
+<script src="/data.js"></script>
+<script src="/vb-bar.js"></script>
+<link rel="stylesheet" href="/eda/rci-th-dashboard/glm-5-2-max/styles.css?v=1">
+</head>
+<body>
+<a class="skip" href="#main">Terus ke kandungan</a>
+
+<header class="top">
+  <button class="btn-ico" id="navBtn" aria-label="Buka senarai fasal" aria-expanded="false">
+    <svg viewBox="0 0 22 22"><path d="M3 6h16M3 11h16M3 16h16"/></svg>
+  </button>
+  <div class="top-title">
+    <span class="top-kicker">Siasatan Diraja · Tabung Haji 2014–2020</span>
+    <strong id="topView">Fasal Pembukaan</strong>
+  </div>
+  <div class="top-actions">
+    <button class="btn-ico" id="searchBtn" aria-label="Cari angka, nama atau isu">
+      <svg viewBox="0 0 22 22"><circle cx="9.5" cy="9.5" r="5.5"/><path d="M14 14l5 5"/></svg>
+    </button>
+    <button class="btn-ico" id="themeBtn" aria-label="Tukar tema paparan">
+      <svg class="sun" viewBox="0 0 22 22"><circle cx="11" cy="11" r="4"/><path d="M11 2v2.5M11 17.5V20M2 11h2.5M17.5 11H20M4.5 4.5l1.7 1.7M15.8 15.8l1.7 1.7M17.5 4.5l-1.7 1.7M6.2 15.8l-1.7 1.7"/></svg>
+      <svg class="moon" viewBox="0 0 22 22"><path d="M17 13.6A7 7 0 1 1 8.4 5a7 7 0 0 0 8.6 8.6z"/></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="sheet" id="navSheet" hidden>
+  <div class="sheet-bg" data-close></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="Senarai fasal">
+    <div class="sheet-head">
+      <strong>Senarai Fasal Siasatan</strong>
+      <button class="btn-ico" data-close aria-label="Tutup"><svg viewBox="0 0 22 22"><path d="M5 5l12 12M17 5L5 17"/></svg></button>
+    </div>
+    <div class="sheet-list" id="navList"></div>
+    <div class="sheet-foot">
+      <strong>Bidal data</strong>
+      <div class="legend">
+        <span><i class="pv fakta"></i>Fakta laporan — disalin terus dari laporan RCI</span>
+        <span><i class="pv terbit"></i>Data terbitan — kiraan kami dari fakta laporan</span>
+        <span><i class="pv unjur"></i>Unjuran laporan — ramalan LTH/RCI sendiri, bukan sejarah</span>
+        <span><i class="pv sim"></i>Simulasi anda — berubah dengan slider, bukan dapatan RCI</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="sheet search" id="searchSheet" hidden>
+  <div class="sheet-bg" data-close></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-label="Carian">
+    <div class="search-box">
+      <svg viewBox="0 0 22 22"><circle cx="9.5" cy="9.5" r="5.5"/><path d="M14 14l5 5"/></svg>
+      <input id="searchInput" type="search" placeholder="hibah, rosot nilai, FGV, Al-Rawda, 227.81, Sukuk…" autocomplete="off" aria-label="Carian">
+      <button class="btn-ico" data-close aria-label="Tutup"><svg viewBox="0 0 22 22"><path d="M5 5l12 12M17 5L5 17"/></svg></button>
+    </div>
+    <div class="search-res" id="searchRes"></div>
+  </div>
+</nav>
+
+<div class="sheet modal" id="modal" hidden>
+  <div class="sheet-bg" data-close></div>
+  <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="sheet-head">
+      <strong id="modalTitle">—</strong>
+      <button class="btn-ico" data-close aria-label="Tutup"><svg viewBox="0 0 22 22"><path d="M5 5l12 12M17 5L5 17"/></svg></button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<main id="main"></main>
+
+<footer class="foot">
+  <p class="foot-title">Buku Penerokaan Siasatan RCI Tabung Haji</p>
+  <p>Semua angka diambil dari teks Laporan RCI (versi Markdown OCR, 249 halaman PDF). Tiada sumber luar dimasukkan. Setiap rajah membawa rujukan ke halaman asal laporan.</p>
+  <p class="foot-links">
+    <a href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noopener">Buka laporan penuh ↗</a>
+    <a href="#/sumber">Kaedah &amp; had data</a>
+    <a href="#/percanggahan">Percanggahan dalam laporan</a>
+  </p>
+  <p class="foot-warn">Dashboard ini alat baca, bukan dokumen rasmi. Untuk petikan rasmi, rujuk laporan asal. Ekshibit (Jilid 1–12) diklasifikasikan rahsia dan tidak terbuka kepada umum.</p>
+</footer>
+
+<div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+<script src="/eda/rci-th-dashboard/glm-5-2-max/data.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/glm-5-2-max/chart.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/glm-5-2-max/views.js?v=1"></script>
+<script src="/eda/rci-th-dashboard/glm-5-2-max/app.js?v=1"></script>
+</body>
+</html>
