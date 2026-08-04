@@ -11,6 +11,7 @@ window.VIBEBENCH = {
     "opus-5-high": {"name": "Claude Opus 5", "accent": "#C96442"},
     "sonnet-5-low": {"name": "Claude Sonnet 5 (low)", "accent": "#C96442"},
     "gpt-5-6-sol-high": {"name": "GPT-5.6 sol High", "accent": "#10A37F"},
+    "gpt-5-6-sol-ultra": {"name": "GPT-5.6 sol Ultra", "accent": "#10A37F"},
     "gpt-5-6-sol-medium": {"name": "GPT-5.6 sol Medium", "accent": "#10A37F"},
     "gpt-5-6-luna-max": {"name": "GPT-5.6 luna Max", "accent": "#10A37F"},
     "gpt-5-6-luna-medium": {"name": "GPT-5.6 luna Medium", "accent": "#10A37F"},
@@ -40,6 +41,20 @@ window.VIBEBENCH = {
       "title": "Kedai Saya — pengurusan kedai 3D",
       "entries": [
         {"contender": "deepseek-v4-flash-high", "url": "/game/kedai-saya/deepseek-v4-flash-high/"}
+      ]
+    },
+    {
+      "id": "empayar-sambal-bilis",
+      "title": "Empayar Sambal Bilis — pengurusan dapur 3D",
+      "entries": [
+        {"contender": "gpt-5-6-luna-max", "url": "/game/empayar-sambal-bilis/gpt-5-6-luna-max/"}
+      ]
+    },
+    {
+      "id": "lontar-kertas",
+      "title": "Lontar Kertas — arcade 3D",
+      "entries": [
+        {"contender": "gpt-5-6-sol-ultra", "url": "/game/lontar-kertas/gpt-5-6-sol-ultra/"}
       ]
     }
   ]

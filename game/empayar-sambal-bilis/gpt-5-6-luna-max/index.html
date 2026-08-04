@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="ms">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#102e2c" />
+    <meta name="description" content="Empayar Sambal Bilis — permainan 3D pengurusan dapur sambal Malaysia." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ms_MY" />
+    <meta property="og:title" content="Empayar Sambal Bilis" />
+    <meta property="og:description" content="Bermula dengan satu kuali. Berakhir dengan empayar sambal seluruh Malaysia." />
+    <title>Empayar Sambal Bilis</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main id="app" aria-label="Empayar Sambal Bilis, permainan pengurusan 3D">
+      <canvas id="world-canvas" aria-label="Dunia 3D. Gerakkan watak dengan WASD atau kayu bedik sentuh."></canvas>
+      <div class="screen-texture" aria-hidden="true"></div>
+      <div class="scene-vignette" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true"><span>🌶</span><i></i></div>
+          <div>
+            <p class="eyebrow">DAPUR KAMPUNG / 01</p>
+            <h1>EMPAYAR <em>SAMBAL</em></h1>
+          </div>
+        </div>
+        <div class="stats-strip" aria-live="polite">
+          <div class="stat-pill money-pill"><span class="stat-icon">RM</span><div><small>WANG</small><strong id="money-value">RM38</strong></div></div>
+          <div class="stat-pill rep-pill"><span class="stat-icon">★</span><div><small>REPUTASI</small><strong id="reputation-value">0</strong></div></div>
+          <div class="stat-pill carry-pill"><span class="stat-icon">▦</span><div><small>BAWAAN</small><strong id="carry-value">0 / 3</strong></div></div>
+        </div>
+        <div class="top-actions">
+          <button id="progress-button" class="hud-button" type="button" aria-label="Buka peta empayar"><span>⌂</span><b>Empayar</b></button>
+          <button id="sound-button" class="hud-button" type="button" aria-label="Tukar bunyi kesan"><span id="sound-icon">◖</span><b>Bunyi</b></button>
+          <button id="music-button" class="hud-button" type="button" aria-label="Tukar muzik"><span id="music-icon">♫</span><b>Muzik</b></button>
+          <button id="pause-button" class="hud-button" type="button" aria-label="Jeda permainan"><span>Ⅱ</span><b>Jeda</b></button>
+        </div>
+      </header>
+
+      <section id="mission-card" class="mission-card" aria-live="polite">
+        <div class="mission-meta"><span id="mission-kicker">TUTORIAL · 1/6</span><span id="mission-distance">—</span></div>
+        <div class="mission-main"><span id="mission-icon" class="mission-icon" aria-hidden="true">🏷</span><div><h2 id="mission-title">Buka kaunter pertama</h2><p id="mission-copy">Hampiri tapak bercahaya dan berdiri seketika.</p></div></div>
+        <div class="mission-track"><span id="mission-fill"></span></div>
+      </section>
+
+      <section id="event-banner" class="event-banner" aria-live="polite">
+        <span class="event-pulse"></span><div><small id="event-kicker">SUASANA DAPUR</small><strong id="event-title">Buka dapur dan mula mengacau</strong></div><b id="event-timer">—</b>
+      </section>
+
+      <div id="world-labels" class="world-labels" aria-hidden="true"></div>
+      <div id="toast-stack" class="toast-stack" aria-live="assertive"></div>
+
+      <section id="context-card" class="context-card" aria-live="polite">
+        <div id="context-icon" class="context-icon">✦</div>
+        <div class="context-copy"><strong id="context-title">Gerak sahaja</strong><span id="context-detail">Hampiri stesen untuk mengutip, memasak dan menjual.</span></div>
+        <div id="context-meter" class="context-meter"><span id="context-fill"></span></div>
+      </section>
+
+      <div class="bottom-left-info">
+        <div class="brand-stamp"><span>HALAL</span><i>•</i><span>BUATAN MALAYSIA</span></div>
+        <div class="desktop-hint"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>atau anak panah</span></div>
+      </div>
+
+      <div id="joystick" class="joystick" aria-label="Kayu bedik sentuh">
+        <div class="joystick-ring"><span>GERAK</span><div id="joystick-knob" class="joystick-knob"><i>✦</i></div></div>
+      </div>
+
+      <div id="loading-screen" class="overlay loading-screen">
+        <div class="loading-brand"><div class="loading-pot">♨</div><p class="eyebrow">EMPAYAR SAMBAL BILIS</p><h1>Memanaskan <em>kuali…</em></h1><span id="loading-copy">Menyusun cili dan bilis segar</span><div class="loading-track"><i id="loading-fill"></i></div></div>
+      </div>
+
+      <section id="start-overlay" class="overlay start-overlay" role="dialog" aria-modal="true" aria-labelledby="start-title">
+        <div class="hero-copy-block">
+          <p class="eyebrow accent-eyebrow"><span></span> PERMAINAN 3D IDLE-ARCADE MALAYSIA</p>
+          <h2 id="start-title">Dari satu kuali<br /><em>ke seluruh negara.</em></h2>
+          <p class="hero-lead">Petik cili, kacau sambal, penuhkan rak dan bina jenama yang membuat satu kampung terhidu wangi.</p>
+          <div class="feature-row">
+            <div><span>🧺</span><strong>Kutip</strong><small>Bahan bertindan di tangan</small></div>
+            <div><span>🍳</span><strong>Masak</strong><small>Resipi Malaysia asli</small></div>
+            <div><span>🚚</span><strong>Kembang</strong><small>Gerai jadi kilang</small></div>
+          </div>
+          <div class="control-note"><span class="control-glyph">◉</span><p><b>Gerak sahaja.</b> Berdiri dekat stesen — kerja kecil berlaku automatik.</p></div>
+          <div class="start-actions"><button id="start-button" class="primary-button" type="button"><span>Buka Dapur</span><i>↗</i></button><button id="how-button" class="ghost-button" type="button">Lihat rantaian <span>01:00</span></button></div>
+          <p class="save-note">Kemajuan disimpan automatik pada peranti ini.</p>
+        </div>
+        <div class="hero-illustration" aria-hidden="true">
+          <div class="sun-disc"></div><div class="cloud cloud-a"></div><div class="cloud cloud-b"></div>
+          <div class="hill hill-back"></div><div class="hill hill-front"></div>
+          <div class="hero-kitchen"><div class="roof"></div><div class="sign">SAMBAL<br /><b>BILIS</b></div><div class="door"></div><div class="window"><i></i><i></i></div><div class="hero-crate crate-a">🌶</div><div class="hero-crate crate-b">🐟</div><div class="steam steam-a"></div><div class="steam steam-b"></div></div>
+          <div class="hero-chili chili-a"></div><div class="hero-chili chili-b"></div><div class="hero-chili chili-c"></div>
+        </div>
+      </section>
+
+      <section id="how-overlay" class="overlay sheet-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="how-title">
+        <button id="how-backdrop" class="sheet-backdrop" type="button" aria-label="Tutup rantaian"></button>
+        <div class="how-sheet"><button id="how-close" class="close-button" type="button" aria-label="Tutup">×</button><p class="eyebrow">RANTAIAN DAPUR / 01</p><h2 id="how-title">Satu bahan.<br /><em>Banyak cerita.</em></h2><p class="sheet-lead">Semua yang bernilai bermula dengan timbunan kecil yang boleh dilihat.</p><div class="recipe-road"><div><span>🌶</span><b>Cili</b><small>Pengisar</small></div><i>→</i><div><span>🫙</span><b>Pes cili</b><small>Kuali panas</small></div><i>→</i><div><span>🍱</span><b>Balang</b><small>Rak jualan</small></div><i>→</i><div><span>💵</span><b>RM</b><small>Empayar</small></div></div><div class="how-grid"><span>01</span><p><b>Berjalan dekat.</b><br />Kutip, hantar dan susun tanpa menu rumit.</p><span>02</span><p><b>Bina sistem.</b><br />Pekerja mengambil kerja rutin apabila dapur mula sibuk.</p><span>03</span><p><b>Sentiasa ada sasaran.</b><br />Tapak bercahaya di dunia menunjukkan pembukaan seterusnya.</p></div><button id="how-start-button" class="primary-button small" type="button"><span>Jom mula</span><i>→</i></button></div>
+      </section>
+
+      <section id="pause-overlay" class="overlay modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+        <div class="modal-card pause-card"><div class="pause-stamp">Ⅱ</div><p class="eyebrow">DAPUR DIJEDA</p><h2 id="pause-title">Kuali masih<br /><em>berhaba.</em></h2><p class="modal-lead">Pelanggan dan pekerja menunggu. Sambung bila sudah bersedia.</p><div class="pause-stats"><div><small>WANG</small><b id="pause-money">RM0</b></div><div><small>JUALAN</small><b id="pause-sales">RM0</b></div><div><small>PEKERJA</small><b id="pause-workers">0</b></div></div><button id="resume-button" class="primary-button" type="button"><span>Sambung berniaga</span><i>→</i></button><button id="restart-button" class="text-button danger-button" type="button">Mula semula</button></div>
+      </section>
+
+      <section id="progress-overlay" class="overlay sheet-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="progress-title">
+        <button id="progress-backdrop" class="sheet-backdrop" type="button" aria-label="Tutup empayar"></button>
+        <div class="progress-sheet"><div class="sheet-handle"></div><div class="sheet-heading"><div><p class="eyebrow">PETA PERKEMBANGAN</p><h2 id="progress-title">Empayar Sambal</h2></div><button id="progress-close" class="close-button" type="button" aria-label="Tutup">×</button></div><div class="empire-meter"><div><small>JALAN KE KILANG</small><b id="empire-progress-copy">Dapur Rumah</b></div><div class="empire-track"><i id="empire-progress-fill"></i></div><span id="empire-progress-percent">18%</span></div><div id="progress-list" class="progress-list"></div><div class="upgrade-heading"><span>NAIK TARAF SEGERA</span><em>Semua beli di dunia</em></div><div id="upgrade-list" class="upgrade-list"></div><div class="legend-row"><span><i class="legend-dot open"></i> Dibuka</span><span><i class="legend-dot ready"></i> Boleh dibuka</span><span><i class="legend-dot locked"></i> Akan datang</span></div></div>
+      </section>
+
+      <section id="completion-overlay" class="overlay modal-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="completion-title">
+        <div class="completion-card"><div class="confetti confetti-a"></div><div class="confetti confetti-b"></div><div class="confetti confetti-c"></div><div class="completion-badge">★</div><p class="eyebrow">PENAMAT PROTOTAIP / 04</p><h2 id="completion-title">Satu kampung<br /><em>kenyang bangga.</em></h2><p class="modal-lead">Pesanan besar sudah bertolak. Dapur kecil ini kini menjadi Empayar Sambal Bilis.</p><div class="completion-stats"><div><small>JUALAN TERKUMPUL</small><b id="complete-sales">RM0</b></div><div><small>REPUTASI</small><b id="complete-rep">0</b></div><div><small>PRODUK DIBUKA</small><b id="complete-products">1 / 4</b></div></div><button id="completion-close" class="primary-button" type="button"><span>Sambung urus empayar</span><i>→</i></button></div>
+      </section>
+    </main>
+    <noscript>Empayar Sambal Bilis memerlukan JavaScript untuk dimainkan.</noscript>
+    <script type="module" src="./game.js"></script>
+  </body>
+</html>

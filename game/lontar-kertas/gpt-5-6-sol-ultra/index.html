@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ms">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#071313" />
+    <meta name="description" content="Lontar Kertas 3D — permainan arcade flick kertas renyuk ke dalam tong sampah." />
+    <title>Lontar Kertas 3D</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="app-shell" id="app" aria-label="Permainan Lontar Kertas 3D">
+      <canvas id="scene" aria-label="Ruang permainan 3D. Seret dan lepaskan untuk melontar kertas."></canvas>
+
+      <div class="film-grain" aria-hidden="true"></div>
+      <div class="screen-glow" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <div class="brand-lockup">
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <div>
+            <p class="eyebrow">ARCADE OFFICE / 01</p>
+            <h1>LONTAR <span>KERTAS</span></h1>
+          </div>
+        </div>
+
+        <div class="score-lockup" aria-live="polite">
+          <p class="eyebrow">SKOR</p>
+          <strong id="scoreValue">000000</strong>
+        </div>
+
+        <div class="top-actions">
+          <button class="icon-button" id="soundButton" type="button" data-action="sound" aria-label="Bunyi dihidupkan">◖</button>
+          <button class="icon-button" id="pauseButton" type="button" data-action="pause" aria-label="Jeda permainan">Ⅱ</button>
+        </div>
+      </header>
+
+      <section class="game-ui" id="gameHud" aria-label="Maklumat permainan">
+        <div class="level-card hud-card">
+          <div class="level-number" id="levelNumber">01</div>
+          <div>
+            <p class="eyebrow">TAHAP SEMASA</p>
+            <h2 id="levelName">Ruang Rehat</h2>
+            <p class="hud-note" id="levelNote">Pemanas badan</p>
+          </div>
+        </div>
+
+        <div class="wind-card hud-card" aria-live="polite">
+          <div class="wind-glyph" id="windGlyph" aria-hidden="true">→</div>
+          <div class="wind-copy">
+            <p class="eyebrow">ANGIN KIPAS</p>
+            <div class="wind-reading"><strong id="windValue">0.8</strong><span> m/s</span></div>
+            <p class="hud-note" id="windDirection">ke kanan</p>
+          </div>
+          <div class="wind-bars" id="windBars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+
+        <div class="attempt-card hud-card">
+          <div class="attempt-copy">
+            <p class="eyebrow">CUBAAN</p>
+            <strong><span id="attemptValue">1</span><span class="muted"> / 3</span></strong>
+          </div>
+          <div class="shot-dots" id="shotDots" aria-label="Kemajuan cubaan">
+            <i></i><i></i><i></i>
+          </div>
+          <p class="hud-note"><span id="stageHits">0</span> masuk untuk lepas tahap</p>
+        </div>
+      </section>
+
+      <div class="crosshair" id="crosshair" aria-hidden="true">
+        <span></span><i></i>
+      </div>
+
+      <div class="aim-readout" id="aimReadout" aria-live="polite">
+        <span class="readout-label">KUASA</span>
+        <strong id="powerValue">0%</strong>
+      </div>
+
+      <div class="feedback" id="feedback" aria-live="assertive">
+        <span class="feedback-kicker" id="feedbackKicker">KERTAS TERBANG</span>
+        <strong id="feedbackTitle">Lepaskan untuk melontar</strong>
+        <small id="feedbackDetail">Angin akan menolak kertas ke arah anak panah.</small>
+      </div>
+
+      <div class="gesture-hint" id="gestureHint">
+        <span class="gesture-icon" aria-hidden="true">↗</span>
+        <span><b>Seret &amp; lepaskan</b><small>Flick ke arah tong</small></span>
+      </div>
+
+      <div class="bottom-hud game-ui">
+        <div class="power-track" aria-hidden="true">
+          <div class="power-track-label"><span>KUASA BALINGAN</span><span id="powerHint">Seret untuk cas</span></div>
+          <div class="power-bar"><span id="powerBar"></span><b id="powerKnob"></b></div>
+        </div>
+        <div class="bottom-meta">
+          <span class="status-dot"></span><span>RUANG LANGSUNG</span>
+          <span class="meta-divider"></span>
+          <span id="comboText">Rentetan bersedia</span>
+        </div>
+      </div>
+
+      <section class="overlay-screen menu-screen" id="menuScreen">
+        <div class="menu-content">
+          <div class="menu-kicker"><span class="live-dot"></span> CABARAN FLICK MINGGU INI</div>
+          <p class="hero-overline">SENYAPKAN MESIN PENCETAK.</p>
+          <h2>Jadikan tong itu<br /><em>destinasi.</em></h2>
+          <p class="hero-copy">Kertas renyuk. Satu lontaran. Angin kipas yang tak pernah duduk diam.</p>
+
+          <div class="menu-stats">
+            <div><span>REKOD TERTINGGI</span><b id="menuHighScore">000000</b></div>
+            <div><span>RENTETAN TERBAIK</span><b id="menuBestStreak">0×</b></div>
+            <div><span>TAHAP</span><b>05</b></div>
+          </div>
+
+          <div class="menu-actions">
+            <button class="primary-button" type="button" data-action="start">
+              <span>Mula sesi</span><i>↗</i>
+            </button>
+            <button class="text-button" type="button" data-action="tutorial">Cara bermain <span>01:30</span></button>
+          </div>
+          <p class="microcopy">Sentuh / mouse • P untuk jeda • Bunyi boleh ditukar di penjuru kanan</p>
+        </div>
+        <div class="menu-orbit orbit-a" aria-hidden="true"></div>
+        <div class="menu-orbit orbit-b" aria-hidden="true"></div>
+        <div class="menu-paper-mark" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+      </section>
+
+      <section class="overlay-screen info-screen" id="tutorialScreen" hidden>
+        <div class="info-panel">
+          <button class="close-button" type="button" data-action="close-tutorial" aria-label="Tutup cara bermain">×</button>
+          <p class="eyebrow accent-label">MANUAL LAPANGAN / 01</p>
+          <h2>Jangan lawan<br /><em>fizik.</em></h2>
+          <p class="info-intro">Baling dengan sudut dan kuasa yang tepat. Setiap lontaran mendapat angin baharu.</p>
+          <div class="tutorial-grid">
+            <article><span class="step-number">01</span><div><h3>Tarik ke belakang</h3><p>Tekan atas kertas, kemudian seret mengikut arah yang ingin dilontar.</p></div></article>
+            <article><span class="step-number">02</span><div><h3>Flick dan lepaskan</h3><p>Lebih jauh seretan, lebih kuat halaju awal. Cuba jangan terlalu mendatar.</p></div></article>
+            <article><span class="step-number">03</span><div><h3>Baca kipas</h3><p>Anak panah hijau menunjukkan arah angin. Tolak sasaran sedikit melawannya.</p></div></article>
+          </div>
+          <div class="tutorial-footer"><span>3 cubaan / 2 kena untuk lepas tahap</span><button class="primary-button small" type="button" data-action="start"><span>Faham, mula</span><i>→</i></button></div>
+        </div>
+      </section>
+
+      <section class="overlay-screen pause-screen" id="pauseScreen" hidden>
+        <div class="pause-panel">
+          <div class="pause-mark">Ⅱ</div>
+          <p class="eyebrow">SESI DIJEDA</p>
+          <h2>Tarik nafas.<br /><em>Kipas masih berputar.</em></h2>
+          <div class="pause-actions"><button class="primary-button" type="button" data-action="resume"><span>Sambung</span><i>→</i></button><button class="text-button" type="button" data-action="home">Keluar ke menu</button></div>
+        </div>
+      </section>
+
+      <section class="overlay-screen result-screen" id="resultScreen" hidden>
+        <div class="result-panel">
+          <div class="result-badge" id="resultBadge">SESI TAMAT</div>
+          <p class="eyebrow" id="resultKicker">REKOD DISIMPAN JIKA LEBIH TINGGI</p>
+          <h2 id="resultTitle">Balingan<br /><em>bersih.</em></h2>
+          <div class="result-score"><span>SKOR AKHIR</span><strong id="resultScore">000000</strong></div>
+          <div class="result-stats"><div><span>RENTETAN TERBAIK</span><b id="resultStreak">0×</b></div><div><span>TAHAP DICAPAI</span><b id="resultLevel">01 / 05</b></div><div><span>REKOD TERTINGGI</span><b id="resultHighScore">000000</b></div></div>
+          <div class="result-actions"><button class="primary-button" type="button" data-action="restart"><span>Lontar lagi</span><i>↗</i></button><button class="text-button" type="button" data-action="home">Menu utama</button></div>
+        </div>
+      </section>
+    </main>
+
+    <script src="./game.js" defer></script>
+  </body>
+</html>
