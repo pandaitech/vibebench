@@ -21,6 +21,11 @@ Archived model configurations:
 - `opus-5-high-x-gpt-5-6-sol-high`
 - `opus-5-high-x-gpt-5-6-sol-high-v2`
 
+The archived `opus-5-high-x-gpt-5-6-luna-max` and
+`opus-5-high-x-gpt-5-6-sol-high` copies were superseded by newer active EDA
+versions that now use the same slugs. Do not restore either archive over its
+active path.
+
 To restore a result, move its directory back to the active EDA path and add its
 contender and job entry to `data.js`:
 
