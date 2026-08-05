@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#071b18">
+  <meta name="description" content="Empayar Sambal Bilis — bina dapur kecil menjadi kilang sambal Malaysia automatik.">
+  <meta property="og:type" content="website"><meta property="og:locale" content="ms_MY">
+  <meta property="og:title" content="Empayar Sambal Bilis">
+  <meta property="og:description" content="Dari satu kuali ke seluruh Malaysia. Main permainan idle-arcade 3D beridentiti tempatan.">
+  <meta property="og:image" content="og.png">
+  <title>Empayar Sambal Bilis</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="game-shell" class="game-shell" aria-label="Permainan Empayar Sambal Bilis">
+    <canvas id="game" aria-label="Dunia permainan 3D"></canvas>
+    <header class="hud-top">
+      <div class="brand-plate"><div class="brand-mark"><span></span><span></span><span></span></div><div><b>EMPAYAR</b><small>SAMBAL BILIS</small></div></div>
+      <div class="resources" aria-live="polite"><div class="resource money"><i>RM</i><strong id="money">0</strong></div><div class="resource rep"><i>★</i><strong id="reputation">0</strong></div></div>
+      <button id="pause-btn" class="round-btn" aria-label="Jeda permainan">Ⅱ</button>
+    </header>
+    <section id="objective" class="objective-card"><div class="objective-kicker"><span id="chapter">DAPUR RUMAH</span><b id="objective-count"></b></div><p id="objective-text">Petik cili di kebun</p><div class="objective-track"><span id="objective-bar"></span></div></section>
+    <div id="event-banner" class="event-banner hidden"><span class="event-pulse"></span><div><small id="event-label">PESANAN VIRAL</small><b id="event-text">Sambal klasik ×1.5</b></div><strong id="event-timer">45s</strong></div>
+    <aside id="order-card" class="order-card hidden"><span class="order-icon">▣</span><div><small>PESANAN BORONG</small><b id="order-text">6 × Balang klasik</b><em id="order-progress">0 / 6</em></div><span class="order-reward" id="order-reward">RM36</span></aside>
+    <div id="inventory" class="inventory-pill empty"><span id="inventory-icon">◇</span><div><small>DIBAWA</small><b id="inventory-name">Kosong</b></div><strong id="inventory-count">0/3</strong></div>
+    <div id="interaction" class="interaction-pill hidden"><span></span><b id="interaction-text">Mengutip cili</b></div>
+    <div id="joystick" class="joystick" aria-label="Kayu bedik pergerakan"><div class="joystick-arrows">‹ <span>⌃</span> ›</div><div id="joystick-knob" class="joystick-knob"></div></div>
+    <div class="desktop-hint"><span>WASD</span> / anak panah untuk bergerak</div>
+    <nav class="quick-actions" aria-label="Tindakan permainan"><button id="goals-btn"><span>⌁</span><small>Peta</small></button><button id="upgrades-btn" class="accent"><span>↑</span><small>Naik Taraf</small><i id="upgrade-dot"></i></button></nav>
+    <div id="zone-chip" class="zone-chip">Dapur Rumah</div><div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+    <section id="start-screen" class="start-screen">
+      <div class="start-sun"></div><div class="start-art" aria-hidden="true"><div class="jar"><div class="jar-lid"></div><div class="jar-label">SAMBAL<br><b>BILIS</b></div></div><div class="chilli c1"></div><div class="chilli c2"></div><div class="leaf"></div></div>
+      <div class="start-copy"><p class="eyebrow">PERMAINAN IDLE-ARCADE 3D</p><h1><span>EMPAYAR</span><br>SAMBAL BILIS</h1><p>Dari satu kuali di dapur rumah<br>ke pesanan seluruh Malaysia.</p></div>
+      <button id="start-btn" class="primary-btn">MULA BERNIAGA <span>→</span></button><button id="continue-btn" class="continue-btn hidden">Sambung kemajuan tersimpan</button><small class="start-tip">Gerakkan sahaja — semua kerja berlaku secara automatik</small>
+    </section>
+    <section id="pause-menu" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="pause-title"><div class="panel compact"><p class="eyebrow">KEDAI DITUTUP SEBENTAR</p><h2 id="pause-title">Permainan dijeda</h2><button id="resume-btn" class="primary-btn">SAMBUNG BERNIAGA</button><div class="sound-row"><span>Muzik</span><button id="music-toggle" class="toggle on" aria-label="Togol muzik"><i></i></button></div><div class="sound-row"><span>Kesan bunyi</span><button id="sfx-toggle" class="toggle on" aria-label="Togol kesan bunyi"><i></i></button></div><button id="restart-btn" class="text-btn danger">Mula semula permainan</button></div></section>
+    <section id="upgrades-panel" class="modal sheet hidden" role="dialog" aria-modal="true" aria-labelledby="upgrades-title"><div class="panel"><div class="panel-head"><div><p class="eyebrow">LABUR DALAM OPERASI</p><h2 id="upgrades-title">Naik Taraf</h2></div><button class="close-btn" data-close="upgrades-panel" aria-label="Tutup naik taraf">×</button></div><div id="upgrade-list" class="upgrade-list"></div></div></section>
+    <section id="map-panel" class="modal sheet hidden" role="dialog" aria-modal="true" aria-labelledby="map-title"><div class="panel"><div class="panel-head"><div><p class="eyebrow">PERJALANAN EMPAYAR</p><h2 id="map-title">Peta Kemajuan</h2></div><button class="close-btn" data-close="map-panel" aria-label="Tutup peta">×</button></div><div id="milestone-list" class="milestone-list"></div><div class="stats-grid"><div><small>Jualan</small><b id="stat-sales">0</b></div><div><small>Pelanggan puas</small><b id="stat-happy">0</b></div><div><small>Pengeluaran</small><b id="stat-produced">0</b></div></div></div></section>
+    <section id="ending-screen" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="ending-title"><div class="panel ending-panel"><div class="ending-badge">★</div><p class="eyebrow">PESANAN NASIONAL SELESAI</p><h2 id="ending-title">Dari dapur kecil,<br><span>lahir sebuah empayar.</span></h2><p>Kuala Lumpur · Johor Bahru · Kuching · Kota Kinabalu</p><div class="ending-stats"><div><b id="end-sales">RM0</b><small>jumlah jualan</small></div><div><b id="end-customers">0</b><small>pelanggan</small></div></div><button id="keep-playing-btn" class="primary-btn">TERUSKAN EMPAYAR</button></div></section>
+    <div id="rotate-note" class="rotate-note"><span>↻</span> Putar telefon untuk dunia yang lebih luas</div>
+  </main>
+  <script src="/data.js"></script><script src="/vb-bar.js"></script><script type="module" src="game.js?v=4"></script>
+</body>
+</html>

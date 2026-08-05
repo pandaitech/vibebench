@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#12241d">
+<meta name="description" content="Empayar Sambal Bilis — permainan idle-arcade 3D. Petik cili, tumis sambal, isi rak dan besarkan dapur kampung menjadi kilang sambal seluruh Malaysia.">
+<meta name="color-scheme" content="dark">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ms_MY">
+<meta property="og:title" content="Empayar Sambal Bilis">
+<meta property="og:description" content="Dari satu kuali ke seluruh Malaysia. Permainan pengurusan dapur 3D.">
+<title>Empayar Sambal Bilis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23c8321f'/%3E%3Cpath d='M9 20c0-4 3-7 7-7s7 3 7 7z' fill='%23ffd15c'/%3E%3Ccircle cx='16' cy='11' r='3' fill='%232f8f5b'/%3E%3C/svg%3E">
+</head>
+<body>
+
+<main id="app" aria-label="Empayar Sambal Bilis — permainan pengurusan dapur 3D">
+
+  <canvas id="scene" aria-label="Dunia permainan 3D. Gerakkan watak dengan kekunci WASD atau kayu bedik sentuh."></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+
+  <!-- ============ HUD ============ -->
+  <header class="hud-top" id="hud-top">
+    <div class="stat-row" aria-live="polite">
+      <div class="stat stat-money" id="stat-money">
+        <span class="stat-key">RM</span>
+        <span class="stat-val" id="money">0</span>
+      </div>
+      <div class="stat stat-rep" id="stat-rep">
+        <span class="stat-key">★</span>
+        <span class="stat-val" id="rep">0</span>
+      </div>
+      <div class="stat stat-carry" id="stat-carry">
+        <span class="stat-key" id="carry-icon">▦</span>
+        <span class="stat-val"><b id="carry-count">0</b><i>/</i><b id="carry-max">3</b></span>
+      </div>
+    </div>
+    <div class="hud-buttons">
+      <button class="icon-btn" id="btn-shop" type="button" aria-label="Buka kedai naik taraf dan pekerja">
+        <span aria-hidden="true">⚒</span><em>Taraf</em><i class="dot" id="shop-dot"></i>
+      </button>
+      <button class="icon-btn" id="btn-map" type="button" aria-label="Buka peta empayar">
+        <span aria-hidden="true">◱</span><em>Empayar</em>
+      </button>
+      <button class="icon-btn" id="btn-pause" type="button" aria-label="Jeda permainan">
+        <span aria-hidden="true">II</span><em>Jeda</em>
+      </button>
+    </div>
+  </header>
+
+  <div class="zone-chip" id="zone-chip" aria-hidden="true">Dapur Rumah</div>
+
+  <section class="mission" id="mission" aria-live="polite">
+    <div class="mission-icon" id="mission-icon" aria-hidden="true">◎</div>
+    <div class="mission-body">
+      <small id="mission-kicker">TUTORIAL 1/8</small>
+      <strong id="mission-title">Gerakkan diri anda</strong>
+      <span id="mission-copy">Seret kayu bedik atau tekan WASD.</span>
+      <div class="mission-bar"><i id="mission-fill"></i></div>
+    </div>
+    <div class="mission-dist" id="mission-dist" aria-hidden="true">—</div>
+  </section>
+
+  <div class="event-strip" id="event-strip" hidden>
+    <span class="event-pulse" aria-hidden="true"></span>
+    <div><small id="event-kicker">ACARA</small><strong id="event-title">—</strong></div>
+    <b id="event-timer">0s</b>
+  </div>
+
+  <div class="order-strip" id="order-strip" hidden>
+    <span aria-hidden="true">🚚</span>
+    <div><small id="order-kicker">PESANAN BORONG</small><strong id="order-title">—</strong></div>
+    <b id="order-count">0/0</b>
+  </div>
+
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+
+  <section class="prompt" id="prompt" hidden>
+    <div class="prompt-icon" id="prompt-icon" aria-hidden="true">◆</div>
+    <div class="prompt-body">
+      <strong id="prompt-title">—</strong>
+      <span id="prompt-copy">—</span>
+    </div>
+    <div class="prompt-meter" id="prompt-meter"><i id="prompt-fill"></i></div>
+  </section>
+
+  <div class="joystick" id="joystick" aria-label="Kayu bedik sentuh">
+    <div class="joy-ring"><span aria-hidden="true">GERAK</span><div class="joy-knob" id="joy-knob"></div></div>
+  </div>
+
+  <div class="kb-hint" id="kb-hint" aria-hidden="true">
+    <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><span>gerak</span><kbd>Esc</kbd><span>jeda</span>
+  </div>
+
+  <!-- ============ LOADING ============ -->
+  <div class="overlay loading" id="loading">
+    <div class="load-card">
+      <div class="load-pot" aria-hidden="true">
+        <i class="steam s1"></i><i class="steam s2"></i><i class="steam s3"></i>
+        <div class="pot"></div>
+      </div>
+      <p class="eyebrow">EMPAYAR SAMBAL BILIS</p>
+      <h1>Memanaskan <em>kuali…</em></h1>
+      <span id="load-copy">Menumbuk cili kering</span>
+      <div class="load-bar"><i id="load-fill"></i></div>
+    </div>
+  </div>
+
+  <!-- ============ START ============ -->
+  <section class="overlay start is-hidden" id="start" role="dialog" aria-modal="true" aria-labelledby="start-title">
+    <div class="start-art" aria-hidden="true">
+      <div class="sky-sun"></div>
+      <div class="sky-cloud c1"></div><div class="sky-cloud c2"></div>
+      <div class="hill h1"></div><div class="hill h2"></div>
+      <div class="warung">
+        <div class="w-roof"></div>
+        <div class="w-sign">SAMBAL<b>BILIS</b></div>
+        <div class="w-body"><i class="w-door"></i><i class="w-win"></i></div>
+        <div class="w-crate a">🌶</div><div class="w-crate b">🫙</div>
+        <div class="w-steam a"></div><div class="w-steam b"></div>
+      </div>
+      <div class="palm p1"></div><div class="palm p2"></div>
+    </div>
+    <div class="start-card">
+      <p class="eyebrow"><span class="pip"></span>PERMAINAN IDLE-ARCADE 3D</p>
+      <h2 id="start-title">Dari satu kuali<br><em>ke seluruh Malaysia.</em></h2>
+      <p class="lead">Petik cili, tumis sambal bilis, penuhkan rak dan biar wangi kuali tarik satu kampung datang membeli.</p>
+      <div class="chain-row">
+        <div><span>🌶</span><b>Petik</b></div><i>›</i>
+        <div><span>🍳</span><b>Tumis</b></div><i>›</i>
+        <div><span>🫙</span><b>Bungkus</b></div><i>›</i>
+        <div><span>RM</span><b>Untung</b></div>
+      </div>
+      <div class="ctrl-note"><span aria-hidden="true">◉</span><p><b>Gerak sahaja.</b> Berdiri dekat stesen — kerja berjalan sendiri.</p></div>
+      <div class="start-actions">
+        <button class="btn-primary" id="btn-continue" type="button" hidden><span>Sambung Main</span><i>↻</i></button>
+        <button class="btn-primary" id="btn-start" type="button"><span>Buka Dapur</span><i>→</i></button>
+        <button class="btn-ghost" id="btn-how" type="button">Cara main</button>
+      </div>
+      <p class="save-note" id="save-note">Kemajuan disimpan automatik pada peranti ini.</p>
+    </div>
+  </section>
+
+  <!-- ============ HOW TO ============ -->
+  <section class="overlay sheet is-hidden" id="how" role="dialog" aria-modal="true" aria-labelledby="how-title">
+    <button class="sheet-scrim" id="how-scrim" type="button" aria-label="Tutup"></button>
+    <div class="sheet-card">
+      <div class="sheet-grab" aria-hidden="true"></div>
+      <button class="close-btn" id="how-close" type="button" aria-label="Tutup">×</button>
+      <p class="eyebrow">CARA MAIN</p>
+      <h2 id="how-title">Satu rantaian.<br><em>Empat produk.</em></h2>
+      <div class="how-steps">
+        <div><b>01</b><p><strong>Gerak &amp; kutip.</strong> Berdiri di kebun — bahan naik ke tangan sendiri dan bertindan di atas kepala.</p></div>
+        <div><b>02</b><p><strong>Hantar ke mesin.</strong> Berdiri di kuali untuk tuang bahan; berdiri semula untuk ambil sambal siap.</p></div>
+        <div><b>03</b><p><strong>Isi rak, kutip wang.</strong> Pelanggan ambil dari rak lalu bayar di kaunter. Kutip duit yang bertimbun.</p></div>
+        <div><b>04</b><p><strong>Buka &amp; upah.</strong> Berdiri atas tapak bercahaya untuk membayar. Pekerja akan ambil alih kerja rutin.</p></div>
+      </div>
+      <div class="how-legend">
+        <div><i class="lg lg-take"></i>Ambil dari stesen</div>
+        <div><i class="lg lg-give"></i>Hantar ke stesen</div>
+        <div><i class="lg lg-buy"></i>Tapak pembukaan</div>
+      </div>
+      <button class="btn-primary small" id="how-ok" type="button"><span>Faham</span><i>→</i></button>
+    </div>
+  </section>
+
+  <!-- ============ SHOP (upgrades + workers) ============ -->
+  <section class="overlay sheet is-hidden" id="shop" role="dialog" aria-modal="true" aria-labelledby="shop-title">
+    <button class="sheet-scrim" id="shop-scrim" type="button" aria-label="Tutup"></button>
+    <div class="sheet-card">
+      <div class="sheet-grab" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <div><p class="eyebrow">KEDAI PERNIAGAAN</p><h2 id="shop-title">Naik Taraf</h2></div>
+        <div class="sheet-money">RM <b id="shop-money">0</b></div>
+        <button class="close-btn" id="shop-close" type="button" aria-label="Tutup">×</button>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab is-on" id="tab-up" role="tab" type="button">Naik taraf</button>
+        <button class="tab" id="tab-staff" role="tab" type="button">Pekerja</button>
+      </div>
+      <div class="sheet-scroll">
+        <div id="list-upgrades" class="card-list"></div>
+        <div id="list-staff" class="card-list is-hidden"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MAP / PROGRESS ============ -->
+  <section class="overlay sheet is-hidden" id="map" role="dialog" aria-modal="true" aria-labelledby="map-title">
+    <button class="sheet-scrim" id="map-scrim" type="button" aria-label="Tutup"></button>
+    <div class="sheet-card">
+      <div class="sheet-grab" aria-hidden="true"></div>
+      <div class="sheet-head">
+        <div><p class="eyebrow">PETA EMPAYAR</p><h2 id="map-title">Kemajuan</h2></div>
+        <button class="close-btn" id="map-close" type="button" aria-label="Tutup">×</button>
+      </div>
+      <div class="empire-meter">
+        <div><small>TAHAP EMPAYAR</small><b id="empire-name">Dapur Rumah</b></div>
+        <div class="empire-track"><i id="empire-fill"></i></div>
+        <span id="empire-pct">0%</span>
+      </div>
+      <div class="sheet-scroll">
+        <div class="sub-head">Kawasan</div>
+        <div id="list-areas" class="area-list"></div>
+        <div class="sub-head">Produk</div>
+        <div id="list-products" class="prod-list"></div>
+        <div class="sub-head">Statistik</div>
+        <div class="stat-grid">
+          <div><small>JUALAN TERKUMPUL</small><b id="s-sales">RM0</b></div>
+          <div><small>PELANGGAN GEMBIRA</small><b id="s-happy">0</b></div>
+          <div><small>BALANG DIHASILKAN</small><b id="s-made">0</b></div>
+          <div><small>PEKERJA</small><b id="s-staff">0</b></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PAUSE ============ -->
+  <section class="overlay modal is-hidden" id="pause" role="dialog" aria-modal="true" aria-labelledby="pause-title">
+    <div class="modal-card">
+      <div class="modal-stamp" aria-hidden="true">II</div>
+      <p class="eyebrow">DAPUR DIJEDA</p>
+      <h2 id="pause-title">Kuali masih <em>berhaba.</em></h2>
+      <div class="pause-stats">
+        <div><small>WANG</small><b id="p-money">RM0</b></div>
+        <div><small>JUALAN</small><b id="p-sales">RM0</b></div>
+        <div><small>PEKERJA</small><b id="p-staff">0</b></div>
+      </div>
+      <div class="toggle-row">
+        <button class="toggle is-on" id="tg-music" type="button"><span aria-hidden="true">♪</span>Muzik</button>
+        <button class="toggle is-on" id="tg-sfx" type="button"><span aria-hidden="true">◖</span>Bunyi</button>
+        <button class="toggle is-on" id="tg-quality" type="button"><span aria-hidden="true">✦</span>Grafik</button>
+      </div>
+      <button class="btn-primary" id="btn-resume" type="button"><span>Sambung berniaga</span><i>→</i></button>
+      <button class="btn-text danger" id="btn-reset" type="button">Mula semula dari awal</button>
+    </div>
+  </section>
+
+  <!-- ============ RESET CONFIRM ============ -->
+  <section class="overlay modal is-hidden" id="confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="modal-card slim">
+      <p class="eyebrow danger-eyebrow">AMARAN</p>
+      <h2 id="confirm-title">Padam semua <em>kemajuan?</em></h2>
+      <p class="lead">Semua wang, pekerja dan kawasan yang dibuka akan hilang terus. Tindakan ini tidak boleh dibatalkan.</p>
+      <button class="btn-primary danger-btn" id="confirm-yes" type="button"><span>Ya, padam</span></button>
+      <button class="btn-text" id="confirm-no" type="button">Batal</button>
+    </div>
+  </section>
+
+  <!-- ============ ENDING ============ -->
+  <section class="overlay modal is-hidden" id="ending" role="dialog" aria-modal="true" aria-labelledby="ending-title">
+    <div class="modal-card end-card">
+      <i class="conf c1"></i><i class="conf c2"></i><i class="conf c3"></i><i class="conf c4"></i>
+      <div class="end-badge" aria-hidden="true">★</div>
+      <p class="eyebrow">PENAMAT PROTOTAIP</p>
+      <h2 id="ending-title">Sambal kampung ini<br><em>sudah jadi empayar.</em></h2>
+      <p class="lead">Lori terakhir sudah bertolak ke seluruh negara. Dari satu kuali kecil, dapur anda kini menghantar sambal bilis ke setiap negeri.</p>
+      <div class="end-stats">
+        <div><small>JUALAN TERKUMPUL</small><b id="e-sales">RM0</b></div>
+        <div><small>PELANGGAN GEMBIRA</small><b id="e-happy">0</b></div>
+        <div><small>REPUTASI</small><b id="e-rep">0</b></div>
+      </div>
+      <button class="btn-primary" id="end-close" type="button"><span>Terus urus empayar</span><i>→</i></button>
+    </div>
+  </section>
+
+  <!-- ============ OFFLINE EARNINGS ============ -->
+  <section class="overlay modal is-hidden" id="offline" role="dialog" aria-modal="true" aria-labelledby="offline-title">
+    <div class="modal-card slim">
+      <div class="end-badge small" aria-hidden="true">☾</div>
+      <p class="eyebrow">SEMASA ANDA TIADA</p>
+      <h2 id="offline-title">Pekerja teruskan <em>kerja.</em></h2>
+      <p class="lead" id="offline-copy">Mereka berjaya menjual beberapa balang semasa dapur ditinggalkan.</p>
+      <div class="offline-amount">+RM<b id="offline-amount">0</b></div>
+      <button class="btn-primary" id="offline-ok" type="button"><span>Kutip</span><i>→</i></button>
+    </div>
+  </section>
+
+</main>
+
+<noscript>Permainan ini memerlukan JavaScript.</noscript>
+<script type="module" src="./game.js"></script>
+<script src="/data.js"></script>
+<script src="/vb-bar.js"></script>
+</body>
+</html>
