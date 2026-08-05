@@ -1,88 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ms">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0d5c46">
-<meta name="color-scheme" content="light dark">
-<meta name="description" content="Dashboard data interaktif Laporan RCI Tabung Haji (2022). Teroka krisis kewangan 2017, hibah, pelaburan bermasalah, penyelamatan UJSB, kos haji & HAFIS — setiap angka boleh dijejak ke halaman sumber laporan.">
-<title>RCI Tabung Haji — Data Tersembunyi dalam Dua Buku</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230d5c46'/%3E%3Cpath d='M31 12l15 5v9c0 13-6.5 20-15 23C22 46 16 39 16 26v-9z' fill='%23e0a622'/%3E%3Cpath d='M31 20l7 3v5c0 7-3 11-7 13-4-2-7-6-7-13v-5z' fill='%230d5c46'/%3E%3C/svg%3E">
-<script src="/data.js"></script>
-<script src="/vb-bar.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RCI Tabung Haji — Dashboard Penerokaan Data</title>
+<meta name="description" content="Dashboard interaktif bagi Laporan Suruhanjaya Siasatan Diraja (RCI) Tabung Haji 2014–2020. Teroka krisis kewangan, bailout UJSB, pelaburan bermasalah, tadbir urus dan subsidi haji — setiap angka boleh dijejak ke muka surat laporan asal.">
+<meta name="theme-color" content="#0e7a4d">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕋</text></svg>">
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<a class="skip" href="#view">Langkau ke kandungan</a>
-
-<header class="topbar">
-  <div class="topin">
-    <button class="brand" id="brandBtn" aria-label="Ke Gambaran Keseluruhan">
-      <span class="logo">◈</span>
-      <span class="brand-t">
-        <b>RCI Tabung Haji</b>
-        <i id="tbSub">Gambaran</i>
-      </span>
-    </button>
-    <nav class="hbtns" aria-label="Kawalan halaman">
-      <button id="btnSearch" class="ico" title="Cari angka & fakta" aria-label="Cari">&#128269;</button>
-      <button id="btnGloss" class="ico" title="Kamus istilah ringkas" aria-label="Kamus istilah">&#9783;</button>
-      <button id="btnTheme" class="ico" title="Tukar tema terang / gelap" aria-label="Tukar tema">&#9789;</button>
-    </nav>
+<div id="app">
+  <aside class="rail" id="rail" aria-label="Navigasi utama"></aside>
+  <div class="scrim" id="scrim"></div>
+  <div class="main-wrap">
+    <header class="topbar">
+      <button class="burger" id="burger" aria-label="Buka menu">☰</button>
+      <div class="tb-tajuk">
+        <b id="tb-tajuk">RCI Tabung Haji</b>
+        <small id="tb-sub">Dashboard penerokaan data</small>
+      </div>
+      <div class="tb-aksi">
+        <button class="btn ghost sm" id="btnTema" title="Tukar tema">🌓</button>
+        <a class="btn ghost sm" href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noopener" title="Buka laporan asal">📄 Laporan</a>
+      </div>
+    </header>
+    <main class="main" id="main"></main>
   </div>
-  <nav id="rail" class="rail" aria-label="Bahagian dashboard"></nav>
-</header>
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-
-<main id="view" tabindex="-1"></main>
-
-<div class="modal veil" id="srcModal" hidden>
-  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="srcTitle">
-    <button class="mclose" id="srcClose" aria-label="Tutup">&#10005;</button>
-    <h3 id="srcTitle">Sumber Data</h3>
-    <div id="srcBody"></div>
-  </div>
+  <nav class="tabbar" id="tabbar" aria-label="Navigasi bawah"></nav>
 </div>
-
-<div class="modal veil" id="glossModal" hidden>
-  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="glossTitle">
-    <button class="mclose" id="glossClose" aria-label="Tutup">&#10005;</button>
-    <h3 id="glossTitle">Kamus Istilah Ringkas</h3>
-    <input id="glossFind" class="gfind" type="search" placeholder="Cari istilah…" aria-label="Cari istilah">
-    <div id="glossBody" class="glist"></div>
-  </div>
-</div>
-
-<div class="modal veil" id="searchModal" hidden>
-  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
-    <button class="mclose" id="searchClose" aria-label="Tutup">&#10005;</button>
-    <h3 id="searchTitle">Cari di seluruh laporan</h3>
-    <input id="searchFind" class="gfind" type="search" placeholder="cth: UJSB, hibah, HAFIS, Trurich…" autocomplete="off" aria-label="Cari">
-    <div id="searchBody" class="glist"></div>
-  </div>
-</div>
-
-<footer class="foot">
-  <div>
-    <b>Dashboard data terjejak — Laporan Suruhanjaya Siasatan Diraja Tabung Haji (2022)</b><br>
-    Sumber: <a href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noopener">rci-tabung-haji.md</a> · nombor muka surat merujuk PDF laporan rasmi (lajur “PDF ms”).
-  </div>
-  <div class="leg">
-    <span class="chips">
-      <i class="dot d-fakta"></i> Fakta laporan
-      <i class="dot d-terbitan"></i> Terbitan kami
-      <i class="dot d-unjuran"></i> Unjuran
-      <i class="dot d-simulasi"></i> Simulasi
-    </span>
-    <span class="chips">Juta&nbsp;=&nbsp;RM juta ·&nbsp;bn&nbsp;=&nbsp;bilion ·&nbsp;thn&nbsp;=&nbsp;tahun</span>
-  </div>
-  <div class="foot-note">Semua angka disemak terhadap teks laporan; beza kecil mungkin terhasil daripada pembundaran teks asal. “Terbitan kami” bermaksud pengiraan/keputusan daripada angka laporan. Kajian data ini bukan nasihat kewangan.</div>
-</footer>
-
-<script src="data.js"></script>
-<script src="lib.js"></script>
-<script src="views.js"></script>
-<script src="app.js"></script>
+<script src="js/data.js"></script>
+<script src="js/lib.js"></script>
+<script src="js/views.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
