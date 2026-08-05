@@ -9,6 +9,7 @@ Archived model configurations:
 - `deepseek-v4-flash-max`
 - `gpt-5-6-luna-high`
 - `gpt-5-6-luna-xhigh`
+- `gpt-5-6-sol-max`
 - `gpt-5-6-terra-high`
 - `gpt-5-6-terra-xhigh`
 - `opus-5-max`
