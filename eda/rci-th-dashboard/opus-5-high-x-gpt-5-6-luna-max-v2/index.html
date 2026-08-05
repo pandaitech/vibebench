@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10252a">
+  <title>Meneroka Laporan RCI Tabung Haji — Opus 5 High x GPT-5-6 Luna Max v2</title>
+  <meta name="description" content="Dashboard penerokaan data bagi Laporan Suruhanjaya Siasatan Diraja Tabung Haji (2014–2020). Setiap angka boleh dijejak kembali ke muka surat laporan asal.">
+  <style>html{background:#f5f0e8}body{margin:0}#story{min-height:100vh}</style>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="site-header" id="top">
+      <a class="wordmark" href="#ringkasan" aria-label="Meneroka Laporan RCI Tabung Haji">
+        <span class="wordmark-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span class="wordmark-type"><span>LAPORAN RCI</span><strong>Tabung Haji</strong></span>
+      </a>
+      <div class="header-meta">2014–2020 <span>·</span> 19 Julai 2022</div>
+      <div class="header-actions">
+        <button class="header-button" id="btnGlossary" type="button">Kamus istilah</button>
+        <button class="header-button icon-button" id="btnTheme" type="button" aria-label="Tukar warna paparan" title="Tukar warna paparan"><span aria-hidden="true">◐</span><span class="button-label">Tema</span></button>
+        <button class="header-button menu-button" id="btnChapters" type="button" aria-label="Buka kandungan"><span aria-hidden="true">☰</span><span class="button-label">Kandungan</span></button>
+      </div>
+    </header>
+
+    <div class="reading-progress" aria-hidden="true"><span id="progressFill"></span></div>
+
+    <div class="reader-layout">
+      <aside class="chapter-spine" id="chapterSpine" aria-label="Kandungan laporan">
+        <div class="spine-topline"><span>Garis cerita</span><span id="chapterCount">12 bab</span></div>
+        <nav class="chapter-nav" id="chapterNav"></nav>
+        <div class="spine-foot">Setiap angka membawa rujukan muka surat.</div>
+      </aside>
+      <main id="story" tabindex="-1"></main>
+    </div>
+  </div>
+
+  <div class="scrim" id="scrim" hidden></div>
+  <div class="tip" id="tip" role="status" aria-live="polite"></div>
+
+  <script src="./data-core.js"></script>
+  <script src="./data-detail.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
