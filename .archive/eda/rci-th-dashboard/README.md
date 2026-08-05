@@ -1,7 +1,8 @@
 # Archived RCI Tabung Haji benchmark results
 
-Archived on 2026-08-04 so these test results stay out of the active VibeBench
-navigation and production EDA paths while remaining recoverable from Git.
+Archived in batches on 2026-08-04 and 2026-08-05 so these test results stay
+out of the active VibeBench navigation and production EDA paths while remaining
+recoverable from Git.
 
 Archived model configurations:
 
@@ -12,6 +13,10 @@ Archived model configurations:
 - `gpt-5-6-terra-xhigh`
 - `opus-5-max`
 - `sonnet-5-high`
+- `glm-5-2-max`
+- `kimi-k3-max`
+- `minimax-m-3-thinking`
+- `qwen3-8-max-high`
 
 To restore a result, move its directory back to the active EDA path and add its
 contender and job entry to `data.js`:
