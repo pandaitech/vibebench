@@ -16,6 +16,7 @@ window.VIBEBENCH = {
     "gpt-5-6-luna-max": {"name": "GPT-5.6 luna Max", "accent": "#10A37F"},
     "gpt-5-6-luna-medium": {"name": "GPT-5.6 luna Medium", "accent": "#10A37F"},
     "deepseek-v4-flash-high": {"name": "deepseek-v4-flash-high", "accent": "#4D6BFE"},
+    "deepseek-v4-flash-high-pi": {"name": "deepseek-v4-flash-high (pi)", "accent": "#4D6BFE"},
     "glm-5-2-max": {"name": "GLM 5.2 Max", "accent": "#5B6CFF"},
     "minimax-m-3-thinking": {"name": "MiniMax M3 Thinking", "accent": "#FF5A5F"}
   },
@@ -32,6 +33,7 @@ window.VIBEBENCH = {
         {"contender": "gpt-5-6-luna-medium", "url": "/eda/rci-th-dashboard/gpt-5-6-luna-medium/"},
         {"contender": "gpt-5-6-luna-max", "url": "/eda/rci-th-dashboard/gpt-5-6-luna-max/"},
         {"contender": "deepseek-v4-flash-high", "url": "/eda/rci-th-dashboard/deepseek-v4-flash-high/"},
+        {"contender": "deepseek-v4-flash-high-pi", "url": "/eda/rci-th-dashboard/deepseek-v4-flash-high-pi/"},
         {"contender": "glm-5-2-max", "url": "/eda/rci-th-dashboard/glm-5-2-max/"},
         {"contender": "minimax-m-3-thinking", "url": "/eda/rci-th-dashboard/minimax-m-3-thinking/"}
       ]
@@ -47,6 +49,8 @@ window.VIBEBENCH = {
       "id": "empayar-sambal-bilis",
       "title": "Empayar Sambal Bilis — pengurusan dapur 3D",
       "entries": [
+        {"contender": "opus-5-high", "url": "/game/empayar-sambal-bilis/opus-5-high/"},
+        {"contender": "gpt-5-6-sol-high", "url": "/game/empayar-sambal-bilis/gpt-5-6-sol-high/"},
         {"contender": "gpt-5-6-luna-max", "url": "/game/empayar-sambal-bilis/gpt-5-6-luna-max/"}
       ]
     },
