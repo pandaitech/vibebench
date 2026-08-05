@@ -15,6 +15,7 @@ window.VIBEBENCH = {
     "gpt-5-6-sol-ultra": {"name": "GPT-5.6 sol Ultra", "accent": "#10A37F"},
     "gpt-5-6-sol-medium": {"name": "GPT-5.6 sol Medium", "accent": "#10A37F"},
     "gpt-5-6-luna-max": {"name": "GPT-5.6 luna Max", "accent": "#10A37F"},
+    "opus-5-high-x-gpt-5-6-luna-max": {"name": "Opus 5 × Luna Max", "accent": "#A7D8C1"},
     "gpt-5-6-luna-medium": {"name": "GPT-5.6 luna Medium", "accent": "#10A37F"},
     "deepseek-v4-flash-high": {"name": "deepseek-v4-flash-high", "accent": "#4D6BFE"},
     "deepseek-v4-flash-high-opencode": {"name": "deepseek-v4-flash-high-opencode", "accent": "#4D6BFE"},
@@ -34,6 +35,7 @@ window.VIBEBENCH = {
         {"contender": "gpt-5-6-sol-high", "url": "/eda/rci-th-dashboard/gpt-5-6-sol-high/"},
         {"contender": "gpt-5-6-luna-medium", "url": "/eda/rci-th-dashboard/gpt-5-6-luna-medium/"},
         {"contender": "gpt-5-6-luna-max", "url": "/eda/rci-th-dashboard/gpt-5-6-luna-max/"},
+        {"contender": "opus-5-high-x-gpt-5-6-luna-max", "url": "/eda/rci-th-dashboard/opus-5-high-x-gpt-5-6-luna-max/"},
         {"contender": "deepseek-v4-flash-high-opencode", "url": "/eda/rci-th-dashboard/deepseek-v4-flash-high-opencode/"},
         {"contender": "deepseek-v4-flash-high-claude", "url": "/eda/rci-th-dashboard/deepseek-v4-flash-high-claude/"},
         {"contender": "deepseek-v4-flash-high-pi", "url": "/eda/rci-th-dashboard/deepseek-v4-flash-high-pi/"}

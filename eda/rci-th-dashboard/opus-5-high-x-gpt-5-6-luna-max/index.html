@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Meneroka Laporan RCI Tabung Haji — Dashboard Analisis Data</title>
+  <meta name="description" content="Dashboard penerokaan data bagi Laporan Suruhanjaya Siasatan Diraja Tabung Haji (2014–2020). Setiap angka boleh dijejak kembali ke muka surat laporan asal.">
+  <meta name="theme-color" content="#101719">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕋</text></svg>">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#view">Terus ke kandungan</a>
+  <script src="/data.js"></script>
+  <script src="/vb-bar.js"></script>
+
+  <div class="app-shell">
+    <aside class="rail" id="rail" aria-label="Navigasi laporan">
+      <div class="rail-head">
+        <a class="identity" href="#ringkasan" aria-label="Kembali ke ringkasan siasatan" onclick="window.pergi && window.pergi('ringkasan'); return false;">
+          <span class="identity-mark" aria-hidden="true"><b>TH</b><small>RCI</small></span>
+          <span class="identity-copy"><b>Meneroka Laporan</b><small>RCI Tabung Haji</small></span>
+        </a>
+        <p class="rail-caption">Suruhanjaya Siasatan Diraja bagi menyiasat pengurusan dan operasi Lembaga Tabung Haji, 2014–2020. Laporan bertarikh 19 Julai 2022.</p>
+      </div>
+
+      <div class="rail-index" aria-hidden="true"><span>Isi kandungan</span><i></i><b>01—12</b></div>
+      <nav class="nav" id="nav" aria-label="Bab analisis"></nav>
+
+      <div class="rail-foot">
+        <span class="rail-foot-line"></span>
+        <span>Setiap angka boleh dijejak kembali ke muka surat laporan asal.</span>
+      </div>
+    </aside>
+
+    <div class="scrim" id="scrim"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mburger" id="burger" type="button" aria-label="Buka menu bab" aria-controls="rail" aria-expanded="false">
+          <span class="burger-lines" aria-hidden="true"><i></i><i></i><i></i></span><em>Bab</em>
+        </button>
+        <div class="topbar-context">
+          <span class="crumb">RCI / LTH / <b>PENEROKAAN</b></span>
+          <span class="topbar-view" id="topbarView">01 / RINGKASAN SIASATAN</span>
+        </div>
+        <div class="topbar-actions">
+          <button class="chip" id="btnIstilah" type="button" title="Senarai istilah dalam bahasa mudah" aria-label="Kamus istilah"><span class="chip-symbol">?</span><span class="chip-label">Kamus istilah</span></button>
+          <button class="chip" id="btnTema" type="button" title="Tukar warna paparan" aria-label="Tukar tema"><span class="chip-symbol theme-symbol">◐</span><span class="chip-label">Tema</span></button>
+        </div>
+        <div class="topbar-progress" aria-hidden="true"><span id="progressBar"></span></div>
+      </header>
+
+      <div class="canvas">
+        <div class="canvas-meta"><span>Suruhanjaya Siasatan Diraja</span><span>19.07.2022&nbsp;&nbsp;·&nbsp;&nbsp;laporan asas</span></div>
+        <div id="view" tabindex="-1"></div>
+        <footer class="page-footer">
+          <div><b>RCI / TABUNG HAJI</b><span>Dashboard penerokaan data</span></div>
+          <div><a href="https://github.com/SyahmiRafsan/rci-tabunghaji/blob/main/rci-tabung-haji.md" target="_blank" rel="noopener">Buka laporan penuh ↗</a><span>Setiap angka boleh dijejak kembali ke muka surat laporan asal.</span></div>
+        </footer>
+      </div>
+    </main>
+  </div>
+
+  <script src="./data-core.js?v=4"></script>
+  <script src="./data-detail.js?v=4"></script>
+  <script src="./lib.js?v=4"></script>
+  <script src="./app.js?v=4"></script>
+  <script src="./views-1.js?v=4"></script>
+  <script src="./views-2.js?v=4"></script>
+  <script src="./views-3.js?v=4"></script>
+  <script src="./views-4.js?v=4"></script>
+  <script src="./shell.js?v=1"></script>
+</body>
+</html>
