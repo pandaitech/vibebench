@@ -9,6 +9,7 @@ window.VIBEBENCH = {
   "contenders": {
     "opus-5-medium": {"name": "Claude Opus 5 Medium", "accent": "#C96442"},
     "opus-5-high": {"name": "Claude Opus 5", "accent": "#C96442"},
+    "opus-5-high-v2": {"name": "Claude Opus 5 (v2)", "accent": "#C96442"},
     "sonnet-5-low": {"name": "Claude Sonnet 5 (low)", "accent": "#C96442"},
     "gpt-5-6-sol-high": {"name": "GPT-5.6 sol High", "accent": "#10A37F"},
     "gpt-5-6-sol-ultra": {"name": "GPT-5.6 sol Ultra", "accent": "#10A37F"},
@@ -27,6 +28,7 @@ window.VIBEBENCH = {
       "entries": [
         {"contender": "opus-5-medium", "url": "/eda/rci-th-dashboard/opus-5-medium/"},
         {"contender": "opus-5-high", "url": "/eda/rci-th-dashboard/opus-5-high/"},
+        {"contender": "opus-5-high-v2", "url": "/eda/rci-th-dashboard/opus-5-high-v2/"},
         {"contender": "sonnet-5-low", "url": "/eda/rci-th-dashboard/sonnet-5-low/"},
         {"contender": "gpt-5-6-sol-medium", "url": "/eda/rci-th-dashboard/gpt-5-6-sol-medium/"},
         {"contender": "gpt-5-6-sol-high", "url": "/eda/rci-th-dashboard/gpt-5-6-sol-high/"},

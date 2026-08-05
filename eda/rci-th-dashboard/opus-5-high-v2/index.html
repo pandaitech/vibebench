@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RCI Tabung Haji — Papan Penerokaan Data</title>
+<meta name="description" content="Papan penerokaan data untuk Laporan Suruhanjaya Siasatan Diraja Tabung Haji (2022). Setiap angka boleh dijejak kembali ke muka surat asalnya.">
+<meta name="theme-color" content="#FBFAF4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0D1414" media="(prefers-color-scheme: dark)">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/app.css?v=9">
+<style>
+  /* panel carian */
+  #search-panel {
+    position: fixed; inset: 0; z-index: 300; background: var(--bg);
+    display: flex; flex-direction: column; padding: 14px;
+  }
+  #search-panel .sp-head { display: flex; gap: 9px; align-items: center; max-width: 720px; margin: 0 auto; width: 100%; }
+  #search-panel #search-results { max-width: 720px; margin: 14px auto 0; width: 100%; overflow-y: auto; flex: 1; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="brand">
+      <b>RCI Tabung Haji</b>
+      <span>papan penerokaan data</span>
+    </div>
+    <div class="topbar-act">
+      <button class="icon-btn" id="btn-search" title="Cari (tekan / )">Cari</button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs" role="tablist"></div>
+</header>
+
+<div id="search-panel" class="hidden">
+  <div class="sp-head">
+    <input class="searchbox" id="q" placeholder="Cari angka, nama, syarikat, syor atau istilah…" autocomplete="off">
+    <button class="icon-btn" id="btn-close-search">Tutup</button>
+  </div>
+  <div id="search-results"><div class="mini">Taip sekurang-kurangnya dua huruf.</div></div>
+</div>
+
+<div class="shell">
+  <main id="main"></main>
+
+  <footer class="footer">
+    <p><b>Sumber tunggal:</b> Laporan Suruhanjaya Siasatan Diraja Tabung Haji, 19 Julai 2022 (240 muka surat).
+      Teks penuh: <a href="https://github.com/SyahmiRafsan/rci-tabunghaji" target="_blank" rel="noopener">github.com/SyahmiRafsan/rci-tabunghaji</a>.</p>
+    <p>Papan ini adalah alat penerokaan data, bukan dokumen rasmi. Tiada angka direka. Setiap kiraan yang kami buat
+      sendiri ditanda <span class="tag accent">terbitan</span>, dan setiap hasil andaian pengguna ditanda
+      <span class="tag warn">simulasi</span>. Senarai penuh kiraan terbitan, batasan dan percanggahan dalam laporan
+      ada di bahagian <a href="#sumber" data-go="sumber">Sumber &amp; nota</a>.</p>
+    <p>Laporan tidak menetapkan liabiliti undang-undang mana-mana individu. Siasatan PDRM, SPRM, prosiding mahkamah
+      dan timbang tara yang disebut dalam laporan masih berjalan pada tarikh laporan disiapkan.</p>
+  </footer>
+</div>
+
+<script src="/data.js"></script>
+<script src="/vb-bar.js"></script>
+<script src="assets/data.js?v=9"></script>
+<script src="assets/chart.js?v=9"></script>
+<script src="assets/ui.js?v=9"></script>
+<script src="assets/views1.js?v=9"></script>
+<script src="assets/views2.js?v=9"></script>
+<script src="assets/views3.js?v=9"></script>
+<script src="assets/app.js?v=9"></script>
+</body>
+</html>
