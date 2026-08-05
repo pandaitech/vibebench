@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Meneroka Laporan RCI Tabung Haji — Dashboard Analisis Data</title>
+  <meta name="description" content="Dashboard penerokaan data bagi Laporan Suruhanjaya Siasatan Diraja Tabung Haji (2014–2020). Setiap angka boleh dijejak kembali ke muka surat laporan asal.">
+  <meta name="theme-color" content="#173b32">
+  <meta property="og:title" content="Meneroka Laporan RCI Tabung Haji — Dashboard Analisis Data">
+  <meta property="og:description" content="Dashboard penerokaan data bagi Laporan Suruhanjaya Siasatan Diraja Tabung Haji (2014–2020). Setiap angka boleh dijejak kembali ke muka surat laporan asal.">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="/eda/rci-th-dashboard/opus-5-high-x-gpt-5-6-sol-high/styles.css?v=1">
+</head>
+<body>
+  <script src="/data.js"></script>
+  <script src="/vb-bar.js"></script>
+
+  <div class="case-shell">
+    <aside class="rail" id="rail">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true"><span>RCI</span><strong>TH</strong></div>
+        <div class="brand-copy">
+          <span class="brand-kicker">2014–2020</span>
+          <b>Meneroka Laporan RCI Tabung Haji</b>
+          <small>Suruhanjaya Siasatan Diraja bagi menyiasat pengurusan dan operasi Lembaga Tabung Haji, 2014–2020. Laporan bertarikh 19 Julai 2022.</small>
+        </div>
+      </div>
+      <nav class="nav" id="nav" aria-label="Bab laporan"></nav>
+
+      <div class="rail-foot">
+        <span class="status-dot" aria-hidden="true"></span>
+        <p><b>Data mentah & integriti</b> Setiap angka boleh dijejak kembali ke muka surat laporan asal.</p>
+      </div>
+    </aside>
+
+    <div class="scrim" id="scrim"></div>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="mburger" id="burger" aria-label="Buka menu" aria-expanded="false" aria-controls="rail">
+          <span class="utility-icon" aria-hidden="true">☰</span><span class="utility-label">Menu</span>
+        </button>
+        <div class="crumb">
+          <span>Meneroka Laporan RCI Tabung Haji</span>
+          <i aria-hidden="true"></i>
+          <em id="currentIndex">01</em>
+          <span class="crumb-copy">
+            <strong id="currentChapter">Ringkasan siasatan</strong>
+            <small id="currentKicker">Gambaran besar</small>
+          </span>
+        </div>
+        <div class="grow"></div>
+        <span class="source-pulse"><i aria-hidden="true"></i> Data mentah & integriti</span>
+        <button class="chip" id="btnIstilah" title="Senarai istilah dalam bahasa mudah" aria-label="Kamus istilah">
+          <span class="utility-icon" aria-hidden="true">A—Z</span><span class="utility-label">Kamus istilah</span>
+        </button>
+        <button class="chip theme-toggle" id="btnTema" title="Tukar warna paparan" aria-label="Tukar tema paparan">
+          <span class="theme-icon utility-icon" aria-hidden="true">◐</span><span class="utility-label">Tema</span>
+        </button>
+        <div class="reading-progress" aria-hidden="true"><span id="readingProgress"></span></div>
+      </header>
+
+      <div class="stage">
+        <div class="stage-ruler" aria-hidden="true"><span>Meneroka Laporan RCI Tabung Haji</span><span>2014–2020</span></div>
+        <div id="view"></div>
+        <footer class="page-foot">
+          <span>Setiap angka boleh dijejak kembali ke muka surat laporan asal.</span>
+          <span>Laporan bertarikh 19 Julai 2022.</span>
+        </footer>
+      </div>
+    </main>
+
+    <button class="chapter-dock" id="chapterDock" aria-label="Menu" aria-expanded="false" aria-controls="rail">
+      <span class="chapter-dock-index" id="dockIndex">01</span>
+      <span class="chapter-dock-copy">
+        <strong id="dockChapter">Ringkasan siasatan</strong>
+        <small id="dockKicker">Gambaran besar</small>
+      </span>
+      <span class="chapter-dock-icon" aria-hidden="true">☰</span>
+    </button>
+  </div>
+
+  <script src="data-core.js?v=2"></script>
+  <script src="data-detail.js?v=2"></script>
+  <script src="lib.js?v=2"></script>
+  <script src="app.js?v=2"></script>
+  <script src="views-1.js?v=2"></script>
+  <script src="views-2.js?v=2"></script>
+  <script src="views-3.js?v=2"></script>
+  <script src="views-4.js?v=2"></script>
+  <script src="/eda/rci-th-dashboard/opus-5-high-x-gpt-5-6-sol-high/shell.js?v=1"></script>
+</body>
+</html>
