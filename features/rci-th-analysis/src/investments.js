@@ -1,0 +1,618 @@
+/**
+ * 14 pelaburan bermasalah yang dinamakan Suruhanjaya sebagai memerlukan
+ * AUDIT FORENSIK (syor 4.4.10 / Ringkasan Eksekutif ¶35(j)).
+ *
+ * Struktur setiap rekod sengaja seragam supaya dashboard boleh menyusun,
+ * menapis dan membandingkan. Medan yang laporan tidak sediakan diberi `null`
+ * dan disenaraikan dalam `dataGaps` — JANGAN isi dengan anggaran.
+ *
+ * `exposure_rm_million` = jumlah wang LTH yang terlibat mengikut angka
+ * yang PALING JELAS dinyatakan laporan untuk pelaburan itu. Ia BUKAN
+ * definisi perakaunan yang seragam merentas semua 14 kes — lihat
+ * `exposureBasis` bagi setiap rekod.
+ */
+import { sourceRef } from "./meta.js";
+
+const F = "fact";
+
+export const problematicInvestments = [
+  {
+    id: "thip",
+    no: 1,
+    name: "PT TH Indo Plantations",
+    shortName: "THIP",
+    sector: "Perladangan",
+    geography: "Riau, Sumatera, Indonesia",
+    issueType: ["Tadbir urus", "Penyembunyian maklumat", "Transaksi mencurigakan"],
+    summary:
+      "Penjualan pegangan 95% ekuiti LTH dalam PT TH Indo Plantations, melibatkan tanah seluas 83,000 hektar, kepada PT Borneo Pacific.",
+    currency: "USD",
+    keyFigures: [
+      { label: "Harga asal", value: 910, unit: "USD juta" },
+      { label: "Pengurangan harga", value: -100, unit: "USD juta" },
+      { label: "Pendahuluan yang terpaksa diberi LTH", value: 178.6, unit: "USD juta" },
+    ],
+    exposure_rm_million: null,
+    exposureBasis: "Tiada angka RM diberikan; semua nilai dalam USD.",
+    impairment_rm_million: null,
+    impacts: [
+      "Berlaku pemindahan syer THIP kepada pembeli sebelum menerima bayaran penuh.",
+      "Pengurangan USD100 juta daripada harga asal USD910 juta.",
+      "LTH tidak menerima pembayaran menurut jadual asal dan terpaksa memberi pendahuluan USD178.6 juta yang sepatutnya dilunaskan oleh pembeli.",
+    ],
+    lthActions: [
+      "Siasatan dalaman dan pelantikan peguam untuk siasatan forensik.",
+      "Laporan polis (Dang Wangi/31331/2018, 30 November 2018) — masih dalam siasatan.",
+    ],
+    legalStatus: "Siasatan PDRM berterusan; siasatan rentas sempadan memerlukan kebenaran pihak berkuasa Indonesia.",
+    saleYearPerPoliceReport: 2012,
+    dataGaps: [
+      "Tiada nilai RM, tiada tarikh transaksi penuh, tiada nilai rosot nilai yang direkodkan.",
+      "Tiada kadar tukaran USD/RM diberikan untuk sebarang tahun.",
+    ],
+    source: [sourceRef("3.14.6(1) / 3.15.3", 177, 139)],
+  },
+  {
+    id: "emrail",
+    no: 2,
+    name: "Emrail Sdn. Bhd.",
+    sector: "Pembinaan / kereta api",
+    geography: "Malaysia",
+    issueType: ["Put option tidak dilunaskan", "Kegagalan penyenaraian"],
+    summary:
+      "LTH membeli 15.3% kepentingan ekuiti dalam Emrail pada 7 Jun 2016 berjumlah RM20.17 juta daripada Lingkaran Hartaniaga Sdn. Bhd. (LHSB).",
+    currency: "RM",
+    acquisitionDate: "2016-06-07",
+    stake_pct: 15.3,
+    acquisitionCost_rm_million: 20.17,
+    keyFigures: [
+      { label: "Kos pemerolehan", value: 20.17, unit: "RM juta" },
+      { label: "Harga put option", value: 20.3, unit: "RM juta" },
+      { label: "Bayaran diterima", value: 2.0, unit: "RM juta" },
+      { label: "Rosot nilai direkod (31 Dis 2020)", value: 19.3, unit: "RM juta" },
+      { label: "Sasaran keuntungan Emrail yang gagal dicapai (FY2016)", value: 36.1, unit: "RM juta" },
+    ],
+    exposure_rm_million: 20.17,
+    exposureBasis: "Kos pemerolehan ekuiti.",
+    impairment_rm_million: 19.3,
+    impairmentAsOf: "2020-12-31",
+    triggerEvents: [
+      { date: "2016-05-20", event: "Perjanjian jual beli saham (mengandungi Hak Opsyen Jual)" },
+      { date: "2017-04-26", event: "LTH mengeluarkan notis melaksanakan Put Option selepas IPO dibatalkan dan sasaran keuntungan RM36.1 juta gagal dicapai" },
+    ],
+    lthActions: [
+      "8 September 2021: writ dan tuntutan difailkan di Mahkamah Tinggi Kuala Lumpur melalui Tetuan Zul Rafique & Partners.",
+      "Mahkamah memutuskan kes perlu melalui timbang tara.",
+      "22 April 2022: pendaftaran kes di Asian International Arbitration Centre (AIAC).",
+    ],
+    legalStatus:
+      "Timbang tara belum bermula — LTH masih menilai lima calon penimbang tara yang dicadangkan AIAC selepas LHSB menolak cadangan LTH.",
+    dataGaps: ["Tiada nilai pemulihan yang dijangka."],
+    source: [sourceRef("3.14.6(2)", 178, 140)],
+  },
+  {
+    id: "wellspring",
+    no: 3,
+    name: "Wellspring Worldwide Limited",
+    sector: "Teknologi / lain-lain",
+    geography: "Malaysia",
+    issueType: ["Put option tidak dilunaskan", "Kegagalan penyenaraian"],
+    summary:
+      "LTH membeli 10.0% kepentingan ekuiti dalam Wellspring Worldwide Limited (dahulu Wellspring Worldwide Sdn. Bhd.) pada 21 September 2014 berjumlah RM18.4 juta.",
+    currency: "RM",
+    acquisitionDate: "2014-09-21",
+    stake_pct: 10.0,
+    acquisitionCost_rm_million: 18.4,
+    keyFigures: [
+      { label: "Kos pemerolehan", value: 18.4, unit: "RM juta" },
+      { label: "Harga put option", value: 19.03, unit: "RM juta" },
+      { label: "Rosot nilai direkod (31 Dis 2019)", value: 19.03, unit: "RM juta" },
+      { label: "Perintah mahkamah (5 Okt 2018)", value: 20.8, unit: "RM juta" },
+      { label: "Bayaran diterima", value: 0, unit: "RM juta" },
+    ],
+    exposure_rm_million: 18.4,
+    exposureBasis: "Kos pemerolehan ekuiti.",
+    impairment_rm_million: 19.03,
+    impairmentAsOf: "2019-12-31",
+    counterparties: ["Mohamed Ridzuan Nor Mohamed", "Andy Farouk Muhamad Nasim"],
+    counterpartyRole: "Promoters (penjamin put option)",
+    triggerEvents: [
+      { date: "2016-09-19", event: "Notis pelaksanaan Put Option selepas syarikat gagal disenaraikan di Bursa Malaysia" },
+    ],
+    lthActions: [
+      "Tuntutan di Mahkamah Tinggi Kuala Lumpur melalui Tetuan Zul Rafique & Partners.",
+      "5 Oktober 2018: Mahkamah mengarahkan Promoters membayar RM20.8 juta.",
+      "Promoters gagal membuat sebarang bayaran; LTH memfailkan notis kebankrapan.",
+      "25 Januari 2022: Mahkamah membenarkan permohonan LTH.",
+    ],
+    legalStatus: "Perintah kebankrapan dibenarkan; pemulihan sebenar belum dilaporkan.",
+    dataGaps: ["Tiada maklumat berapa banyak (jika ada) berjaya dikutip selepas perintah kebankrapan."],
+    source: [sourceRef("3.14.6(3)", 179, 141)],
+  },
+  {
+    id: "dssb",
+    no: 4,
+    name: "Deru Semangat Sdn. Bhd.",
+    shortName: "DSSB",
+    sector: "Perladangan (kelapa sawit)",
+    geography: "Mukim Tembeling, Pahang",
+    issueType: ["Kelulusan Menteri", "Pelanggaran polisi kelestarian", "Rosot nilai besar"],
+    summary:
+      "Usaha sama membangunkan ladang kelapa sawit; pengambilalihan 55% ekuiti kepentingan KDYMM Almarhum Sultan Pahang (kini dipegang YAM Tengku Muda Pahang) dalam DSSB.",
+    currency: "RM",
+    approvalDates: ["2014-10-21", "2015-01-19"],
+    approvedBy: "Menteri Hal Ehwal Agama",
+    stake_pct: 55,
+    keyFigures: [
+      { label: "Jumlah pelaburan diluluskan", value: 526.16, unit: "RM juta" },
+      { label: "Pengambilalihan 55% ekuiti", value: 231.0, unit: "RM juta" },
+      { label: "Pembiayaan pembangunan ladang", value: 295.16, unit: "RM juta" },
+      { label: "Dikeluarkan sehingga Januari 2021", value: 257, unit: "RM juta" },
+      { label: "Nilai selepas rosot nilai", value: 32, unit: "RM juta" },
+      { label: "Baki komitmen berisiko", value: 258, unit: "RM juta" },
+      { label: "Pemulangan oleh YAM TMP", value: 259, unit: "RM juta" },
+    ],
+    exposure_rm_million: 257,
+    exposureBasis: "Jumlah sebenar dikeluarkan LTH untuk ekuiti dan pembiayaan sehingga Januari 2021.",
+    impairment_rm_million: 225,
+    impairmentBasis:
+      "TERBITAN: RM257 juta dirosotnilai kepada RM32 juta, iaitu penurunan RM225 juta. Laporan menyatakan nilai sebelum dan selepas tetapi bukan jumlah rosot nilai.",
+    impairmentFactType: "derived",
+    impacts: [
+      "THP tidak dapat menjual hasil kelapa sawit kepada pembeli utama Wilmar International kerana pembangunan ladang melibatkan aktiviti pembalakan hutan simpan — melanggar polisi 'No Deforestation, No Peat and No Exploitation' (NDPE/NOPE).",
+      "Pelaburan ekuiti dan pembiayaan RM257 juta dirosotnilai kepada RM32 juta.",
+    ],
+    resolution: [
+      "LTH merungkaikan pegangan ekuiti dalam DSSB kepada YAM TMP dalam bentuk pemulangan saham dan pembiayaan sedia ada dengan pembayaran keseluruhan RM259 juta.",
+      "YAM TMP bersetuju mengenepikan tanggungjawab LTH mengeluarkan RM258 juta pelaburan lanjutan (ekuiti RM71 juta dan pembiayaan RM187 juta).",
+    ],
+    agent: "THP Agro Management (THPAM) sebagai Ejen Urusan",
+    reconciliationNotes: ["231.00 + 295.16 = 526.16 ✓", "71 + 187 = 258 ✓"],
+    dataGaps: ["Tarikh penyelesaian dengan YAM TMP tidak dinyatakan."],
+    source: [sourceRef("3.14.6(4)", 180, 142)],
+  },
+  {
+    id: "trurich",
+    no: 5,
+    name: "Trurich Resources Sdn. Bhd.",
+    shortName: "Trurich",
+    sector: "Perladangan (kelapa sawit)",
+    geography: "Kalimantan, Indonesia",
+    issueType: ["Usaha sama gagal", "Insolvensi", "Manipulasi laporan kesesuaian tanah (dakwaan)"],
+    summary:
+      "Usaha sama dengan Felda Global Ventures Kalimantan Sdn. Bhd. untuk membangun sehingga 200,000 hektar tanah perladangan kelapa sawit di Kalimantan. Ditubuhkan 30 November 2009.",
+    currency: "RM",
+    incorporatedDate: "2009-11-30",
+    targetHectares: 200000,
+    keyFigures: [
+      { label: "Pelaburan LTH (dirosotnilai sepenuhnya)", value: 364.31, unit: "RM juta" },
+      { label: "Liabiliti semasa bersih (31 Dis 2017)", value: -119.67, unit: "RM juta" },
+      { label: "Liabiliti semasa bersih (31 Dis 2018)", value: -92.78, unit: "RM juta" },
+      { label: "Baki pinjaman Trurich kepada Maybank", value: 179, unit: "USD juta" },
+    ],
+    exposure_rm_million: 364.31,
+    exposureBasis: "Jumlah pelaburan LTH dalam Trurich.",
+    impairment_rm_million: 364.31,
+    impairmentNote: "Dirosotnilai sepenuhnya (100%).",
+    lthActions: [
+      "Anggota Lembaga Pengarah membuat laporan polis tentang ketidakaturan pemerolehan Trurich (Dang Wangi/32724/2018, 13 Disember 2018, oleh Aliatun binti Mahmud, mantan Setiausaha Trurich).",
+      "22 Disember 2020: Menteri Hal Ehwal Agama meluluskan pelupusan anak-anak syarikat Trurich; urusan diserahkan kepada FGV dan Maybank.",
+      "FGV & Maybank dalam proses akhir melupuskan anak syarikat kepada PT Karya Teknik Agro (nomini PT Karya Teknik Utama).",
+    ],
+    allegationDetail:
+      "Dakwaan manipulasi laporan kesesuaian tanah bagi menjustifikasi potensi tanah seluas 40,880 hektar di Kalimantan Utara dan Tengah, mengelirukan Trurich sehingga memperoleh ladang bernilai sekitar USD58 juta dalam tempoh 2008–2009.",
+    legalStatus: "Siasatan PDRM berterusan; menunggu kebenaran pihak berkuasa Indonesia.",
+    dataGaps: ["Tiada nilai pemulihan daripada pelupusan; tiada jumlah tanggungan LTH ke atas pinjaman Maybank USD179 juta."],
+    source: [sourceRef("3.14.6(5) / 3.15.5–3.15.6", 181, 143)],
+  },
+  {
+    id: "abraj",
+    no: 6,
+    name: "Abraj Sdn. Bhd.",
+    shortName: "Abraj",
+    sector: "Hartanah",
+    geography: "Malaysia",
+    issueType: ["Usaha sama gagal", "Kehilangan penyewa utama"],
+    summary:
+      "Pelaburan usaha sama antara LTH dan Amanah Raya Berhad sejak 11 November 2009 dalam pembelian hartanah.",
+    currency: "RM",
+    jvStartDate: "2009-11-11",
+    partner: "Amanah Raya Berhad",
+    keyFigures: [
+      { label: "Jumlah pegangan ekuiti LTH dalam Abraj", value: 85, unit: "RM juta" },
+      { label: "Kerugian rosot nilai", value: 40.25, unit: "RM juta" },
+    ],
+    exposure_rm_million: 85,
+    exposureBasis: "Jumlah pegangan ekuiti keseluruhan Abraj.",
+    impairment_rm_million: 40.25,
+    causes: [
+      "Sejak 2015 syarikat usaha sama tidak mampu menjana pendapatan cukup untuk membayar pinjaman bank.",
+      "Salah satu penyewa utama berpindah ke tempat lain.",
+    ],
+    resolution:
+      "Amanah Raya Berhad menyempurnakan pembelian 50% pegangan saham LTH dalam Abraj pada Disember 2020.",
+    resolutionDate: "2020-12",
+    dataGaps: ["Harga jualan 50% pegangan kepada Amanah Raya Berhad tidak dinyatakan."],
+    source: [sourceRef("3.14.6(6)", 182, 144)],
+  },
+  {
+    id: "ppb",
+    no: 7,
+    name: "Putrajaya Perdana Berhad",
+    shortName: "PPB",
+    sector: "Pembinaan / hartanah",
+    geography: "Malaysia",
+    issueType: ["Put option tidak dilunaskan", "Kegagalan penyenaraian"],
+    summary:
+      "Pada Disember 2014 LTH membeli 30% pegangan ekuiti dalam Putrajaya Perdana Berhad berjumlah RM193.50 juta daripada Cendana Destini Sdn. Bhd. (CDSB), dengan objektif merealisasikan nilai melalui penyenaraian awam dalam tempoh satu tahun.",
+    currency: "RM",
+    acquisitionDate: "2014-12",
+    stake_pct: 30,
+    acquisitionCost_rm_million: 193.5,
+    keyFigures: [
+      { label: "Kos pemerolehan", value: 193.5, unit: "RM juta" },
+      { label: "Harga put option", value: 210.7, unit: "RM juta" },
+      { label: "Rosot nilai sehingga 31 Dis 2020", value: 145.3, unit: "RM juta" },
+      { label: "Nilai buku bersih semasa", value: 48.2, unit: "RM juta" },
+      { label: "Sasaran keuntungan PPB yang gagal dicapai (FY2015)", value: 86, unit: "RM juta" },
+    ],
+    exposure_rm_million: 193.5,
+    exposureBasis: "Kos pemerolehan ekuiti.",
+    impairment_rm_million: 145.3,
+    impairmentAsOf: "2020-12-31",
+    triggerEvents: [
+      { date: "2018-03-07", event: "Notis pelaksanaan Put Option terhadap CDSB pada harga RM210.7 juta" },
+      { date: "2020-11-12", event: "Kelulusan Portfolio Review Committee (PRC) LTH untuk memulakan tindakan undang-undang" },
+      { date: "2021-01-15", event: "CDSB mengemukakan cadangan penyelesaian baharu" },
+    ],
+    legalStatus:
+      "Kedua-dua pihak bersetuju mempertimbangkan Cadangan Pengaturan Penyelesaian; proses kelulusan dalaman sedang berjalan pada tarikh laporan.",
+    reconciliationNotes: ["193.50 − 145.3 = 48.2 ✓ menepati nilai buku bersih yang dinyatakan."],
+    dataGaps: ["Nilai Cadangan Pengaturan Penyelesaian tidak dinyatakan."],
+    source: [sourceRef("3.14.6(7)", 183, 145)],
+  },
+  {
+    id: "al-rawda",
+    no: 8,
+    name: "Al-Rawda Real Estates Development & Project Management Co. Ltd.",
+    shortName: "Al-Rawda",
+    sector: "Hotel / pajakan",
+    geography: "Makkah dan Madinah, Arab Saudi",
+    issueType: ["Kemungkiran pembayaran sewa", "Timbang tara antarabangsa", "Nota Janji"],
+    summary:
+      "Perjanjian pajakan dan sub-pajakan jangka panjang (10–18 tahun) bagi empat hotel untuk penginapan jemaah haji dan umrah: Hotel Al-Aqiq, Al-Haram dan Al-Saha di Madinah, serta Hotel Rawdat Al-Bait di Makkah.",
+    currency: "SR",
+    agreementDates: ["2015-04-03", "2016-12-21", "2017-09-04"],
+    leaseTermYears: [10, 18],
+    hotels: ["Hotel Al-Aqiq (Madinah)", "Hotel Al-Haram (Madinah)", "Hotel Al-Saha (Madinah)", "Hotel Rawdat Al-Bait (Makkah)"],
+    keyFigures: [
+      { label: "Nilai perjanjian yang telah dibayar kepada Al-Rawda", value: 1426, unit: "SR juta" },
+      { label: "Pendapatan sewa pajakan di bawah Perjanjian Pengurusan dan Operasi", value: 2490, unit: "SR juta" },
+      { label: "Sewa tertunggak setakat 31 Dis 2021", value: 560.7, unit: "SR juta" },
+      { label: "Tuntutan PN terhadap Al-Rawda (9 tindakan)", value: 344.0, unit: "SR juta" },
+      { label: "Tuntutan PN terhadap Dr. Mashhoor (7 tindakan)", value: 255.1, unit: "SR juta" },
+      { label: "Cadangan penyelesaian April 2021", value: 1748, unit: "SR juta" },
+      { label: "Tawaran balas Al-Rawda (29 Jun 2021)", value: 968.0, unit: "SR juta" },
+      { label: "Estimated Credit Loss (penyata kewangan 31 Dis 2020)", value: 202.8, unit: "RM juta" },
+      { label: "Anggaran rosot nilai tambahan FY2021", value: 184, unit: "RM juta" },
+    ],
+    exposure_rm_million: null,
+    exposureBasis:
+      "Pendedahan utama dalam SR; hanya kesan perakaunan diberikan dalam RM (ECL RM202.8 juta + anggaran RM184 juta).",
+    impairment_rm_million: 202.8,
+    impairmentAsOf: "2020-12-31",
+    additionalImpairmentEstimate_rm_million: 184,
+    additionalImpairmentFactType: "thirdPartyEstimate",
+    additionalImpairmentNote:
+      "Penilaian awal oleh Jabatan Kewangan LTH bagi FY2021; tidak termasuk pendapatan sewa 2021 dan tertakluk kepada penilaian lanjut.",
+    guarantor: "Dr. Mashhoor Ali Omar Almadoodi (pemilik Al-Rawda), penjamin peribadi Nota Janji",
+    defaultSince: "2019-03",
+    enforcementActions: [
+      "Perintah penguatkuasaan diperoleh daripada Mahkamah Penguatkuasaan Arab Saudi terhadap Al-Rawda dan Dr. Mashhoor.",
+      "Sekatan dan larangan menjalankan perniagaan terhadap Al-Rawda.",
+      "Aset Dr. Mashhoor di Arab Saudi dibekukan; sekatan perjalanan dikenakan.",
+      "20 hartanah milik Dr. Mashhoor dikenal pasti di Jeddah, Madinah dan Makkah; proses likuidasi dijangka mengambil masa sehingga dua tahun.",
+    ],
+    counterClaim:
+      "Al-Rawda mengemukakan notis timbang tara dengan alasan Perjanjian Pengurusan dan Operasi bertentangan dengan syariah. LTH menafikan sekeras-kerasnya; timbang tara sedang berlangsung.",
+    lthRejectionDate: "2021-07-14",
+    dataGaps: [
+      "Tiada kadar tukaran SR/RM diberikan untuk transaksi ini — pendedahan penuh dalam RM tidak boleh dikira.",
+      "Tiada anggaran nilai pemulihan daripada likuidasi 20 hartanah.",
+    ],
+    source: [sourceRef("3.14.6(8)", 184, 146)],
+  },
+  {
+    id: "al-fareeda",
+    no: 9,
+    name: "Al-Fareeda Residential Fund",
+    shortName: "Al-Fareeda",
+    sector: "Dana hartanah kediaman",
+    geography: "Arab Saudi",
+    issueType: ["Hapus kira penuh", "Pengurus dana tidak dapat dikesan"],
+    summary:
+      "Pelaburan LTH pada 21 Februari 2013 melalui pengurus dana dalam sektor perumahan Arab Saudi; LTH melanggan sehingga SR76 juta.",
+    currency: "SR",
+    investmentDate: "2013-02-21",
+    fundManager: "Anfaal Capital",
+    stake_pct: 13.8,
+    keyFigures: [
+      { label: "Langganan LTH", value: 76, unit: "SR juta" },
+      { label: "Nilai bersamaan (seperti dinyatakan laporan)", value: 63, unit: "RM juta" },
+      { label: "Jumlah dana keseluruhan", value: 550, unit: "SR juta" },
+    ],
+    exposure_rm_million: 63,
+    exposureBasis: "Nilai RM yang dinyatakan laporan bagi langganan SR76 juta (kadar tersirat ~RM0.829 per SR pada 2013).",
+    impairment_rm_million: 63,
+    impairmentNote: "Dihapus kira secara keseluruhan; LTH mengalami kerugian sebanyak SR76 juta.",
+    causes: [
+      "Undang-undang baharu berkenaan isu buruh dan imigresen di Arab Saudi.",
+      "Kontraktor bermasalah, kenaikan harga barang pembinaan, dan kejatuhan harga minyak mentah.",
+      "Dana dicairkan; semua aset kini berada di bawah Alinma Bank.",
+      "Tiada perkembangan sejak 2017 dan pengurus dana tidak dapat dikesan.",
+    ],
+    reconciliationNotes: ["76 ÷ 550 = 13.8% ✓"],
+    dataGaps: ["Tiada tindakan undang-undang dilaporkan."],
+    source: [sourceRef("3.14.6(9)", 188, 150)],
+  },
+  {
+    id: "thp",
+    no: 10,
+    name: "TH Plantations Berhad",
+    shortName: "THP",
+    sector: "Perladangan (tersenarai)",
+    geography: "Malaysia / Indonesia",
+    issueType: ["Kegagalan fidusiari", "Pembiayaan berlebihan", "Siasatan forensik"],
+    summary:
+      "Syarikat tersenarai milik LTH. Laporan Forensik PwC bertarikh 25 April 2019 mendapati pengurusan kanan THP dan Lembaga gagal memenuhi tanggungjawab fidusiari untuk melaksanakan penjagaan, kemahiran dan ketekunan yang munasabah.",
+    currency: "RM",
+    forensicReportDate: "2019-04-25",
+    forensicBy: "PricewaterhouseCoopers",
+    keyFigures: [
+      { label: "Sukuk dikeluarkan LTH untuk membiayai pembelian ladang (2012–2014)", value: 1200, unit: "RM juta" },
+      { label: "Rosot nilai di peringkat LTH", value: 170, unit: "RM juta" },
+      { label: "Ladang THP yang produktif", value: 58, unit: "%" },
+    ],
+    exposure_rm_million: 1200,
+    exposureBasis: "Sukuk RM1.2 bilion yang dikeluarkan LTH untuk membiayai pembelian ladang THP 2012–2014.",
+    impairment_rm_million: 170,
+    impairmentBasis: "Rosot nilai di peringkat LTH akibat pengurangan hasil sawit.",
+    problematicAcquisitions: ["Bumi Suria Ventures Sdn. Bhd.", "Maju Warisanmas Sdn. Bhd.", "PT Persada Kencana Prima"],
+    consequenceChain: [
+      "THP membiayai pembelian ladang baharu 2012–2014, terutamanya dengan Sukuk RM1.2 bilion daripada LTH.",
+      "Hanya 58% daripada ladang THP produktif.",
+      "THP terpaksa menjual estet untuk membayar hutang.",
+      "THP mengurangkan perbelanjaan perladangan, menyebabkan pengurangan hasil sawit.",
+      "Rosot nilai RM170 juta di peringkat LTH.",
+    ],
+    lthActions: [
+      "Laporan kepada PDRM, SPRM dan Suruhanjaya Sekuriti Malaysia oleh Lembaga Pengarah THP.",
+      "Ketua Pegawai Eksekutif THP diletakkan dalam cuti (garden leave); meletakkan jawatan pada 20 Ogos 2018.",
+    ],
+    legalStatus: "Siasatan Suruhanjaya Sekuriti Malaysia dan PDRM masih berterusan.",
+    dataGaps: ["Nilai kerugian di peringkat THP sendiri tidak dinyatakan; hanya kesan RM170 juta di peringkat LTH."],
+    source: [sourceRef("3.14.6(10)", 188, 150)],
+  },
+  {
+    id: "th-properties",
+    no: 11,
+    name: "TH Properties Sdn. Bhd.",
+    shortName: "TH Properties",
+    sector: "Hartanah / pembinaan",
+    geography: "Malaysia / Australia",
+    issueType: ["Bonus tanpa kelulusan pemegang saham", "Pelanggaran Akta Syarikat 2016"],
+    summary:
+      "Pembayaran bonus istimewa berjumlah RM2.2 juta pada 2017 dan 2018 kepada pihak Pengurusan dan Ahli Lembaga TH Properties tanpa kelulusan LTH sebagai pemegang ekuiti utama.",
+    currency: "RM",
+    incorporatedDate: "1980-10-31",
+    formerName: "Syarikat Pembinaan dan Perumahan Tabung Haji Sdn. Bhd.",
+    structure: "26 syarikat subsidiari dan 5 syarikat usaha sama",
+    coreActivities: ["Pembinaan", "Pengurusan projek", "Pembangunan hartanah", "Pengurusan fasiliti"],
+    keyFigures: [
+      { label: "Bonus istimewa 2017", value: 1.1484, unit: "RM juta" },
+      { label: "Bonus istimewa 2018", value: 1.045, unit: "RM juta" },
+      { label: "Jumlah", value: 2.1934, unit: "RM juta" },
+      { label: "Keuntungan sebelum cukai TH Properties 2017 (justifikasi)", value: 34.84, unit: "RM juta" },
+    ],
+    exposure_rm_million: 2.1934,
+    exposureBasis: "Jumlah bonus istimewa yang dibayar 2017 + 2018.",
+    impairment_rm_million: null,
+    lthActions: [
+      "5 Februari 2020: siasatan dalaman; Tetuan Tajuddin & Co dilantik melaksanakan siasatan.",
+      "12 Ogos 2020: Ahli Lembaga Pengarah TH Properties memutuskan mendapatkan kembali bonus yang diberikan bagi 2017–2018.",
+    ],
+    crossReference: "Lihat `thPropertiesBonus2017`, `thpAustraliaBonus2018` dan `thPropertiesBonusLegalFindings` dalam modul kewangan.",
+    dataGaps: ["Tiada laporan sama ada bonus benar-benar berjaya dikutip semula."],
+    source: [sourceRef("3.14.6(11) / 3.12.15–3.12.29", 189, 151)],
+  },
+  {
+    id: "th-marine",
+    no: 12,
+    name: "Alam Maritim Resources / TH Marine",
+    shortName: "TH Marine",
+    sector: "Maritim (kapal sokongan luar pesisir)",
+    geography: "Malaysia",
+    issueType: ["Rosot nilai hampir menyeluruh", "Usaha sama gagal"],
+    summary:
+      "Pelaburan 51% ekuiti dalam syarikat usaha sama dengan Alam Maritim Resources Berhad, diluluskan Menteri Hal Ehwal Agama pada 18 Jun 2015; perniagaan perkhidmatan kapal sokongan luar pesisir melalui enam Anchor Handling Tug Supply Vessels (AHTS), ditambah dua AHTS milik penuh LTH.",
+    currency: "RM",
+    approvalDate: "2015-06-18",
+    stake_pct: 51,
+    vessels: { jointVenture: 6, whollyOwned: 2 },
+    keyFigures: [
+      { label: "Nilai pelaburan usaha sama", value: 20.27, unit: "USD juta" },
+      { label: "Jumlah pelaburan LTH dalam Kumpulan TH Marine", value: 334, unit: "RM juta" },
+      { label: "— Ekuiti", value: 198, unit: "RM juta" },
+      { label: "— Pembiayaan", value: 136, unit: "RM juta" },
+      { label: "Ekuiti dirosotnilai", value: 198, unit: "RM juta" },
+      { label: "Pembiayaan dirosotnilai (sehingga Dis 2021)", value: 80, unit: "RM juta" },
+      { label: "Dijangka diperoleh semula (dapatan PwC)", value: 70.4, unit: "RM juta" },
+    ],
+    exposure_rm_million: 334,
+    exposureBasis: "Jumlah pelaburan LTH dalam Kumpulan TH Marine (ekuiti + pembiayaan).",
+    impairment_rm_million: 278,
+    impairmentBasis:
+      "TERBITAN: ekuiti RM198 juta (100% dirosotnilai) + pembiayaan RM80 juta = RM278 juta. Laporan menyatakan kedua-dua komponen tetapi bukan jumlahnya.",
+    impairmentFactType: "derived",
+    expectedRecovery_rm_million: 70.4,
+    expectedRecoveryBy: "PricewaterhouseCoopers (kajian kebolehpulihan)",
+    expectedRecoveryFactType: "thirdPartyEstimate",
+    reconciliationNotes: ["198 + 136 = 334 ✓"],
+    dataGaps: ["Kadar tukaran USD/RM bagi USD20.27 juta tidak diberikan."],
+    source: [sourceRef("3.14.6(12)", 190, 152)],
+  },
+  {
+    id: "thhr",
+    no: 13,
+    name: "TH Hotel & Residences Sdn. Bhd.",
+    shortName: "THHR",
+    sector: "Hotel",
+    geography: "Malaysia",
+    issueType: ["Pulangan rendah", "Kejatuhan hasil sewaan"],
+    summary:
+      "Dahulunya Labuan Beaufort Interconnection (LBI, diperbadankan 1984). LTH memperoleh pemilikan penuh pada Mei 2007. Hotel dan kompleks haji dipindahkan kepada UJSB.",
+    currency: "RM",
+    fullOwnershipDate: "2007-05",
+    transferAgreementDate: "2018-12-28",
+    transferAgreementNote:
+      "Perenggan ini menyebut ATA bertarikh 28 Disember 2018, manakala 3.13.23 menyebut 27 Disember 2018. Lihat `dataConflicts`.",
+    transferredLocations: ["Alor Setar", "Kuching", "Pulau Pinang", "Kuala Terengganu", "Kota Kinabalu"],
+    excludedFromTransfer: ["Hotel Movenpick, Sepang", "Kompleks Haji, Kelana Jaya"],
+    keyFigures: [
+      { label: "Nilai pemindahan hartanah kepada UJSB", value: 804.1, unit: "RM juta" },
+      { label: "Premium berbanding nilai buku LTH", value: 55, unit: "%" },
+      { label: "Kriteria pulangan aset yang dipindahkan", value: 2, unit: "% (kurang daripada)" },
+      { label: "Hasil sewaan FY2020", value: 6.2, unit: "RM juta" },
+      { label: "Hasil sewaan FY2019", value: 16.5, unit: "RM juta" },
+      { label: "Kerugian bersih selepas cukai (tahun kewangan sebelumnya)", value: -5.9, unit: "RM juta" },
+      { label: "Pengubahsuaian tapak LTH Kelana Jaya", value: 1.5, unit: "RM juta" },
+    ],
+    exposure_rm_million: 804.1,
+    exposureBasis: "Nilai pemindahan hartanah THHR kepada UJSB.",
+    impairment_rm_million: null,
+    revenueDrop_pct: -62,
+    derivedBookValue_rm_million: 518.8,
+    derivedBookValueBasis:
+      "TERBITAN: jika RM804.1 juta ialah premium ~55% ke atas nilai buku, nilai buku tersirat ≈ 804.1 ÷ 1.55 = RM518.8 juta. Laporan tidak menyatakan nilai buku secara tersurat.",
+    derivedBookValueFactType: "derived",
+    reconciliationNotes: [
+      "6.2 ÷ 16.5 − 1 = −62.4% ✓ menepati '62% merosot' yang dinyatakan.",
+      "RM804.1 juta sepadan dengan baris 'Hotel' RM804,058,625 dalam `propertyTransferDetail` ✓ — dan nilai pasaran Dis 2021 baris itu ialah RM424.27 juta, iaitu −47.2% daripada nilai pemindahan.",
+    ],
+    dataGaps: ["Tahun kewangan bagi 'kerugian bersih selepas cukai RM5.9 juta' tidak dinyatakan dengan jelas ('tahun kewangan sebelumnya')."],
+    source: [sourceRef("3.14.6(13)", 191, 153)],
+  },
+  {
+    id: "fgv",
+    no: 14,
+    name: "FGV Berhad",
+    shortName: "FGV",
+    sector: "Perladangan (tersenarai)",
+    geography: "Malaysia",
+    issueType: ["Kerugian tidak nyata besar", "Keputusan pegang terlalu lama"],
+    summary:
+      "Pelaburan LTH dalam IPO FGV Berhad pada 2012 dan penambahan selepas itu; harga saham jatuh secara berterusan sehingga LTH menanggung kerugian tidak nyata melebihi RM1 bilion.",
+    currency: "RM",
+    approvalDate: "2012-05-09",
+    transactions: [
+      { date: "2012-05-09", event: "Kelulusan melanggan sehingga 276 juta unit pada harga IPO RM4.65/unit (7.5% pegangan)", units: 276000000, pricePerUnit_rm: 4.65 },
+      { date: "2012-06-26", event: "Langganan 273,579,700 unit pada RM4.55/unit", units: 273579700, pricePerUnit_rm: 4.55 },
+      { date: "2012-06-26", event: "Menerima 1,629,000 unit daripada penamatan kontrak pengurus dana luar (MIDF-AAM) pada kos RM4.60/unit", units: 1629000, pricePerUnit_rm: 4.6 },
+      { date: "2012-06-28..2012-07-19", event: "Menjual 14,709,400 unit di pasaran terbuka pada purata RM5.38/unit; keuntungan RM11,739,835", units: -14709400, pricePerUnit_rm: 5.38, realisedGain_rm: 11739835 },
+      { date: "2012-07-23..2012-10-03", event: "Membeli semula pada purata kos RM5.01/unit; jumlah pelaburan tambahan RM116,202,310", units: 232010800, pricePerUnit_rm: 5.01, additionalInvestment_rm: 116202310, flag: "unit-inconsistency" },
+    ],
+    keyFigures: [
+      { label: "Jumlah pelaburan IPO termasuk kos transaksi", value: 1253742809, unit: "RM" },
+      { label: "Harga kos purata IPO", value: 4.58, unit: "RM/unit" },
+      { label: "Harga jatuh kepada", value: 0.885, unit: "RM/unit" },
+      { label: "Kerugian tidak nyata", value: 1058937380, unit: "RM" },
+      { label: "Syer diambil alih UJSB", value: 283710100, unit: "unit" },
+      { label: "Nilai kos pengambilalihan UJSB", value: 4.62, unit: "RM/unit" },
+      { label: "Jumlah nilai kos dalam saham FGV", value: 1310020819, unit: "RM" },
+      { label: "Harga pasaran FGV (Februari 2022)", value: 0.69, unit: "RM/unit" },
+      { label: "Kerugian yang dielakkan kerana pengambilalihan UJSB", value: 1.1, unit: "RM bilion (lebih kurang)" },
+    ],
+    exposure_rm_million: 1310.02,
+    exposureBasis: "Jumlah nilai kos LTH dalam saham FGV Berhad seperti dinyatakan laporan.",
+    impairment_rm_million: null,
+    impairmentNote:
+      "Laporan menyebut 'kerugian tidak nyata' RM1,058,937,380 dan kerugian yang dielakkan ~RM1.1 bilion, bukan rosot nilai yang direkod.",
+    commissionQuestion:
+      "Persoalannya, mengapa LTH terus memegang saham tersebut dan tidak menjualnya sehingga harganya telah turun dengan rendahnya.",
+    reconciliationNotes: [
+      "14,709,400 × RM5.38 = RM79,136,572; pada kos RM4.5798/unit = RM67,369,052; keuntungan = RM11,767,520 ≈ RM11,739,835 yang dinyatakan ✓",
+      "283,710,100 × RM4.62 = RM1,310,740,662 ≈ RM1,310,020,819 (kos purata sebenar ~RM4.6175) ✓",
+      "283,710,100 × (4.6175 − 0.69) = ~RM1,114 juta ≈ 'lebih kurang RM1.1 bilion' ✓",
+      "Baris ROFR FGV 09-Dec-20 (283,710,100 syer) sepadan dengan bilangan syer ini ✓",
+    ],
+    dataConflictFlag: {
+      field: "232,010,800 unit pada purata RM5.01/unit = RM116,202,310",
+      problem:
+        "232,010,800 × RM5.01 = RM1,162,374,108, iaitu sepuluh kali ganda jumlah RM116,202,310 yang dinyatakan. Jika bilangan unit sebenarnya 23,201,080, pengiraan menepati (23,201,080 × RM5.01 = RM116,237,411).",
+      resolution:
+        "TIDAK DISELESAIKAN. Kedua-dua angka dikekalkan seperti dalam laporan. Jangan gunakan bilangan unit ini dalam sebarang pengiraan pegangan.",
+    },
+    dataGaps: [
+      "Jumlah pegangan akhir LTH dalam FGV sebelum pemindahan tidak dinyatakan secara jelas.",
+      "Tarikh harga jatuh ke RM0.885 tidak dinyatakan.",
+    ],
+    source: [sourceRef("3.14.6(14)", 192, 154)],
+  },
+].map((inv) => ({ factType: F, ...inv }));
+
+/**
+ * Punca sistemik yang Suruhanjaya kaitkan dengan kesemua kes di atas.
+ */
+export const investmentProcessFailures = [
+  {
+    id: "no-coordination",
+    finding:
+      "Proses membuat keputusan pelaburan di LTH tidak teratur dan tiada koordinasi antara Ketua Pegawai Pelaburan (CIO), Ketua Kewangan Korporat (CF), Ketua Pegawai Hartanah dan Ketua Bahagian Perbendaharaan. Aliran proses pelaburan juga tidak jelas.",
+    source: [sourceRef("3.14.2", 176, 138)],
+  },
+  {
+    id: "too-many-layers",
+    finding:
+      "Terlalu banyak lapisan dan pertimbangan pada setiap peringkat pembuatan keputusan, tetapi ini tidak menghasilkan keputusan pelaburan yang baik.",
+    source: [sourceRef("3.14.3", 176, 138)],
+  },
+  {
+    id: "panel-not-independent",
+    finding:
+      "Panel Pelaburan bergantung kepada input Pengurusan LTH dan tidak menyemak cadangan pelaburan dengan secukupnya. Pengerusi Panel Pelaburan, Dato' Mohzani, mengakui mereka tidak cukup tegas kerana pendekatan yang digunakan longgar dan tidak menyeluruh.",
+    source: [sourceRef("3.14.4–3.14.5", 176, 138)],
+  },
+  {
+    id: "minister-rubber-stamp",
+    finding:
+      "Menteri bergantung sepenuhnya kepada memo yang disediakan Lembaga dan Pengurusan LTH. Semua Menteri yang memberi keterangan mengakui mereka tidak mempunyai input pihak ketiga. Semua dokumen menunjukkan kenyataan 'dipersetujui seperti dicadangkan'.",
+    source: [sourceRef("3.14.6", 177, 139)],
+  },
+  {
+    id: "accountability",
+    finding:
+      "Suruhanjaya berpandangan setiap anggota Lembaga dan Lembaga Pengarah anak-anak syarikat, pengurusan serta kakitangan yang terlibat patut dipertanggungjawabkan atas kerugian yang dialami LTH dan anak-anak syarikat berkaitan.",
+    factType: "opinion",
+    source: [sourceRef("3.14.7", 193, 155)],
+  },
+].map((f) => ({ factType: F, ...f }));
+
+export const strategicInvestmentAssessment = {
+  id: "strategic-investment-assessment",
+  eyStudyYear: 2018,
+  finding:
+    "Kajian EY pada 2018 mendapati hampir kesemua anak syarikat dan syarikat berkaitan di bawah kategori 'pelaburan strategik' menghadapi kerugian, dan terdapat isu berkaitan salah laku dalam syarikat-syarikat berkenaan.",
+  sustainableDividendPayers: ["Bank Islam Malaysia Berhad", "Syarikat Takaful Malaysia Berhad"],
+  operationsSupportingHajj: ["TH Travel", "Hotel Movenpick, Sepang"],
+  rbFinding:
+    "Roland Berger mendapati LTH kekurangan pakar yang berkemahiran dan berpengalaman untuk menjalankan perniagaan anak-anak syarikat dan syarikat bersekutu.",
+  visionDriver:
+    "Pendorong utama 'pelaburan strategik' ialah visi LTH sebagai tonggak ekonomi ummah — visi yang Suruhanjaya dapati tidak selari dengan objektif asal LTH.",
+  recommendation:
+    "LTH keluar atau melupuskan kepentingan dalam kelas pelaburan ini, kecuali syarikat yang dikawal selia (Bank Islam, Syarikat Takaful) dan syarikat yang menjadi sebahagian operasi haji.",
+  factType: F,
+  source: [sourceRef("3.18.9–3.18.10", 224, 186)],
+  cautions: [
+    "Laporan TIDAK menyediakan senarai lengkap 'pelaburan strategik' atau jumlah kerugian agregatnya. Ia juga tidak menyediakan penyata untung rugi anak syarikat. Analisis peringkat portfolio TIDAK boleh dibina.",
+  ],
+};

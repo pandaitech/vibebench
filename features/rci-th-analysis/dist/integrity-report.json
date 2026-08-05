@@ -1,0 +1,227 @@
+{
+  "id": "integrity-check-run",
+  "runAt": null,
+  "runAtNote": "Tetapkan cap masa di luar fungsi supaya output kekal deterministik.",
+  "passed": 21,
+  "failed": 3,
+  "unexpected": [],
+  "results": [
+    {
+      "id": "chk-al-rows",
+      "ok": true,
+      "detail": "Aset + liabiliti = lebihan pra-agihan; + agihan = lebihan pasca-agihan.",
+      "description": "Setiap baris aset/liabiliti: aset + liabiliti = lebihan pra-agihan; lebihan pra-agihan + agihan = lebihan pasca-agihan.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-hibah-rows",
+      "ok": true,
+      "detail": "Hibah tahunan + hibah haji = jumlah.",
+      "description": "Setiap baris hibah: hibah tahunan + hibah haji = jumlah.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-hibah-vs-al",
+      "ok": true,
+      "detail": "Agihan dalam jadual PwC sepadan dengan jumlah hibah 3.11.7.",
+      "description": "Agihan dalam jadual aset/liabiliti (RM juta) sepadan dengan jumlah hibah (RM'000 ÷ 1,000) dalam had pembundaran ±1.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-rav",
+      "ok": true,
+      "detail": "Jumlah RAV dan nilai bersih terlaras menepati.",
+      "description": "RAV: aset + tambahan RAV = jumlah RAV; jumlah RAV − liabiliti = nilai bersih terlaras.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-rav-liability",
+      "ok": true,
+      "detail": "Liabiliti RAV 74,410 = liabiliti PwC 71,086 + agihan 3,324.",
+      "description": "Liabiliti RAV 2017 (74,410) = liabiliti PwC pra-agihan (71,086) + agihan 2017 (3,324).",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-pwc-bridge",
+      "ok": true,
+      "detail": "Jambatan keuntungan PwC menjumlah dengan betul.",
+      "description": "Jambatan keuntungan PwC menjumlah kepada kerugian terlaras yang dinyatakan.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-asset-transfer",
+      "ok": true,
+      "detail": "Jumlah lajur jadual pemindahan aset menepati baris.",
+      "description": "Jumlah lajur jadual pemindahan aset menepati baris.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-property-detail",
+      "ok": true,
+      "detail": "Jumlah lajur jadual hartanah menepati baris.",
+      "description": "Jumlah lajur jadual hartanah terperinci menepati baris.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-bluechip-totals",
+      "ok": true,
+      "detail": "Jumlah lajur jadual saham mewah menepati baris.",
+      "description": "Jumlah lajur jadual saham mewah menepati baris.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-bluechip-units",
+      "ok": false,
+      "detail": "TIDAK KONSISTEN — bilangan unit tidak boleh diterbitkan daripada jadual ini.",
+      "description": "Bilangan unit tersirat konsisten antara lajur pemindahan dan pasaran.",
+      "expected": "fail",
+      "asExpected": true,
+      "note": "Kegagalan yang DIJANGKA — didokumenkan dalam conflict-bluechip-units."
+    },
+    {
+      "id": "chk-guarantee-totals",
+      "ok": true,
+      "detail": "Jumlah Komitmen Jaminan 2020 dan 2021 menepati baris.",
+      "description": "Jumlah lajur Komitmen Jaminan 2020 dan 2021 menepati baris.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-sukuk-ytm",
+      "ok": true,
+      "detail": "Disahkan — kadar YTM konsisten dengan nilai nominal dan tempoh yang dinyatakan.",
+      "description": "Prinsipal × (1 + YTM)^tempoh = nilai nominal, dalam had ±1%.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-sukuk-consideration",
+      "ok": true,
+      "detail": "Sukuk + tunai = nilai pemindahan RM19.9 bilion.",
+      "description": "Sukuk Siri 1 + Siri 2 + tunai = nilai pemindahan aset RM19.9 bilion.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-hafis-rows",
+      "ok": true,
+      "detail": "Kos haji − bayaran = HAFIS seorang; bahagian peratus menepati.",
+      "description": "Setiap baris HAFIS: kos haji − bayaran haji = HAFIS seorang; HAFIS ÷ kos = peratus.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-hafis-projection-count",
+      "ok": true,
+      "detail": "Disahkan: unjuran HAFIS laporan mengandaikan TEPAT 30,000 jemaah setiap tahun 2022–2030.",
+      "description": "Setiap baris unjuran HAFIS: HAFIS seorang × 30,000 = jumlah (RM'000).",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-hafis-actual-count",
+      "ok": false,
+      "detail": "Nilai berbeza sehingga 1.81× antara tahun, dengan lonjakan 73% antara 2016 dan 2017 yang tidak dijelaskan laporan. Nilai 2014–2016 juga jauh di bawah kuota haji ~30,000. Metrik ini WAJIB dipaparkan dengan amaran keras atau tidak dipaparkan langsung. Ia berguna sebagai BUKTI ketidakkonsistenan jadual HAFIS, bukan sebagai anggaran bilangan jemaah.",
+      "description": "Bilangan jemaah tersirat konsisten merentas tahun dalam jadual HAFIS sebenar.",
+      "expected": "fail",
+      "asExpected": true,
+      "note": "Kegagalan yang DIJANGKA — didokumenkan dalam conflict-hafis-pilgrim-count."
+    },
+    {
+      "id": "chk-bonus-ratio",
+      "ok": true,
+      "detail": "Semua nisbah menepati.",
+      "description": "Nisbah bonus/keuntungan bersih dalam jadual 3.12.10 menepati pengiraan.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-bonus-2015",
+      "ok": false,
+      "detail": "Jadual 3.12.7 memberi RM65 juta; jadual 3.12.10 memberi RM61 juta.",
+      "description": "Peruntukan bonus 2015 konsisten antara jadual 3.12.7 dan 3.12.10.",
+      "expected": "fail",
+      "asExpected": true,
+      "note": "Kegagalan yang DIJANGKA — didokumenkan dalam conflict-bonus-2015."
+    },
+    {
+      "id": "chk-thp-bonus-2017",
+      "ok": true,
+      "detail": "Jumlah penerima bonus TH Properties 2017 menepati.",
+      "description": "Jumlah penerima bonus TH Properties 2017 = RM1,148,400.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-thp-bonus-2018",
+      "ok": true,
+      "detail": "Jumlah penerima bonus THP Australia 2018 menepati.",
+      "description": "Jumlah penerima bonus THP Australia 2018 = RM1,045,000.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-rofr-premium",
+      "ok": true,
+      "detail": "Semua premium menepati.",
+      "description": "Premium ROFR = harga ROFR ÷ harga pasaran − 1, dalam had ±0.5 mata peratus.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-ppb-nbv",
+      "ok": true,
+      "detail": "PPB: kos − rosot nilai = nilai buku bersih.",
+      "description": "PPB: kos RM193.5j − rosot nilai RM145.3j = nilai buku bersih RM48.2j.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-dssb-approval",
+      "ok": true,
+      "detail": "DSSB: ekuiti + pembiayaan = kelulusan.",
+      "description": "DSSB: ekuiti RM231.00j + pembiayaan RM295.16j = kelulusan RM526.16j.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    },
+    {
+      "id": "chk-marine-total",
+      "ok": true,
+      "detail": "TH Marine: ekuiti + pembiayaan = jumlah.",
+      "description": "TH Marine: ekuiti RM198j + pembiayaan RM136j = jumlah RM334j.",
+      "expected": "pass",
+      "asExpected": true,
+      "note": null
+    }
+  ],
+  "verdict": "Semua pemeriksaan berkelakuan seperti dijangka. Kegagalan yang ada adalah percanggahan yang telah didokumenkan dalam laporan asal, bukan ralat dalam modul ini."
+}
