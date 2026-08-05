@@ -17,6 +17,9 @@ Archived model configurations:
 - `kimi-k3-max`
 - `minimax-m-3-thinking`
 - `qwen3-8-max-high`
+- `opus-5-high-x-gpt-5-6-luna-max`
+- `opus-5-high-x-gpt-5-6-sol-high`
+- `opus-5-high-x-gpt-5-6-sol-high-v2`
 
 To restore a result, move its directory back to the active EDA path and add its
 contender and job entry to `data.js`:
