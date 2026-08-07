@@ -7,23 +7,22 @@ recoverable from Git.
 Archived model configurations:
 
 - `deepseek-v4-flash-max`
-- `gpt-5-6-luna-high`
-- `gpt-5-6-luna-xhigh`
-- `gpt-5-6-sol-max`
-- `gpt-5-6-terra-high`
-- `gpt-5-6-terra-xhigh`
-- `opus-5-max`
-- `sonnet-5-high`
+- `gpt-5-6-luna-high-codex`
+- `gpt-5-6-luna-xhigh-codex`
+- `gpt-5-6-terra-high-codex`
+- `gpt-5-6-terra-xhigh-codex`
+- `claude-opus-5-max-claude`
+- `claude-sonnet-5-high-claude`
 - `glm-5-2-max`
 - `kimi-k3-max`
 - `minimax-m-3-thinking`
 - `qwen3-8-max-high`
-- `opus-5-high-x-gpt-5-6-luna-max`
-- `opus-5-high-x-gpt-5-6-sol-high`
-- `opus-5-high-x-gpt-5-6-sol-high-v2`
+- `claude-opus-5-high-x-gpt-5-6-luna-max-claude-codex`
+- `claude-opus-5-high-x-gpt-5-6-sol-high-claude-codex`
+- `claude-opus-5-high-x-gpt-5-6-sol-high-2-claude-codex`
 
-The archived `opus-5-high-x-gpt-5-6-luna-max` and
-`opus-5-high-x-gpt-5-6-sol-high` copies were superseded by newer active EDA
+The archived `claude-opus-5-high-x-gpt-5-6-luna-max-claude-codex` and
+`claude-opus-5-high-x-gpt-5-6-sol-high-claude-codex` copies were superseded by newer active EDA
 versions that now use the same slugs. Do not restore either archive over its
 active path.
 
